@@ -4,9 +4,9 @@ import localFont from "next/font/local";
 
 import { cn } from "@/lib/utils"
 
-const headingFont = localFont({
-    src: "../public/Fonts/Cal.otf",
-  });
+// const headingFont = localFont({
+//     src: "../public/Fonts/Cal.otf",
+//   });
 
 export const Logo = () =>{
     return(
