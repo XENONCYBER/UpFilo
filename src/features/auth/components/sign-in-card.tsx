@@ -15,7 +15,7 @@ interface SignInCardProps {
 };
 
 export const SignInCard = ({ setState }: SignInCardProps) => {
-    const { signIn } = useAuthActions();
+    // const { signIn } = useAuthActions();
 
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -24,28 +24,28 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
 
     const [isVisible, setIsVisible] = useState(false);
 
-    const onPassSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setPending(true);
-        try {
-            await signIn("password", { email, password, flow: "signIn" });
-            setPending(false);
-        } catch (error) {
-            setError("Invalid email or password");
-        }
-        finally { setPending(false) };
-    };
+    // const onPassSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+    //     setPending(true);
+    //     try {
+    //         await signIn("password", { email, password, flow: "signIn" });
+    //         setPending(false);
+    //     } catch (error) {
+    //         setError("Invalid email or password");
+    //     }
+    //     finally { setPending(false) };
+    // };
 
-    const onProviderSignIn = (value: "github" | "google") => {
-        setPending(true);
-        try {
-            signIn(value)
-                .finally(() => setPending(false));
-        } catch (error) {
-            console.error(error);
-        }
+    // const onProviderSignIn = (value: "github" | "google") => {
+    //     setPending(true);
+    //     try {
+    //         signIn(value)
+    //             .finally(() => setPending(false));
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
 
-    };
+    // };
 
     return (
         <Card className="w-full h-full p-8">
@@ -62,7 +62,7 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
                 </div>
             }
             <CardContent className="space-y-5 px-0 pb-0">
-                <form className="space-y-2.5" onSubmit={onPassSignIn}>
+                <form className="space-y-2.5" >
                     <Input
                         disabled={pending}
                         value={email}
@@ -98,7 +98,7 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
                 <div className="flex flex-col gap-y-2.5">
                     <Button
                         disabled={pending}
-                        onClick={() => onProviderSignIn("google")}
+                        onClick={() => {}}
                         variant="outline"
                         size="lg"
                         className="w-full relative"
@@ -108,7 +108,7 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
                     </Button>
                     <Button
                         disabled={pending}
-                        onClick={() => onProviderSignIn("github")}
+                        onClick={() => {}}
                         variant="outline"
                         size="lg"
                         className="w-full relative"
