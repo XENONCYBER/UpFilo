@@ -19,11 +19,6 @@ export const useRemoveChannel = (options: Options = {}) => {
     const [error, setError] = useState<Error | null>(null);
     const [status, setStatus] = useState<"success" | "error" | "settled" | "pending" | null>(null);
 
-    // const [isPending, setIsPending] = useState(false);
-    // const [isSuccess, setIsSuccess] = useState(false);
-    // const [isError, setIsError] = useState(false);
-    // const [ isSettled, setIsSettled ] = useState(false);
-    
     const isPending= useMemo(() => status === "pending", [status]);
     const isSuccess= useMemo(() => status === "success", [status]);
     const isError= useMemo(() => status === "error", [status]);
