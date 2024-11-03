@@ -1,10 +1,10 @@
 import { Navbar } from "@/components/navbar";
 
-interface WorkspaceIdLayoutProps {
+interface MainLayoutProps {
     children: React.ReactNode;
 };
 
-const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
+const MainLayout = ({ children }: MainLayoutProps) => {
     return (
         <div>
             <div>
@@ -17,4 +17,4 @@ const WorkspaceLayout = ({ children }: WorkspaceIdLayoutProps) => {
     );
 };
 
-export default WorkspaceLayout;
+export default MainLayout;
