@@ -1,4 +1,4 @@
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
+// import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -27,14 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ConvexAuthNextjsServerProvider>
-      <html lang="en">
-        <body>
-          <JotaiProvider>
-            {children}
-          </JotaiProvider>
-        </body>
-      </html>
-    </ConvexAuthNextjsServerProvider>
+    // <ConvexAuthNextjsServerProvider>
+    <html lang="en">
+      <body>
+        <JotaiProvider>{children}</JotaiProvider>
+      </body>
+    </html>
+    // </ConvexAuthNextjsServerProvider>
   );
 }

@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { auth } from "./auth";
 
 
 export const generateCode = () => {
@@ -13,7 +13,7 @@ export const generateCode = () => {
 export const create = mutation({
     args: {name: v.string()},
     handler: async (ctx, args) =>{
-        const userId = await getAuthUserId(ctx);
+        const userId = await auth.getUserId(ctx);
 
         if(!userId) throw new Error("Unauthorized");
 
@@ -32,7 +32,7 @@ export const create = mutation({
 export const update = mutation({
     args: {name: v.string(), id: v.id("workspaces")},
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
+        const userId = await auth.getUserId(ctx);
 
         if(!userId) throw new Error("Unauthorized");
 
@@ -47,7 +47,7 @@ export const update = mutation({
 export const remove = mutation({
     args: {id: v.id("workspaces")},
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
+        const userId = await auth.getUserId(ctx);
 
         if(!userId) throw new Error("Unauthorized");
 
@@ -73,7 +73,7 @@ export const remove = mutation({
 export const get = query({
     args: {},
     handler: async (ctx) => {
-        const userId = await getAuthUserId(ctx);
+        const userId = await auth.getUserId(ctx);
 
         if (!userId) return [];
 
@@ -96,7 +96,7 @@ export const get = query({
 export const getInfoById = query({
     args: { id: v.id("workspaces") },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
+        const userId = await auth.getUserId(ctx);
 
         if (!userId) return null;
 
@@ -114,7 +114,7 @@ export const getInfoById = query({
 export const getById = query({
     args: { id: v.id("workspaces") },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
+        const userId = await auth.getUserId(ctx);
 
         if (!userId) throw new Error("Unauthorized");
 
