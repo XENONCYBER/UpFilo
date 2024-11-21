@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "./components/Sidebar";
-import ChannelList from "./components/ChannelList";
-import MessageBox from "./components/MessageBox";
-import ChatInput from "./components/ChatInput";
-import DirectMessages from "./components/DirectMessages";
-import MediaGallery from "./components/MediaGallery";
-import Profile from "./components/Profile";
+import Sidebar from "@/components/Sidebar";
+import ChannelList from "@/components/ChannelList";
+import MessageBox from "@/components/MessageBox";
+import ChatInput from "@/components/ChatInput";
+import DirectMessages from "@/components/DirectMessages";
+import MediaGallery from "@/components/MediaGallery";
+import Profile from "@/components/Profile";
 import { Menu, Sun, Moon } from "lucide-react";
-import { Button } from "./components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
-import CountdownTimer from "./components/CountdownTimer";
+import CountdownTimer from "@/components/CountdownTimer";
 interface Message {
   id: number;
   user: string;
@@ -75,7 +75,7 @@ export default function Home() {
       [selectedChannel]: [...messages[selectedChannel], newMessage],
     });
   };
- 
+
   const groupExpiryTime = new Date(new Date().getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
 
   const handleChannelSelect = (channelId: number) => {
@@ -83,11 +83,25 @@ export default function Home() {
     setActiveSection("channels");
   };
   const friends = [
-    { id: 1, name: "John", isOnline: true, avatarUrl: "./assets/imgs/meow.jpg" },
-    { id: 2, name: "Mary", isOnline: false, avatarUrl: "./assets/imgs/meow.jpg" },
-    { id: 3, name: "Mark", isOnline: true, avatarUrl: "./assets/imgs/meow.jpg" },
+    {
+      id: 1,
+      name: "John",
+      isOnline: true,
+      avatarUrl: "./assets/imgs/meow.jpg",
+    },
+    {
+      id: 2,
+      name: "Mary",
+      isOnline: false,
+      avatarUrl: "./assets/imgs/meow.jpg",
+    },
+    {
+      id: 3,
+      name: "Mark",
+      isOnline: true,
+      avatarUrl: "./assets/imgs/meow.jpg",
+    },
   ];
-  
 
   const renderActiveSection = () => {
     switch (activeSection) {
@@ -152,53 +166,59 @@ export default function Home() {
         <div className="flex w-full h-full relative">
           {/* Left Vertical Column */}
           <div
-  className={`bg-secondary text-primary p-6 rounded-lg mx-6 flex-shrink-0 absolute transition-all duration-300 ${
-    sidebarOpen ? "transform -translate-x-[250px]" : "transform translate-x-0"
-  }`}
-  style={{
-    width: "12%",
-    marginLeft: "4.4%",
-    marginBottom: "2%",
-    marginTop: "2%",
-    zIndex: 10, // Ensure it appears above other content when visible
-  }}
->
-  {/* Group Details Header */}
-  <h2 className="text-lg font-semibold mb-4 flex items-center justify-between">
-    <span>Group Details</span>
-    <div className="text-xs font-medium text-primary opacity-70">Active Group</div>
-  </h2>
+            className={`bg-secondary text-primary p-6 rounded-lg mx-6 flex-shrink-0 absolute transition-all duration-300 ${
+              sidebarOpen
+                ? "transform -translate-x-[250px]"
+                : "transform translate-x-0"
+            }`}
+            style={{
+              width: "12%",
+              marginLeft: "4.4%",
+              marginBottom: "2%",
+              marginTop: "2%",
+              zIndex: 10, // Ensure it appears above other content when visible
+            }}
+          >
+            {/* Group Details Header */}
+            <h2 className="text-lg font-semibold mb-4 flex items-center justify-between">
+              <span>Group Details</span>
+              <div className="text-xs font-medium text-primary opacity-70">
+                Active Group
+              </div>
+            </h2>
 
-  {/* Countdown Timer (Clean Design) */}
-  <div className="flex items-center mb-6 space-x-3 p-4 bg-background rounded-lg shadow-md">
-    <div className="text-sm font-semibold">Time Remaining</div>
-    <div className="text-lg font-bold text-primary">
-      <CountdownTimer expiryTime={groupExpiryTime} />
-    </div>
-  </div>
+            {/* Countdown Timer (Clean Design) */}
+            <div className="flex items-center mb-6 space-x-3 p-4 bg-background rounded-lg shadow-md">
+              <div className="text-sm font-semibold">Time Remaining</div>
+              <div className="text-lg font-bold text-primary">
+                <CountdownTimer expiryTime={groupExpiryTime} />
+              </div>
+            </div>
 
-  {/* New Style for Friend Status (Responsive Avatars) */}
-  <div className="mb-6">
-    <h3 className="text-sm font-bold mb-3">Friend Status</h3>
-    <div className="flex gap-4 flex-wrap">
-      {friends.map((friend) => (
-        <div
-          key={friend.id}
-          className="flex flex-col items-center justify-center text-center p-3 bg-background rounded-lg shadow-md w-[80px] h-[120px] space-y-2 hover:scale-105 transform transition-all duration-300"
-        >
-          <div
-            className={`w-16 h-16 rounded-full bg-cover bg-center ${friend.isOnline ? "border-4 border-green-500" : "border-4 border-gray-400"}`}
-            style={{ backgroundImage: `url(${friend.avatarUrl})` }}
-          />
-          <span className="text-sm">{friend.name}</span>
-          <span className={`text-xs ${friend.isOnline ? "text-green-500" : "text-gray-500"}`}>
-            {friend.isOnline ? "Online" : "Offline"}
-          </span>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
+            {/* New Style for Friend Status (Responsive Avatars) */}
+            <div className="mb-6">
+              <h3 className="text-sm font-bold mb-3">Friend Status</h3>
+              <div className="flex gap-4 flex-wrap">
+                {friends.map((friend) => (
+                  <div
+                    key={friend.id}
+                    className="flex flex-col items-center justify-center text-center p-3 bg-background rounded-lg shadow-md w-[80px] h-[120px] space-y-2 hover:scale-105 transform transition-all duration-300"
+                  >
+                    <div
+                      className={`w-16 h-16 rounded-full bg-cover bg-center ${friend.isOnline ? "border-4 border-green-500" : "border-4 border-gray-400"}`}
+                      style={{ backgroundImage: `url(${friend.avatarUrl})` }}
+                    />
+                    <span className="text-sm">{friend.name}</span>
+                    <span
+                      className={`text-xs ${friend.isOnline ? "text-green-500" : "text-gray-500"}`}
+                    >
+                      {friend.isOnline ? "Online" : "Offline"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           {/* Main Chat Area */}
           <main
