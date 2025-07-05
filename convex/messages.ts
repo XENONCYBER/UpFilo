@@ -24,11 +24,13 @@ export const sendMessage = mutation({
         channelId: v.id("channels"),
         content: v.string(),
         userName: v.string(),
+        richContent: v.optional(v.any()),
     },
     handler: async (ctx, args) => {
         const messageId = await ctx.db.insert("messages", {
             channelId: args.channelId,
             content: args.content,
+            richContent: args.richContent,
             userId: "session-user", // Simple session-based user ID
             userName: args.userName,
             createdAt: Date.now(),
@@ -45,6 +47,7 @@ export const editMessage = mutation({
         messageId: v.id("messages"),
         content: v.string(),
         userName: v.string(), // For session-based verification
+        richContent: v.optional(v.any()),
     },
     handler: async (ctx, args) => {
         const message = await ctx.db.get(args.messageId);
@@ -59,6 +62,7 @@ export const editMessage = mutation({
 
         await ctx.db.patch(args.messageId, {
             content: args.content,
+            richContent: args.richContent,
             updatedAt: Date.now(),
             isEdited: true,
         });

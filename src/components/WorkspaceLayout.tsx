@@ -115,7 +115,7 @@ export function WorkspaceLayout({
         return selectedChannel ? (
           <ModernChannelView
             channelId={selectedChannel.id}
-            channelName={selectedChannel.id}
+            channelName={getChannelName(selectedChannel.id)}
             channelType={selectedChannel.type === "user" ? "user" : "text"}
           />
         ) : (

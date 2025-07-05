@@ -122,12 +122,13 @@ export const update = mutation({
             updatedAt: Date.now(),
         };
 
-        if (args.name !== undefined) {
+        // Only update if values are provided and not empty
+        if (args.name !== undefined && args.name.trim().length > 0) {
             updates.name = args.name.replace(/\s+/g, "-").toLowerCase();
         }
 
         if (args.description !== undefined) {
-            updates.description = args.description;
+            updates.description = args.description.trim();
         }
 
         if (args.groupId !== undefined) {
@@ -138,7 +139,11 @@ export const update = mutation({
             updates.isActive = args.isActive;
         }
 
-        await ctx.db.patch(args.id, updates);
+        // Only patch if we have actual updates beyond the timestamp
+        if (Object.keys(updates).length > 1) {
+            await ctx.db.patch(args.id, updates);
+        }
+        
         return args.id;
     }
 });

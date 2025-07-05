@@ -20,7 +20,7 @@ export const useSendMessage = ({ channelId }: UseSendMessageProps) => {
   const mutation = useMutation(api.messages.sendMessage);
 
   const mutate = useCallback(
-    async (values: { content: string; userName: string }) => {
+    async (values: { content: string; userName: string; richContent?: any }) => {
       try {
         setData(null);
         setError(null);
@@ -30,6 +30,7 @@ export const useSendMessage = ({ channelId }: UseSendMessageProps) => {
           channelId,
           content: values.content,
           userName: values.userName,
+          richContent: values.richContent,
         });
 
         setData(response);

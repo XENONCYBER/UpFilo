@@ -43,10 +43,7 @@ export function NameInputDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent
-        className="sm:max-w-md"
-        onInteractOutside={(e) => e.preventDefault()}
-      >
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Welcome to {workspaceName || "UpFilo"}!</DialogTitle>
           <DialogDescription>

@@ -47,6 +47,7 @@ const schema = defineSchema({
     
     messages: defineTable({
         content: v.string(),
+        richContent: v.optional(v.any()), // Store rich text data
         channelId: v.id("channels"),
         userId: v.string(),
         userName: v.string(),

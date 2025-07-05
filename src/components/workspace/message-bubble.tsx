@@ -7,6 +7,7 @@ interface MessageBubbleMessage {
   id: number;
   sender: string;
   content: string;
+  richContent?: any; // Rich text content from Quill
   timestamp: string;
   status: "sent" | "delivered" | "read";
   isMine: boolean;
@@ -14,6 +15,45 @@ interface MessageBubbleMessage {
 
 interface MessageBubbleProps {
   message: MessageBubbleMessage;
+}
+
+// Helper function to safely render HTML content
+function RichContentRenderer({ richContent }: { richContent: any }) {
+  try {
+    // If richContent has HTML property (from QuillChatInput)
+    if (richContent && richContent.html) {
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: richContent.html }}
+          className="rich-content prose prose-sm max-w-none dark:prose-invert"
+        />
+      );
+    }
+
+    // If richContent is a Quill delta object
+    if (richContent && typeof richContent === "object" && richContent.ops) {
+      // Extract plain text from Quill delta operations as fallback
+      const plainText = richContent.ops
+        .map((op: any) => (typeof op.insert === "string" ? op.insert : ""))
+        .join("");
+      return <span>{plainText}</span>;
+    }
+
+    // If richContent is HTML string directly
+    if (typeof richContent === "string") {
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: richContent }}
+          className="rich-content prose prose-sm max-w-none dark:prose-invert"
+        />
+      );
+    }
+
+    return null;
+  } catch (error) {
+    console.warn("Error rendering rich content:", error);
+    return null;
+  }
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
@@ -37,13 +77,17 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             {message.sender}
           </p>
         )}
-        <p
+        <div
           className={
             message.isMine ? "text-primary-foreground" : "text-foreground"
           }
         >
-          {message.content}
-        </p>
+          {message.richContent ? (
+            <RichContentRenderer richContent={message.richContent} />
+          ) : (
+            <p>{message.content}</p>
+          )}
+        </div>
         <div
           className={cn(
             "flex items-center space-x-2 mt-2 text-xs",

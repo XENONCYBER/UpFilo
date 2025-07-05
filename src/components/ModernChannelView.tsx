@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./workspace/message-bubble";
-import { ChatInput } from "./workspace/chat-input";
+import { QuillChatInput } from "./workspace/quill-chat-input";
 import { Button } from "@/components/ui/button";
 import { Hash, Users, Settings, Pin, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ interface Message {
   _id: Id<"messages">;
   channelId: Id<"channels">;
   content: string;
+  richContent?: any; // Rich text content from Quill
   userId: string;
   userName: string;
   createdAt: number;
@@ -50,13 +51,15 @@ export function ModernChannelView({
     channelId: convexChannelId,
   });
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, richContent?: any) => {
     if (!userName || !content.trim()) return;
 
     try {
+      // Send the message with both plain text and rich content
       await sendMessage({
         content: content.trim(),
         userName: userName,
+        richContent: richContent || null, // Store rich content for future use
       });
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -69,6 +72,7 @@ export function ModernChannelView({
       id: parseInt(message._id.slice(-8), 16), // Create a numeric ID from the Convex ID
       sender: message.userName,
       content: message.content,
+      richContent: message.richContent, // Pass through rich content
       timestamp: new Date(message.createdAt).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -168,7 +172,7 @@ export function ModernChannelView({
       </ScrollArea>
 
       {/* Message Input */}
-      <ChatInput
+      <QuillChatInput
         onSendMessage={handleSendMessage}
         placeholder={`Message #${channelName}...`}
       />
