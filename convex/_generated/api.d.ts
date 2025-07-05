@@ -13,12 +13,10 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as auth from "../auth.js";
+import type * as channelGroups from "../channelGroups.js";
 import type * as channels from "../channels.js";
-import type * as http from "../http.js";
-import type * as upload from "../upload.js";
-import type * as users from "../users.js";
-import type * as workspace from "../workspace.js";
+import type * as messages from "../messages.js";
+import type * as workspaces from "../workspaces.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -29,12 +27,10 @@ import type * as workspace from "../workspace.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  auth: typeof auth;
+  channelGroups: typeof channelGroups;
   channels: typeof channels;
-  http: typeof http;
-  upload: typeof upload;
-  users: typeof users;
-  workspace: typeof workspace;
+  messages: typeof messages;
+  workspaces: typeof workspaces;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

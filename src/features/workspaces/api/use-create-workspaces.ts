@@ -4,8 +4,12 @@ import { api } from "../../../../convex/_generated/api";
 import { useCallback, useMemo, useState } from "react";
 import { Id } from "../../../../convex/_generated/dataModel";
 
-type RequestType = { name: string };
-type ResponseType = Id<"workspaces"> | null;
+type RequestType = { 
+    name: string; 
+    workspaceId?: string;
+    description?: string;
+};
+type ResponseType = { workspaceId: Id<"workspaces">; customId: string } | null;
 
 type Options = {
     onSuccess?: (data: ResponseType) => void;

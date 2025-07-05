@@ -4,7 +4,15 @@ import { api } from "../../../../convex/_generated/api";
 import { useCallback, useMemo, useState } from "react";
 import { Id } from "../../../../convex/_generated/dataModel";
 
-type RequestType = { name: string; workspaceId: Id<"workspaces"> };
+type RequestType = { 
+    name: string; 
+    workspaceId: Id<"workspaces">;
+    type: "group" | "user";
+    subType: "text" | "voice" | "announcement" | "private";
+    groupId?: Id<"channelGroups">;
+    description?: string;
+};
+
 type ResponseType = Id<"channels"> | null;
 
 type Options = {
@@ -14,7 +22,7 @@ type Options = {
     throwError?: boolean;
 };
 
-export const useCreateChannel = (options: Options = {}) => {
+export const useCreateChannel = () => {
     const [data, setData] = useState<ResponseType>(null); 
     const [error, setError] = useState<Error | null>(null);
     const [status, setStatus] = useState<"success" | "error" | "settled" | "pending" | null>(null);
@@ -32,10 +40,13 @@ export const useCreateChannel = (options: Options = {}) => {
             setData(null);
             setError(null);
             const response = await mutation(values);
+            setData(response);
+            setStatus("success");
             options?.onSuccess?.(response);
             return response;
         } catch (error){
             setStatus("error");
+            setError(error as Error);
             options?.onError?.(error as Error);
             if (options?.throwError) {
                 throw error;
