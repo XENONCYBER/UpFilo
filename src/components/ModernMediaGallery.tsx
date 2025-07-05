@@ -59,7 +59,7 @@ export function ModernMediaGallery() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-6 border-b border-border">
+      <div className="glass-surface p-6 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-foreground">
             Media Gallery
@@ -69,6 +69,7 @@ export function ModernMediaGallery() {
               variant={viewMode === "grid" ? "default" : "outline"}
               size="icon"
               onClick={() => setViewMode("grid")}
+              className="glass-button"
             >
               <Grid3x3 className="h-4 w-4" />
             </Button>
@@ -76,10 +77,11 @@ export function ModernMediaGallery() {
               variant={viewMode === "list" ? "default" : "outline"}
               size="icon"
               onClick={() => setViewMode("list")}
+              className="glass-button"
             >
               <List className="h-4 w-4" />
             </Button>
-            <Button>
+            <Button className="glass-button">
               <Upload className="h-4 w-4 mr-2" />
               Upload
             </Button>
@@ -93,10 +95,10 @@ export function ModernMediaGallery() {
               placeholder="Search media..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="glass-input pl-10"
             />
           </div>
-          <Button variant="outline">
+          <Button variant="outline" className="glass-button">
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
@@ -120,9 +122,9 @@ export function ModernMediaGallery() {
                   {filteredMedia.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-card rounded-lg border p-4 hover:shadow-md transition-shadow cursor-pointer"
+                      className="glass-card bg-white/50 dark:bg-black/30 rounded-lg border border-white/20 dark:border-white/10 p-4 hover:shadow-glass transition-all duration-300 cursor-pointer backdrop-blur-xl liquid-hover"
                     >
-                      <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center">
+                      <div className="aspect-video glass-surface bg-white/40 dark:bg-black/30 rounded-lg mb-3 flex items-center justify-center backdrop-blur-xl shadow-glass">
                         <span className="text-muted-foreground text-sm">
                           {item.type.toUpperCase()}
                         </span>
@@ -144,9 +146,9 @@ export function ModernMediaGallery() {
                   {filteredMedia.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center space-x-4 p-3 rounded-lg hover:bg-muted/50 cursor-pointer"
+                      className="glass-card flex items-center space-x-4 p-3 rounded-lg hover:bg-white/30 dark:hover:bg-black/30 cursor-pointer backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass liquid-hover"
                     >
-                      <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 glass-surface rounded flex items-center justify-center flex-shrink-0 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
                         <span className="text-xs text-muted-foreground">
                           {item.type.substring(0, 3).toUpperCase()}
                         </span>

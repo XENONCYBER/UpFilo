@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./workspace/message-bubble";
 import { ChatInput } from "./workspace/chat-input";
 import { Button } from "@/components/ui/button";
-import { Hash, Users, Settings, Pin, Search } from "lucide-react";
+import { Hash, Users, Settings, Pin, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useGetMessages } from "@/features/messages/api/use-get-messages";
 import { useSendMessage } from "@/features/messages/api/use-send-message";
@@ -26,7 +26,7 @@ interface Message {
 interface ChannelViewProps {
   channelId: string;
   channelName: string;
-  channelType?: "text" | "voice" | "announcement" | "private";
+  channelType?: "text" | "voice" | "announcement" | "private" | "user";
   className?: string;
 }
 
@@ -85,6 +85,8 @@ export function ModernChannelView({
         return <Pin className="h-5 w-5 text-blue-500" />;
       case "private":
         return <Users className="h-5 w-5 text-yellow-500" />;
+      case "user":
+        return <User className="h-5 w-5 text-blue-400" />;
       default:
         return <Hash className="h-5 w-5 text-muted-foreground" />;
     }
@@ -93,7 +95,7 @@ export function ModernChannelView({
   return (
     <div className={`flex flex-col h-full ${className}`}>
       {/* Channel Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border glass-effect">
+      <div className="glass-surface flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
         <div className="flex items-center space-x-3">
           {getChannelIcon()}
           <div>
@@ -101,7 +103,11 @@ export function ModernChannelView({
               {channelName}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {channelType === "private" ? "Private channel" : "Public channel"}
+              {channelType === "private"
+                ? "Private channel"
+                : channelType === "user"
+                  ? "Direct message"
+                  : "Public channel"}
             </p>
           </div>
         </div>
@@ -114,7 +120,7 @@ export function ModernChannelView({
               placeholder="Search in channel..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-64 bg-muted/50"
+              className="glass-input pl-10 w-64"
             />
           </div>
 

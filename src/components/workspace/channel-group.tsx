@@ -77,7 +77,7 @@ export function ChannelGroup({
         <Button
           variant="ghost"
           onClick={handleToggle}
-          className="flex-1 justify-start px-2 h-8 text-xs font-semibold text-muted-foreground hover:text-foreground"
+          className="flex-1 justify-start px-2 h-8 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
         >
           <ChevronRight
             className={cn(

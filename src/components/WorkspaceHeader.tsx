@@ -23,7 +23,7 @@ export function WorkspaceHeader({
   return (
     <header
       className={cn(
-        "flex items-center justify-between p-4 border-b border-border glass-effect",
+        "glass-surface flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass",
         className
       )}
     >
@@ -59,7 +59,7 @@ export function WorkspaceHeader({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search messages..."
-            className="pl-10 bg-muted/50"
+            className="glass-input pl-10"
             onChange={(e) => onSearch?.(e.target.value)}
           />
         </div>

@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Hash, Volume2, Lock, Users, Globe } from "lucide-react";
+import { Hash, Volume2, Lock, Users, Globe, User } from "lucide-react";
 
 interface Channel {
   id: string;
   name: string;
-  type: "text" | "voice" | "announcement" | "private";
+  type: "text" | "voice" | "announcement" | "private" | "user";
   unreadCount?: number;
   isActive?: boolean;
   description?: string;
@@ -24,6 +24,7 @@ const channelIcons = {
   voice: Volume2,
   announcement: Users,
   private: Lock,
+  user: User,
 };
 
 const channelStyles = {
@@ -31,10 +32,16 @@ const channelStyles = {
   voice: "text-green-500",
   announcement: "text-blue-500",
   private: "text-yellow-500",
+  user: "text-blue-400",
 };
 
 export function ChannelItem({ channel, onClick, className }: ChannelItemProps) {
-  const Icon = channelIcons[channel.type];
+  // For user channels, always use the User icon, otherwise use the type-based icon
+  const Icon = channel.type === "user" ? User : channelIcons[channel.type];
+
+  // For user channels, use the user style, otherwise use type-based style
+  const iconStyle =
+    channel.type === "user" ? channelStyles.user : channelStyles[channel.type];
 
   return (
     <Button
@@ -43,17 +50,15 @@ export function ChannelItem({ channel, onClick, className }: ChannelItemProps) {
       className={cn(
         "w-full justify-start px-2 py-2 h-8 transition-all duration-200 group relative",
         channel.isActive
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+          ? "glass-button bg-white/40 dark:bg-black/30 text-accent-foreground shadow-glass backdrop-blur-xl"
+          : "text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10",
         className
       )}
     >
       <Icon
         className={cn(
           "h-4 w-4 mr-2 flex-shrink-0",
-          channel.isActive
-            ? "text-accent-foreground"
-            : channelStyles[channel.type]
+          channel.isActive ? "text-accent-foreground" : iconStyle
         )}
       />
 

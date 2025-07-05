@@ -116,7 +116,7 @@ export function WorkspaceLayout({
           <ModernChannelView
             channelId={selectedChannel.id}
             channelName={selectedChannel.id}
-            channelType={selectedChannel.type === "user" ? "private" : "text"}
+            channelType={selectedChannel.type === "user" ? "user" : "text"}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center">
@@ -149,7 +149,7 @@ export function WorkspaceLayout({
   };
 
   return (
-    <div className={cn("flex h-screen bg-background", className)}>
+    <div className={cn("flex h-screen liquid-bg", className)}>
       {/* Sidebar */}
       <ModernSidebar
         isOpen={sidebarOpen}
@@ -178,7 +178,9 @@ export function WorkspaceLayout({
         />
 
         {/* Content Area */}
-        <main className="flex-1 overflow-hidden p-4">{renderContent()}</main>
+        <main className="glass-surface flex-1 overflow-hidden p-4 m-4 rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass">
+          {renderContent()}
+        </main>
       </div>
 
       {/* Name Input Dialog */}

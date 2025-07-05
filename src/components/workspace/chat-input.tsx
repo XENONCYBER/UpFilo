@@ -31,7 +31,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="p-4 border-t border-border glass-effect">
+    <div className="glass-surface p-4 border-t border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
       <div className="flex items-center space-x-3">
         <Button
           variant="ghost"
@@ -41,7 +41,7 @@ export function ChatInput({
           <Plus className="h-5 w-5" />
         </Button>
 
-        <div className="flex-1 flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2">
+        <div className="glass-input flex-1 flex items-center space-x-2 rounded-lg px-3 py-2">
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}

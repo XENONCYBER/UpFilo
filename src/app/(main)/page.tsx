@@ -89,12 +89,12 @@ const MainPage = () => {
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Navigation */}
-        <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto w-full">
+        <nav className="glass-surface flex items-center justify-between p-6 max-w-7xl mx-auto w-full backdrop-blur-xl bg-white/30 dark:bg-black/20 rounded-2xl border border-white/20 dark:border-white/10 shadow-glass m-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 liquid-gradient from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-glass">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold liquid-gradient from-blue-600 to-purple-600 bg-clip-text text-transparent">
               UpFilo
             </span>
           </div>
@@ -126,7 +126,7 @@ const MainPage = () => {
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-10 h-10 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
+              className="glass-button w-10 h-10 rounded-full"
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -146,7 +146,7 @@ const MainPage = () => {
         <div className="flex-1 flex items-center justify-center px-6 py-20">
           <div className="max-w-5xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full border border-slate-200 dark:border-slate-700 mb-8 shadow-sm">
+            <div className="glass-surface inline-flex items-center px-4 py-2 bg-white/60 dark:bg-black/30 backdrop-blur-xl rounded-full border border-white/20 dark:border-white/10 mb-8 shadow-glass">
               <Zap className="w-4 h-4 mr-2 text-yellow-500" />
               <span className="text-sm text-slate-600 dark:text-slate-300 font-medium">
                 Lightning-fast collaboration
@@ -174,9 +174,9 @@ const MainPage = () => {
             <div className="flex flex-col lg:flex-row gap-8 max-w-4xl mx-auto mb-16">
               {/* Create Workspace */}
               <div className="flex-1 group">
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
+                <div className="glass-card bg-white/60 dark:bg-black/30 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl p-8 shadow-glass hover:shadow-glass-hover transition-all duration-300 group-hover:scale-105 liquid-hover">
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+                    <div className="w-12 h-12 liquid-gradient from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 shadow-glass">
                       <Users className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -188,7 +188,7 @@ const MainPage = () => {
                       placeholder="Enter workspace name"
                       value={workspaceName}
                       onChange={(e) => setWorkspaceName(e.target.value)}
-                      className="bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-blue-500 dark:focus:border-blue-400 h-12"
+                      className="glass-input h-12"
                       onKeyDown={(e) =>
                         e.key === "Enter" && handleCreateWorkspace()
                       }
@@ -196,7 +196,7 @@ const MainPage = () => {
                     <Button
                       onClick={handleCreateWorkspace}
                       disabled={isPending || !workspaceName.trim()}
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 h-12 font-medium shadow-lg"
+                      className="glass-button w-full liquid-gradient from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 h-12 font-medium shadow-glass hover:shadow-glass-hover"
                     >
                       {isPending ? "Creating..." : "Create & Join"}
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -207,9 +207,9 @@ const MainPage = () => {
 
               {/* Join Workspace */}
               <div className="flex-1 group">
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
+                <div className="glass-card bg-white/60 dark:bg-black/30 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl p-8 shadow-glass hover:shadow-glass-hover transition-all duration-300 group-hover:scale-105 liquid-hover">
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center mr-4">
+                    <div className="w-12 h-12 liquid-gradient from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center mr-4 shadow-glass">
                       <Globe className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -221,7 +221,7 @@ const MainPage = () => {
                       placeholder="Enter workspace ID or name"
                       value={joinWorkspaceId}
                       onChange={(e) => setJoinWorkspaceId(e.target.value)}
-                      className="bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-emerald-500 dark:focus:border-emerald-400 h-12"
+                      className="glass-input h-12"
                       onKeyDown={(e) =>
                         e.key === "Enter" && handleJoinWorkspace()
                       }
@@ -230,7 +230,7 @@ const MainPage = () => {
                       onClick={handleJoinWorkspace}
                       disabled={!joinWorkspaceId.trim()}
                       variant="outline"
-                      className="w-full border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 h-12 font-medium"
+                      className="w-full h-12 font-medium"
                     >
                       Join Workspace
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -243,8 +243,8 @@ const MainPage = () => {
             {/* Feature Highlights */}
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               <div className="group cursor-pointer">
-                <div className="text-center p-8 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <div className="glass-card text-center p-8 bg-white/50 dark:bg-black/20 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/10 hover:shadow-glass transition-all duration-300 group-hover:scale-105 liquid-hover">
+                  <div className="w-16 h-16 liquid-gradient from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glass">
                     <MessageSquare className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
@@ -258,8 +258,8 @@ const MainPage = () => {
               </div>
 
               <div className="group cursor-pointer">
-                <div className="text-center p-8 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <div className="glass-card text-center p-8 bg-white/50 dark:bg-black/20 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/10 hover:shadow-glass transition-all duration-300 group-hover:scale-105 liquid-hover">
+                  <div className="w-16 h-16 liquid-gradient from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glass">
                     <Layers className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
@@ -273,8 +273,8 @@ const MainPage = () => {
               </div>
 
               <div className="group cursor-pointer">
-                <div className="text-center p-8 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
-                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <div className="glass-card text-center p-8 bg-white/50 dark:bg-black/20 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/10 hover:shadow-glass transition-all duration-300 group-hover:scale-105 liquid-hover">
+                  <div className="w-16 h-16 liquid-gradient from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glass">
                     <Shield className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">

@@ -29,7 +29,7 @@ export function WorkspaceUserSection({
   };
 
   return (
-    <div className={cn("p-4 border-t border-border", className)}>
+    <div className={cn("p-4", className)}>
       <div
         className={cn(
           "flex items-center",
@@ -38,12 +38,12 @@ export function WorkspaceUserSection({
       >
         <div className="relative">
           <Avatar className={cn(isCollapsed ? "h-10 w-10" : "h-8 w-8")}>
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-medium">
+            <AvatarFallback className="liquid-gradient from-blue-500 to-purple-600 text-white font-medium shadow-glass">
               {getInitials(userName)}
             </AvatarFallback>
           </Avatar>
           {/* Online status indicator */}
-          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white/50 dark:border-black/50 shadow-glass" />
         </div>
 
         {!isCollapsed && (

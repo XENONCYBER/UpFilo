@@ -34,8 +34,8 @@ export function WorkspaceNavItem({
             ? "justify-center px-2 h-12 w-12"
             : "justify-start px-4 h-11",
           isActive
-            ? "bg-accent text-accent-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+            ? "glass-button bg-white/40 dark:bg-black/30 text-accent-foreground shadow-glass backdrop-blur-xl"
+            : "text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10",
           className
         )}
       >

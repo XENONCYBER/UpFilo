@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  Plus,
   UserCircle,
 } from "lucide-react";
 import { WorkspaceNavItem } from "./workspace/workspace-nav-item";
@@ -97,6 +96,99 @@ export function ModernSidebar({
     }));
   };
 
+  // Create mock user channels if none exist (for demonstration)
+  const createMockUserChannels = () => {
+    return [
+      {
+        id: "user-group-1",
+        name: "Team Members",
+        type: "user" as const,
+        isExpanded: true, // Start expanded to show the channels
+        channels: [
+          {
+            id: "user-1",
+            name: "Alice Cooper",
+            type: "user" as const,
+            subType: "private" as const,
+            isActive: false,
+            description: "Direct message with Alice Cooper",
+            unreadCount: 2,
+          },
+          {
+            id: "user-2",
+            name: "Bob Wilson",
+            type: "user" as const,
+            subType: "private" as const,
+            isActive: false,
+            description: "Direct message with Bob Wilson",
+            unreadCount: 0,
+          },
+          {
+            id: "user-3",
+            name: "Charlie Brown",
+            type: "user" as const,
+            subType: "private" as const,
+            isActive: false,
+            description: "Direct message with Charlie Brown",
+            unreadCount: 1,
+          },
+          {
+            id: "user-4",
+            name: "David Miller",
+            type: "user" as const,
+            subType: "private" as const,
+            isActive: false,
+            description: "Direct message with David Miller",
+            unreadCount: 0,
+          },
+        ],
+      },
+      {
+        id: "user-group-2",
+        name: "External Contacts",
+        type: "user" as const,
+        isExpanded: false,
+        channels: [
+          {
+            id: "user-5",
+            name: "Diana Prince",
+            type: "user" as const,
+            subType: "private" as const,
+            isActive: false,
+            description: "Direct message with Diana Prince",
+            unreadCount: 0,
+          },
+          {
+            id: "user-6",
+            name: "Eve Thompson",
+            type: "user" as const,
+            subType: "private" as const,
+            isActive: false,
+            description: "Direct message with Eve Thompson",
+            unreadCount: 3,
+          },
+        ],
+      },
+      {
+        id: "user-group-3",
+        name: "Clients",
+        type: "user" as const,
+        isExpanded: false,
+        channels: [
+          {
+            id: "user-7",
+            name: "Frank Castle",
+            type: "user" as const,
+            subType: "private" as const,
+            isActive: false,
+            description: "Direct message with Frank Castle",
+            unreadCount: 1,
+          },
+        ],
+      },
+    ];
+  };
+
   const handleCollapseToggle = () => {
     const newCollapsed = !isCollapsed;
     setIsCollapsed(newCollapsed);
@@ -114,9 +206,16 @@ export function ModernSidebar({
   const groupChannels = groupChannelGroups
     ? transformGroupData(groupChannelGroups, "group")
     : [];
-  const userChannels = userChannelGroups
+
+  // Use mock user channels if no user channels exist from backend
+  let userChannels = userChannelGroups
     ? transformGroupData(userChannelGroups, "user")
     : [];
+
+  // If no user channels from backend, use mock data for demonstration
+  if (userChannels.length === 0) {
+    userChannels = createMockUserChannels();
+  }
 
   if (!isOpen) {
     return null;
@@ -125,17 +224,17 @@ export function ModernSidebar({
   return (
     <div
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-background border-r border-border transition-all duration-300",
+        "glass-surface fixed left-0 top-0 z-40 h-screen bg-white/40 dark:bg-black/30 backdrop-blur-xl border-r border-white/20 dark:border-white/10 transition-all duration-300 shadow-glass",
         isCollapsed ? "w-16" : "w-72",
         className
       )}
     >
       <div className="flex h-full flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10">
           {!isCollapsed && (
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 liquid-gradient from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-glass">
                 <UserCircle className="w-5 h-5 text-white" />
               </div>
               <span className="font-semibold text-foreground">UpFilo</span>
@@ -145,7 +244,7 @@ export function ModernSidebar({
             variant="ghost"
             size="icon"
             onClick={handleCollapseToggle}
-            className="hover:bg-muted"
+            className="glass-button hover:bg-white/20 dark:hover:bg-white/10"
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -167,7 +266,7 @@ export function ModernSidebar({
                     placeholder="Search channels..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 bg-muted/50 border-0"
+                    className="glass-input pl-9 border-0"
                   />
                 </div>
               </div>
@@ -196,9 +295,6 @@ export function ModernSidebar({
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Channels
                       </span>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <Plus className="h-3 w-3" />
-                      </Button>
                     </div>
                     {groupChannels.map((group) => (
                       <ChannelGroup
@@ -220,11 +316,8 @@ export function ModernSidebar({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between px-2">
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Direct Messages
+                        User Channels
                       </span>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <Plus className="h-3 w-3" />
-                      </Button>
                     </div>
                     {userChannels.map((group) => (
                       <ChannelGroup
@@ -259,7 +352,7 @@ export function ModernSidebar({
         </div>
 
         {/* User Section */}
-        <div className="border-t border-border p-2">
+        <div className="border-t border-white/20 dark:border-white/10 p-2">
           <WorkspaceUserSection
             userName={userName || "Guest"}
             isCollapsed={isCollapsed}
