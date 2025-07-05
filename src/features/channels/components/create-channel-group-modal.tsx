@@ -12,20 +12,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { useCreateChannelGroup } from "../api/use-create-channel-group";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useConvexWorkspaceId } from "@/hooks/use-convex-workspace-id";
 
 interface CreateChannelGroupModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   type: "group" | "user";
+  workspaceId?: any; // Optional for backwards compatibility
 }
 
 export const CreateChannelGroupModal = ({
   open,
   onOpenChange,
   type,
+  workspaceId: propWorkspaceId,
 }: CreateChannelGroupModalProps) => {
-  const workspaceId = useWorkspaceId();
+  // Use prop workspaceId if provided, otherwise use hook for backwards compatibility
+  const hookWorkspaceId = useConvexWorkspaceId();
+  const workspaceId = propWorkspaceId || hookWorkspaceId;
   const { mutate, isPending } = useCreateChannelGroup();
 
   const [name, setName] = useState("");
@@ -37,6 +41,15 @@ export const CreateChannelGroupModal = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!name.trim()) {
+      return;
+    }
+
+    if (!workspaceId) {
+      toast.error("Workspace not found");
+      return;
+    }
 
     mutate(
       {

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
   Image,
@@ -104,7 +103,7 @@ export function ModernSidebar({
         subType: channel.subType,
         isActive: channel.isActive || false,
         description: channel.description || "",
-        unreadCount: 0, // TODO: implement unread count from backend
+        // Don't include unreadCount if it's 0 or not implemented
       })),
     }));
   };
@@ -122,7 +121,7 @@ export function ModernSidebar({
       subType: channel.subType,
       isActive: channel.isActive || false,
       description: channel.description || "",
-      unreadCount: 0,
+      // Don't include unreadCount if it's 0 or not implemented
     })) || [];
 
   // Handlers for creating groups
@@ -148,7 +147,7 @@ export function ModernSidebar({
     <>
       <div
         className={cn(
-          "glass-surface fixed left-0 top-0 z-40 h-screen bg-white/40 dark:bg-black/30 backdrop-blur-xl border-r border-white/20 dark:border-white/10 transition-all duration-300 shadow-glass",
+          "glass-surface fixed left-0 top-0 z-30 h-screen bg-white/40 dark:bg-black/30 backdrop-blur-xl border-r border-white/20 dark:border-white/10 transition-all duration-300 shadow-glass overflow-hidden",
           isCollapsed ? "w-16" : "w-72",
           className
         )}
@@ -182,11 +181,11 @@ export function ModernSidebar({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0">
             {!isCollapsed && (
               <>
                 {/* Search */}
-                <div className="p-4">
+                <div className="p-4 flex-shrink-0">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -198,7 +197,7 @@ export function ModernSidebar({
                   </div>
                 </div>
 
-                <ScrollArea className="flex-1 px-2">
+                <div className="flex-1 overflow-y-auto px-2 pb-4 custom-scrollbar">
                   {/* Navigation Items */}
                   <div className="space-y-2 pb-4">
                     {navItems.map((item) => (
@@ -235,6 +234,7 @@ export function ModernSidebar({
                       <ChannelGroup
                         key={group.id}
                         group={group}
+                        workspaceId={workspaceId}
                         onChannelSelect={handleChannelSelect}
                         searchQuery={searchQuery}
                       />
@@ -276,6 +276,7 @@ export function ModernSidebar({
                       <ChannelGroup
                         key={group.id}
                         group={group}
+                        workspaceId={workspaceId}
                         onChannelSelect={handleChannelSelect}
                         searchQuery={searchQuery}
                       />
@@ -294,7 +295,7 @@ export function ModernSidebar({
                         </div>
                       ))}
                   </div>
-                </ScrollArea>
+                </div>
               </>
             )}
 
@@ -331,11 +332,13 @@ export function ModernSidebar({
         open={createGroupModalOpen}
         onOpenChange={setCreateGroupModalOpen}
         type="group"
+        workspaceId={workspaceId}
       />
       <CreateChannelGroupModal
         open={createUserModalOpen}
         onOpenChange={setCreateUserModalOpen}
         type="user"
+        workspaceId={workspaceId}
       />
     </>
   );

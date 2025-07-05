@@ -10,14 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateChannel } from "../api/use-create-channels";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useConvexWorkspaceId } from "@/hooks/use-convex-workspace-id";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 
 interface CreateChannelModalProps {
   children: React.ReactNode;
+  workspaceId?: any; // Convex workspace ID, optional for backwards compatibility
   groupId?: Id<"channelGroups">;
   channelType: "group" | "user";
   onSuccess?: () => void;
@@ -25,6 +27,7 @@ interface CreateChannelModalProps {
 
 export const CreateChannelModal = ({
   children,
+  workspaceId: propWorkspaceId,
   groupId,
   channelType,
   onSuccess,
@@ -35,8 +38,11 @@ export const CreateChannelModal = ({
   const [subType, setSubType] = useState<
     "text" | "voice" | "announcement" | "private"
   >("text");
+  const [isPrivate, setIsPrivate] = useState(false); // For user channels toggle
 
-  const workspaceId = useWorkspaceId();
+  // Use prop workspaceId if provided, otherwise use hook for backwards compatibility
+  const hookWorkspaceId = useConvexWorkspaceId();
+  const workspaceId = propWorkspaceId || hookWorkspaceId;
   const { mutate, isPending } = useCreateChannel();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +63,7 @@ export const CreateChannelModal = ({
         name: name.trim(),
         workspaceId: workspaceId as Id<"workspaces">,
         type: channelType,
-        subType,
+        subType: channelType === "user" && isPrivate ? "private" : subType,
         groupId,
         description: description.trim() || undefined,
       },
@@ -68,6 +74,7 @@ export const CreateChannelModal = ({
           setName("");
           setDescription("");
           setSubType("text");
+          setIsPrivate(false);
           onSuccess?.();
         },
         onError: (error) => {
@@ -120,32 +127,51 @@ export const CreateChannelModal = ({
           {/* Channel Type Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Channel Type</Label>
-            <RadioGroup
-              value={subType}
-              onValueChange={(value: string) => setSubType(value as any)}
-              className="space-y-2"
-            >
-              {subTypeOptions.map((option) => (
-                <div key={option.value} className="flex items-start space-x-3">
-                  <RadioGroupItem
-                    value={option.value}
-                    id={option.value}
-                    className="mt-1"
-                  />
-                  <div className="space-y-1">
-                    <Label
-                      htmlFor={option.value}
-                      className="font-medium cursor-pointer"
-                    >
-                      {option.label}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {option.description}
-                    </p>
+            {channelType === "group" ? (
+              <RadioGroup
+                value={subType}
+                onValueChange={(value: string) => setSubType(value as any)}
+                className="space-y-2"
+              >
+                {subTypeOptions.map((option) => (
+                  <div
+                    key={option.value}
+                    className="flex items-start space-x-3"
+                  >
+                    <RadioGroupItem
+                      value={option.value}
+                      id={option.value}
+                      className="mt-1"
+                    />
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor={option.value}
+                        className="font-medium cursor-pointer"
+                      >
+                        {option.label}
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {option.description}
+                      </p>
+                    </div>
                   </div>
+                ))}
+              </RadioGroup>
+            ) : (
+              <div className="flex items-center justify-between p-3 rounded-md glass-surface border border-border/50">
+                <div className="space-y-1">
+                  <Label className="font-medium">Private Channel</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Make this channel private for direct conversations
+                  </p>
                 </div>
-              ))}
-            </RadioGroup>
+                <Switch
+                  checked={isPrivate}
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                  size="default"
+                />
+              </div>
+            )}
           </div>
 
           {/* Channel Name */}

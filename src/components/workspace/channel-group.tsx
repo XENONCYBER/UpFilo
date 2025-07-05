@@ -37,6 +37,7 @@ interface ChannelGroup {
 
 interface ChannelGroupProps {
   group: ChannelGroup;
+  workspaceId: any; // Convex workspace ID
   onChannelSelect?: (channel: Channel) => void;
   onGroupToggle?: (groupId: string) => void;
   onAddChannel?: (groupId: string) => void;
@@ -48,6 +49,7 @@ interface ChannelGroupProps {
 
 export function ChannelGroup({
   group,
+  workspaceId,
   onChannelSelect,
   onGroupToggle,
   onAddChannel,
@@ -131,8 +133,9 @@ export function ChannelGroup({
             )}
           </Button>
 
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 delay-75">
             <CreateChannelModal
+              workspaceId={workspaceId}
               groupId={group.id as any}
               channelType={group.type}
               onSuccess={() => {}}
@@ -140,8 +143,9 @@ export function ChannelGroup({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
                 title="Add channel"
+                onClick={(e) => e.stopPropagation()}
               >
                 <Plus className="h-3 w-3" />
               </Button>
@@ -152,15 +156,16 @@ export function ChannelGroup({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
                   title="Group options"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MoreVertical className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-40 glass-surface border-white/20"
+                className="w-40 glass-surface border-white/20 z-[100]"
               >
                 <DropdownMenuItem
                   onClick={handleEditGroup}
@@ -195,20 +200,21 @@ export function ChannelGroup({
                 />
 
                 {/* Channel context menu */}
-                <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/channel:opacity-100 transition-opacity">
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/channel:opacity-100 transition-opacity duration-150 delay-75">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                        className="h-5 w-5 text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <MoreVertical className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="w-40 glass-surface border-white/20"
+                      className="w-40 glass-surface border-white/20 z-[100]"
                     >
                       <DropdownMenuItem
                         onClick={() =>
