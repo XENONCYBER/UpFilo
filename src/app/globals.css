@@ -652,8 +652,9 @@ body,
   border-left: 3px solid rgba(255, 255, 255, 0.3);
   padding-left: 1rem;
   margin: 0.5rem 0;
-  font-style: italic;
-  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0 0.25rem 0.25rem 0;
+  color: hsl(var(--muted-foreground));
 }
 
 .rich-content a {
@@ -665,15 +666,212 @@ body,
   opacity: 0.8;
 }
 
-.dark .rich-content code {
+/* Slack-style Input Styling */
+.slack-input .ql-editor {
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  border: none;
+  outline: none;
+  min-height: 20px;
+  max-height: 168px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+}
+
+.slack-input .ql-editor.ql-blank::before {
+  color: rgba(156, 163, 175, 0.8);
+  font-style: normal;
+  left: 16px;
+  right: 16px;
+  top: 12px;
+}
+
+.slack-input .ql-editor:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.slack-input .ql-container {
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.slack-input .ql-editor p {
+  margin: 0;
+  padding: 0;
+}
+
+.slack-input .ql-editor strong {
+  font-weight: 600;
+}
+
+.slack-input .ql-editor em {
+  font-style: italic;
+}
+
+.slack-input .ql-editor u {
+  text-decoration: underline;
+}
+
+.slack-input .ql-editor code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.slack-input .ql-editor blockquote {
+  border-left: 3px solid rgba(255, 255, 255, 0.3);
+  padding-left: 12px;
+  margin: 4px 0;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.slack-input .ql-editor ol,
+.slack-input .ql-editor ul {
+  padding-left: 20px;
+  margin: 4px 0;
+}
+
+.slack-input .ql-editor li {
+  margin: 2px 0;
+}
+
+/* Bubble theme override for our Slack-style input */
+.ql-bubble .ql-editor {
+  border: none;
+  background: transparent;
+}
+
+.ql-bubble .ql-tooltip {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  color: white;
+}
+
+.dark .slack-input .ql-editor code {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.dark .rich-content pre {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.dark .slack-input .ql-editor blockquote {
+  border-left-color: rgba(255, 255, 255, 0.2);
 }
 
-.dark .rich-content blockquote {
-  border-left-color: rgba(255, 255, 255, 0.2);
+/* Message Bubble Enhancements */
+.message-bubble {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.message-bubble .rich-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-bubble .rich-content blockquote {
+  border-left: 3px solid rgba(59, 130, 246, 0.5);
+  padding-left: 12px;
+  margin: 8px 0;
+  font-style: italic;
+  opacity: 0.9;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 0 4px 4px 0;
+}
+
+.message-bubble .rich-content code {
+  background: rgba(244, 244, 245, 0.8);
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.dark .message-bubble .rich-content code {
+  background: rgba(39, 39, 42, 0.8);
+  border: 1px solid rgba(63, 63, 70, 0.8);
+}
+
+.message-bubble .rich-content pre {
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.dark .message-bubble .rich-content pre {
+  background: rgba(30, 30, 36, 0.8);
+  border: 1px solid rgba(63, 63, 70, 0.8);
+}
+
+.message-bubble .rich-content pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.message-bubble .rich-content ul,
+.message-bubble .rich-content ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.message-bubble .rich-content li {
+  margin: 2px 0;
+}
+
+.message-bubble .rich-content a {
+  color: rgb(59, 130, 246);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.message-bubble .rich-content a:hover {
+  opacity: 0.8;
+}
+
+.dark .message-bubble .rich-content a {
+  color: rgb(147, 197, 253);
+}
+
+/* Avatar gradient variations */
+.message-avatar-1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.message-avatar-2 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.message-avatar-3 {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.message-avatar-4 {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.message-avatar-5 {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.message-avatar-6 {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.message-avatar-7 {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.message-avatar-8 {
+  background: linear-gradient(135deg, #ff8a80 0%, #ea4c88 100%);
 }

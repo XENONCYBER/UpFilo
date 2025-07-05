@@ -1,19 +1,22 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Send,
   Paperclip,
   Image,
   Smile,
-  Plus,
   Bold,
   Italic,
   Underline,
   Code,
   List,
-  AlignLeft,
+  Quote,
+  AtSign,
+  Hash,
+  MoreHorizontal,
+  Type,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -32,28 +35,18 @@ export function QuillChatInput({
 }: QuillChatInputProps) {
   const [content, setContent] = useState("");
   const [hasContent, setHasContent] = useState(false);
+  const [showFormatting, setShowFormatting] = useState(false);
   const quillRef = useRef<any>(null);
 
-  // Custom toolbar configuration
+  // Simplified toolbar configuration (hidden by default)
   const modules = {
-    toolbar: {
-      container: [
-        [{ header: [3, 4, 5, false] }],
-        ["bold", "italic", "underline", "code"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["blockquote", "code-block"],
-        ["link"],
-        [{ color: [] }, { background: [] }],
-        ["clean"],
-      ],
-    },
+    toolbar: false, // We'll create our own custom toolbar
     clipboard: {
       matchVisual: false,
     },
   };
 
   const formats = [
-    "header",
     "bold",
     "italic",
     "underline",
@@ -63,9 +56,14 @@ export function QuillChatInput({
     "blockquote",
     "code-block",
     "link",
-    "color",
-    "background",
   ];
+
+  // Custom toolbar actions
+  const formatText = (format: string, value?: any) => {
+    // For now, we'll implement basic formatting via execCommand
+    // In a full implementation, you'd want to integrate more deeply with Quill
+    document.execCommand(format, false, value);
+  };
 
   // Handle content change
   const handleChange = (value: string) => {
@@ -83,106 +81,194 @@ export function QuillChatInput({
     const textContent = content.replace(/<[^>]*>/g, "").trim();
 
     if (textContent) {
-      // Get Quill instance and delta content
-      const quill = quillRef.current?.getEditor();
-      const delta = quill?.getContents();
-
       // Send both plain text and rich content
       onSendMessage(textContent, {
         html: content,
         text: textContent,
-        delta: delta,
+        delta: null, // We'll implement delta later if needed
       });
 
       // Clear the editor
       setContent("");
       setHasContent(false);
+      setShowFormatting(false);
     }
   };
 
   // Handle keyboard shortcuts
   const handleKeyPress = (e: any) => {
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  // Custom theme styles
-  const quillStyle = {
-    height: "auto",
-    minHeight: "60px",
-    maxHeight: "200px",
+  // Handle focus to show formatting
+  const handleFocus = () => {
+    setShowFormatting(true);
   };
 
   return (
-    <div className="glass-surface p-4 border-t border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
-      <div className="flex items-start space-x-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground flex-shrink-0 mt-2"
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
+    <div className="p-4 border-t border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl">
+      {/* Main Input Container - Slack-style */}
+      <div className="glass-surface border border-white/30 dark:border-white/20 rounded-lg bg-white/60 dark:bg-black/40 backdrop-blur-xl shadow-glass overflow-hidden">
+        {/* Top Formatting Toolbar - Shows when focused */}
+        {showFormatting && (
+          <div className="flex items-center justify-between px-3 py-2 border-b border-white/20 dark:border-white/10 bg-white/20 dark:bg-black/20">
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                onClick={() => formatText("bold")}
+              >
+                <Bold className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                onClick={() => formatText("italic")}
+              >
+                <Italic className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                onClick={() => formatText("underline")}
+              >
+                <Underline className="h-3.5 w-3.5" />
+              </Button>
+              <div className="w-px h-4 bg-white/20 dark:bg-white/10 mx-1" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                onClick={() => formatText("code")}
+              >
+                <Code className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                onClick={() => formatText("blockquote")}
+              >
+                <Quote className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                onClick={() => formatText("list", "bullet")}
+              >
+                <List className="h-3.5 w-3.5" />
+              </Button>
+            </div>
 
-        <div className="flex-1">
-          <div className="glass-input rounded-lg overflow-hidden min-h-[100px] max-h-[250px]">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+              onClick={() => setShowFormatting(false)}
+            >
+              <MoreHorizontal className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
+
+        {/* Input Area */}
+        <div className="relative">
+          <div className="min-h-[44px] max-h-[200px] overflow-y-auto">
             <ReactQuill
-              theme="snow"
+              theme="bubble" // Use bubble theme for cleaner look
               value={content}
               onChange={handleChange}
               onKeyPress={handleKeyPress}
+              onFocus={handleFocus}
               placeholder={placeholder}
               modules={modules}
               formats={formats}
-              style={quillStyle}
-              bounds=".glass-input"
+              className="slack-input"
             />
           </div>
-        </div>
 
-        <div className="flex items-center space-x-1 mt-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            title="Attach file"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            title="Add image"
-          >
-            <Image className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            title="Add emoji"
-          >
-            <Smile className="h-4 w-4" />
-          </Button>
-        </div>
+          {/* Bottom Toolbar */}
+          <div className="flex items-center justify-between px-3 py-2 border-t border-white/20 dark:border-white/10">
+            <div className="flex items-center space-x-1">
+              {/* Attachment Actions */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                title="Attach file"
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                title="Add image"
+              >
+                <Image className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                title="Add emoji"
+              >
+                <Smile className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                title="Mention someone"
+              >
+                <AtSign className="h-4 w-4" />
+              </Button>
 
-        <Button
-          onClick={handleSend}
-          disabled={!hasContent}
-          className="flex-shrink-0 glass-button-primary mt-2"
-          size="icon"
-          title="Send message (Ctrl+Enter)"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
+              {/* Formatting Toggle */}
+              {!showFormatting && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-white/30"
+                  onClick={() => setShowFormatting(true)}
+                  title="Show formatting options"
+                >
+                  <Type className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Send Button */}
+            <Button
+              onClick={handleSend}
+              disabled={!hasContent}
+              className={`h-8 w-8 p-0 rounded-md transition-all duration-200 ${
+                hasContent
+                  ? "bg-green-500 hover:bg-green-600 text-white shadow-lg scale-100"
+                  : "bg-muted text-muted-foreground scale-95"
+              }`}
+              title="Send message (Enter)"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
-        <span>Use Ctrl+Enter to send</span>
-        <span>Rich text editor powered by Quill</span>
+      {/* Helper Text */}
+      <div className="flex justify-between items-center mt-2 px-2 text-xs text-muted-foreground">
+        <span>
+          <strong>Enter</strong> to send, <strong>Shift+Enter</strong> for new
+          line
+        </span>
+        <span>Rich text formatting available</span>
       </div>
     </div>
   );

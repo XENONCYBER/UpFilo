@@ -58,55 +58,47 @@ function RichContentRenderer({ richContent }: { richContent: any }) {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   return (
-    <div
-      className={cn(
-        "flex animate-fadeIn",
-        message.isMine ? "justify-end" : "justify-start"
-      )}
-    >
-      <div
-        className={cn(
-          "max-w-[70%] rounded-2xl p-4 relative",
-          message.isMine
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground"
-        )}
-      >
-        {!message.isMine && (
-          <p className="text-xs font-medium text-primary mb-1">
+    <div className="group flex items-start space-x-3 py-2 px-4 hover:bg-white/10 dark:hover:bg-black/10 rounded-lg transition-colors duration-200 message-bubble">
+      {/* Avatar */}
+      <div className="flex-shrink-0">
+        <div className="w-9 h-9 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+          {message.sender.charAt(0).toUpperCase()}
+        </div>
+      </div>
+
+      {/* Message Content */}
+      <div className="flex-1 min-w-0">
+        {/* Message Header */}
+        <div className="flex items-baseline space-x-2 mb-1">
+          <span className="font-semibold text-foreground text-sm">
             {message.sender}
-          </p>
-        )}
-        <div
-          className={
-            message.isMine ? "text-primary-foreground" : "text-foreground"
-          }
-        >
+          </span>
+          <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+            {message.timestamp}
+          </span>
+        </div>
+
+        {/* Message Body */}
+        <div className="text-foreground text-sm leading-relaxed">
           {message.richContent ? (
             <RichContentRenderer richContent={message.richContent} />
           ) : (
-            <p>{message.content}</p>
+            <p className="mb-0">{message.content}</p>
           )}
         </div>
-        <div
-          className={cn(
-            "flex items-center space-x-2 mt-2 text-xs",
-            message.isMine
-              ? "text-primary-foreground/70 justify-end"
-              : "text-muted-foreground"
-          )}
-        >
-          <span>{message.timestamp}</span>
-          {message.isMine && (
-            <div className="flex items-center">
+
+        {/* Message Status */}
+        {message.isMine && (
+          <div className="flex items-center space-x-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-xs text-muted-foreground">
               {message.status === "read" ? (
-                <Check className="h-3 w-3" />
+                <Check className="h-3 w-3 inline text-green-500" />
               ) : (
-                <Clock className="h-3 w-3" />
+                <Clock className="h-3 w-3 inline" />
               )}
-            </div>
-          )}
-        </div>
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
