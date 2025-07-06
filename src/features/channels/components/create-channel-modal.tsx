@@ -90,8 +90,7 @@ export const CreateChannelModal = ({
           {
             value: "text",
             label: "Text Channel",
-            description:
-              "Send messages, images, GIFs, emoji, opinions, and puns",
+            description: "Send messages, images, GIFs, opinions, and puns",
           },
           {
             value: "voice",

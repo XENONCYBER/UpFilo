@@ -36,7 +36,7 @@ async function seedData() {
     console.log("Creating welcome message...");
     const messageId = await client.mutation("messages:sendMessage", {
       channelId: channelId,
-      content: "Welcome to the test workspace! 🎉",
+      content: "Welcome to the test workspace!",
       userName: "System",
     });
     console.log("Message created:", messageId);
