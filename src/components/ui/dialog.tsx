@@ -141,8 +141,7 @@ export function DialogContent({
       <div
         className={cn(
           "relative z-[10000] w-full max-w-lg",
-          "glass-surface bg-white/80 dark:bg-black/80 backdrop-blur-xl",
-          "border border-white/20 dark:border-white/10 shadow-glass",
+          "glass-surface-elevated",
           "rounded-xl p-6",
           "animate-in zoom-in-95 slide-in-from-bottom-4 duration-300",
           className

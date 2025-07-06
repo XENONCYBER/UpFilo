@@ -45,29 +45,41 @@ export function ChannelItem({ channel, onClick, className }: ChannelItemProps) {
 
   return (
     <Button
-      variant={channel.isActive ? "secondary" : "ghost"}
+      variant="ghost"
       onClick={() => onClick?.(channel)}
       className={cn(
-        "w-full justify-start px-2 py-2 h-8 transition-all duration-200 group relative",
+        "w-full justify-start px-2 py-2 h-8 transition-all duration-200 group relative border-l-2",
         channel.isActive
-          ? "glass-button bg-white/40 dark:bg-black/30 text-accent-foreground shadow-glass backdrop-blur-xl"
-          : "text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10",
+          ? "glass-surface bg-blue-500/15 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-l-blue-500 shadow-inner backdrop-blur-xl font-medium"
+          : "text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10 border-l-transparent hover:border-l-white/30 dark:hover:border-l-white/20",
         className
       )}
     >
       <Icon
         className={cn(
-          "h-4 w-4 mr-2 flex-shrink-0",
-          channel.isActive ? "text-accent-foreground" : iconStyle
+          "h-4 w-4 mr-2 flex-shrink-0 transition-colors duration-200",
+          channel.isActive ? "text-blue-600 dark:text-blue-400" : iconStyle
         )}
       />
 
-      <span className="truncate text-sm">{channel.name}</span>
+      <span
+        className={cn(
+          "truncate text-sm transition-all duration-200",
+          channel.isActive && "font-medium"
+        )}
+      >
+        {channel.name}
+      </span>
 
       {channel.unreadCount && channel.unreadCount > 0 && (
         <span className="ml-auto bg-destructive text-destructive-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
           {channel.unreadCount > 99 ? "99+" : channel.unreadCount}
         </span>
+      )}
+
+      {/* Active channel indicator */}
+      {channel.isActive && (
+        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500 rounded-r-sm" />
       )}
 
       {/* Hover tooltip with description */}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./workspace/message-bubble";
-import { QuillChatInput } from "./workspace/quill-chat-input";
+import { ChatInput } from "./workspace/chat-input";
 import { Button } from "@/components/ui/button";
 import { Hash, Users, Settings, Pin, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,6 @@ interface Message {
   _id: Id<"messages">;
   channelId: Id<"channels">;
   content: string;
-  richContent?: any; // Rich text content from Quill
   userId: string;
   userName: string;
   createdAt: number;
@@ -51,15 +50,14 @@ export function ModernChannelView({
     channelId: convexChannelId,
   });
 
-  const handleSendMessage = async (content: string, richContent?: any) => {
+  const handleSendMessage = async (content: string) => {
     if (!userName || !content.trim()) return;
 
     try {
-      // Send the message with both plain text and rich content
+      // Send the message with plain text content
       await sendMessage({
         content: content.trim(),
         userName: userName,
-        richContent: richContent || null, // Store rich content for future use
       });
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -72,7 +70,6 @@ export function ModernChannelView({
       id: parseInt(message._id.slice(-8), 16), // Create a numeric ID from the Convex ID
       sender: message.userName,
       content: message.content,
-      richContent: message.richContent, // Pass through rich content
       timestamp: new Date(message.createdAt).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -98,69 +95,49 @@ export function ModernChannelView({
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
-      {/* Channel Header */}
-      <div className="glass-surface flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
-        <div className="flex items-center space-x-3">
+      {/* Channel Header - Thin Strip */}
+      <div className="glass-surface flex items-center justify-between px-4 py-2 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
+        <div className="flex items-center space-x-2">
           {getChannelIcon()}
-          <div>
-            <h2 className="font-semibold text-foreground text-lg">
-              {channelName}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {channelType === "private"
-                ? "Private channel"
-                : channelType === "user"
-                  ? "Direct message"
-                  : "Public channel"}
-            </p>
-          </div>
+          <h2 className="font-medium text-foreground text-base">
+            {channelName}
+          </h2>
         </div>
 
-        <div className="flex items-center space-x-2">
-          {/* Search */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search in channel..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="glass-input pl-10 w-64"
-            />
-          </div>
-
-          {/* Channel Settings */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
+        {/* Search */}
+        <div className="relative hidden md:block">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+          <Input
+            placeholder="Search in channel..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="glass-input pl-8 w-48 h-7 text-sm"
+          />
         </div>
       </div>
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4 custom-scrollbar">
-        <div className="space-y-4">
-          {/* Channel Welcome Message */}
-          <div className="text-center py-8 border-b border-border/50">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+      <ScrollArea className="flex-1 p-2 custom-scrollbar">
+        <div className="space-y-3">
+          {/* Channel Welcome Message - Compact */}
+          <div className="text-center py-4 border-b border-border/50">
+            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
               {getChannelIcon()}
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
+            <h3 className="text-lg font-medium text-foreground mb-1">
               Welcome to #{channelName}
             </h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
               This is the beginning of the #{channelName} channel.
               {channelType === "private"
-                ? " This is a private channel for team discussions."
-                : " Start conversations and share ideas with your team."}
+                ? " Private discussions."
+                : " Start conversations with your team."}
             </p>
           </div>
 
           {/* Messages */}
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex items-center justify-center py-4">
               <div className="text-muted-foreground">Loading messages...</div>
             </div>
           ) : (
@@ -171,11 +148,16 @@ export function ModernChannelView({
         </div>
       </ScrollArea>
 
-      {/* Message Input */}
-      <QuillChatInput
-        onSendMessage={handleSendMessage}
-        placeholder={`Message #${channelName}...`}
-      />
+      {/* Message Input - Completely Flush */}
+      <div className="flex-shrink-0 px-2">
+        <div className="-mb-1">
+          <ChatInput
+            placeholder={`Message #${channelName}...`}
+            onSendMessage={handleSendMessage}
+            disabled={isSending}
+          />
+        </div>
+      </div>
     </div>
   );
 }

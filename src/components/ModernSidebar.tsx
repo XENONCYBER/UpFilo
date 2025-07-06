@@ -33,6 +33,7 @@ interface ModernSidebarProps {
   onSectionChange: (section: string) => void;
   onChannelSelect?: (channelId: string, channelType: "group" | "user") => void;
   workspaceId: Id<"workspaces">;
+  selectedChannelId?: string;
   onCollapseChange?: (collapsed: boolean) => void;
   className?: string;
 }
@@ -44,6 +45,7 @@ export function ModernSidebar({
   onSectionChange,
   onChannelSelect,
   workspaceId,
+  selectedChannelId,
   onCollapseChange,
   className,
 }: ModernSidebarProps) {
@@ -101,7 +103,7 @@ export function ModernSidebar({
         name: channel.name,
         type: channel.type,
         subType: channel.subType,
-        isActive: channel.isActive || false,
+        isActive: channel._id === selectedChannelId,
         description: channel.description || "",
         // Don't include unreadCount if it's 0 or not implemented
       })),
@@ -119,7 +121,7 @@ export function ModernSidebar({
       name: channel.name,
       type: channel.type,
       subType: channel.subType,
-      isActive: channel.isActive || false,
+      isActive: channel._id === selectedChannelId,
       description: channel.description || "",
       // Don't include unreadCount if it's 0 or not implemented
     })) || [];
@@ -147,17 +149,17 @@ export function ModernSidebar({
     <>
       <div
         className={cn(
-          "glass-surface fixed left-0 top-0 z-30 h-screen bg-white/40 dark:bg-black/30 backdrop-blur-xl border-r border-white/20 dark:border-white/10 transition-all duration-300 shadow-glass overflow-hidden",
+          "glass-surface-secondary fixed left-0 top-0 z-30 h-screen border-r border-glass-border-light transition-all duration-300 overflow-hidden",
           isCollapsed ? "w-16" : "w-72",
           className
         )}
       >
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10">
+          <div className="flex items-center justify-between p-4 border-b border-glass-border-subtle">
             {!isCollapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 liquid-gradient from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-glass">
+                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-md">
                   <UserCircle className="w-5 h-5 text-white" />
                 </div>
                 <span className="font-semibold text-foreground">UpFilo</span>
@@ -169,7 +171,7 @@ export function ModernSidebar({
                 variant="ghost"
                 size="icon"
                 onClick={handleCollapseToggle}
-                className="glass-button hover:bg-white/20 dark:hover:bg-white/10"
+                className="hover:bg-glass-hover"
               >
                 {isCollapsed ? (
                   <ChevronRight className="h-4 w-4" />
@@ -192,7 +194,7 @@ export function ModernSidebar({
                       placeholder="Search channels..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="glass-input pl-9 border-0"
+                      className="pl-9"
                     />
                   </div>
                 </div>

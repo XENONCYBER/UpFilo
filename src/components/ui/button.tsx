@@ -4,20 +4,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "glass-button bg-gradient-to-r from-blue-500/90 to-purple-600/90 text-white shadow-glass hover:from-blue-600/90 hover:to-purple-700/90 hover:shadow-glass-hover backdrop-blur-sm",
+          "glass-button-primary text-foreground shadow-md hover:shadow-lg",
         destructive:
-          "glass-button bg-gradient-to-r from-red-500/90 to-pink-600/90 text-white shadow-glass hover:from-red-600/90 hover:to-pink-700/90 hover:shadow-glass-hover backdrop-blur-sm",
+          "glass-surface bg-red-500/20 text-red-600 border-red-500/30 hover:bg-red-500/30 hover:text-red-700",
         outline:
-          "glass-surface border border-white/20 dark:border-white/20 bg-white/50 dark:bg-black/30 backdrop-blur-xl shadow-glass hover:bg-white/60 dark:hover:bg-black/40 hover:shadow-glass-hover",
+          "glass-surface-secondary border-glass-border-medium text-foreground hover:bg-glass-hover",
         secondary:
-          "glass-surface bg-white/40 dark:bg-black/20 backdrop-blur-xl shadow-glass hover:bg-white/50 dark:hover:bg-black/30 hover:shadow-glass-hover",
+          "glass-surface-secondary text-foreground hover:bg-glass-hover",
         ghost:
-          "hover:bg-white/20 dark:hover:bg-white/10 hover:backdrop-blur-sm transition-all duration-200",
+          "hover:bg-glass-hover text-foreground transition-all duration-150",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

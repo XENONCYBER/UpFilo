@@ -23,7 +23,7 @@ export function WorkspaceHeader({
   return (
     <header
       className={cn(
-        "glass-surface flex items-center justify-between p-4 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass",
+        "glass-surface flex items-center justify-between px-4 py-2 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass",
         className
       )}
     >
@@ -39,13 +39,13 @@ export function WorkspaceHeader({
         </Button>
 
         <div className="flex items-center space-x-2">
-          <h1 className="font-semibold text-foreground text-lg">
+          <h1 className="font-medium text-foreground text-base">
             {workspaceName}
           </h1>
           {currentChannel && (
             <>
-              <span className="text-muted-foreground">/</span>
-              <span className="text-muted-foreground font-medium">
+              <span className="text-muted-foreground text-sm">/</span>
+              <span className="text-muted-foreground font-normal text-sm">
                 # {currentChannel}
               </span>
             </>
@@ -54,12 +54,12 @@ export function WorkspaceHeader({
       </div>
 
       {/* Center Section - Search */}
-      <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
+      <div className="hidden md:flex items-center flex-1 max-w-sm mx-6">
         <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <Input
             placeholder="Search messages..."
-            className="glass-input pl-10"
+            className="glass-input pl-8 h-7 text-sm"
             onChange={(e) => onSearch?.(e.target.value)}
           />
         </div>

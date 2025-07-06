@@ -116,7 +116,7 @@ export const CreateChannelModal = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="glass-surface border-glass max-w-md">
+      <DialogContent className="glass-surface-elevated border-glass-border-light max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Create {channelType === "group" ? "Channel" : "User Channel"}
@@ -158,18 +158,22 @@ export const CreateChannelModal = ({
                 ))}
               </RadioGroup>
             ) : (
-              <div className="flex items-center justify-between p-3 rounded-md glass-surface border border-border/50">
-                <div className="space-y-1">
-                  <Label className="font-medium">Private Channel</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Make this channel private for direct conversations
-                  </p>
+              <div className="glass-surface-secondary rounded-xl p-4 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="font-medium text-foreground">
+                      Private Channel
+                    </Label>
+                    <p className="text-xs text-muted-foreground max-w-xs">
+                      Make this channel private for direct conversations
+                    </p>
+                  </div>
+                  <Switch
+                    checked={isPrivate}
+                    onChange={(e) => setIsPrivate(e.target.checked)}
+                    size="default"
+                  />
                 </div>
-                <Switch
-                  checked={isPrivate}
-                  onChange={(e) => setIsPrivate(e.target.checked)}
-                  size="default"
-                />
               </div>
             )}
           </div>
@@ -221,15 +225,10 @@ export const CreateChannelModal = ({
               variant="ghost"
               onClick={() => setOpen(false)}
               disabled={isPending}
-              className="glass-button"
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isPending || !name.trim()}
-              className="glass-button-primary"
-            >
+            <Button type="submit" disabled={isPending || !name.trim()}>
               {isPending ? "Creating..." : "Create Channel"}
             </Button>
           </div>

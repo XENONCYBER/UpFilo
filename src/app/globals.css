@@ -6,6 +6,8 @@ html,
 body,
 :root {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 @layer base {
@@ -36,12 +38,42 @@ body,
     --chart-5: 27 87% 67%;
     --radius: 0.75rem;
 
-    /* iOS 26 Liquid Glass Variables */
-    --glass-bg: rgba(255, 255, 255, 0.08);
-    --glass-border: rgba(255, 255, 255, 0.16);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --glass-backdrop: blur(20px) saturate(1.8);
-    --liquid-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
+    /* Modern Glassmorphic Design System */
+    /* Background and Surface Variables */
+    --glass-primary: rgba(255, 255, 255, 0.12);
+    --glass-secondary: rgba(255, 255, 255, 0.08);
+    --glass-tertiary: rgba(255, 255, 255, 0.05);
+
+    /* Border Variables */
+    --glass-border-light: rgba(255, 255, 255, 0.18);
+    --glass-border-medium: rgba(255, 255, 255, 0.12);
+    --glass-border-subtle: rgba(255, 255, 255, 0.08);
+
+    /* Shadow Variables */
+    --glass-shadow-light: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --glass-shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.06);
+    --glass-shadow-strong: 0 12px 32px rgba(0, 0, 0, 0.08);
+
+    /* Backdrop Blur Variables */
+    --glass-blur-light: blur(12px) saturate(1.5);
+    --glass-blur-medium: blur(16px) saturate(1.6);
+    --glass-blur-strong: blur(20px) saturate(1.8);
+
+    /* Interactive State Variables */
+    --glass-hover: rgba(255, 255, 255, 0.15);
+    --glass-active: rgba(255, 255, 255, 0.2);
+    --glass-focus: rgba(59, 130, 246, 0.15);
+
+    /* Solid Color Accents */
+    --accent-blue: #3b82f6;
+    --accent-blue-dark: #2563eb;
+    --accent-blue-light: rgba(59, 130, 246, 0.1);
+    --accent-purple: #8b5cf6;
+    --accent-purple-dark: #7c3aed;
+    --accent-purple-light: rgba(139, 92, 246, 0.1);
+    --accent-emerald: #10b981;
+    --accent-emerald-dark: #059669;
+    --accent-emerald-light: rgba(16, 185, 129, 0.1);
   }
 
   .dark {
@@ -70,12 +102,25 @@ body,
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
-    /* Dark mode Liquid Glass Variables */
-    --glass-bg: rgba(0, 0, 0, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --glass-backdrop: blur(20px) saturate(1.8);
-    --liquid-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 50%, rgba(236, 72, 153, 0.15) 100%);
+    /* Dark mode Glassmorphic Variables */
+    --glass-primary: rgba(0, 0, 0, 0.25);
+    --glass-secondary: rgba(0, 0, 0, 0.18);
+    --glass-tertiary: rgba(0, 0, 0, 0.12);
+
+    /* Dark Border Variables */
+    --glass-border-light: rgba(255, 255, 255, 0.12);
+    --glass-border-medium: rgba(255, 255, 255, 0.08);
+    --glass-border-subtle: rgba(255, 255, 255, 0.05);
+
+    /* Dark Shadow Variables */
+    --glass-shadow-light: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --glass-shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.25);
+    --glass-shadow-strong: 0 12px 32px rgba(0, 0, 0, 0.35);
+
+    /* Dark Interactive States */
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --glass-active: rgba(255, 255, 255, 0.12);
+    --glass-focus: rgba(59, 130, 246, 0.2);
   }
 }
 
@@ -89,78 +134,72 @@ body,
   }
 }
 
-/* iOS 26 Liquid Glass Design System */
+/* Modern Glassmorphic Design System */
 @layer components {
+
+  /* Primary Glass Surface */
   .glass-surface {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: var(--glass-backdrop);
-    -webkit-backdrop-filter: var(--glass-backdrop);
-    box-shadow: var(--glass-shadow);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--glass-primary);
+    border: 1px solid var(--glass-border-light);
+    backdrop-filter: var(--glass-blur-medium);
+    -webkit-backdrop-filter: var(--glass-blur-medium);
+    box-shadow: var(--glass-shadow-medium);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
   }
 
-  .glass-surface::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent);
-    pointer-events: none;
+  /* Secondary Glass Surface */
+  .glass-surface-secondary {
+    background: var(--glass-secondary);
+    border: 1px solid var(--glass-border-medium);
+    backdrop-filter: var(--glass-blur-light);
+    -webkit-backdrop-filter: var(--glass-blur-light);
+    box-shadow: var(--glass-shadow-light);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Elevated Glass Surface for modals and important UI */
   .glass-surface-elevated {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(24px) saturate(2);
-    -webkit-backdrop-filter: blur(24px) saturate(2);
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.12),
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    background: var(--glass-primary);
+    border: 1px solid var(--glass-border-light);
+    backdrop-filter: var(--glass-blur-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    box-shadow: var(--glass-shadow-strong), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .dark .glass-surface-elevated {
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  }
-
+  /* Glass Card Component */
   .glass-card {
     @apply glass-surface rounded-2xl;
     overflow: hidden;
   }
 
+  /* Glass Button Component */
   .glass-button {
-    @apply glass-surface rounded-xl px-4 py-2 text-sm font-medium;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-style: preserve-3d;
+    @apply glass-surface-secondary rounded-xl px-4 py-2 text-sm font-medium;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    color: hsl(var(--foreground));
   }
 
   .glass-button:hover {
-    transform: translateY(-1px) scale(1.02);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow:
-      0 16px 48px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    background: var(--glass-hover);
+    border-color: var(--glass-border-light);
+    box-shadow: var(--glass-shadow-medium);
+    transform: translateY(-1px);
   }
 
   .glass-button:active {
-    transform: translateY(0) scale(0.98);
+    transform: translateY(0);
+    background: var(--glass-active);
   }
 
+  /* Primary Glass Button */
   .glass-button-primary {
     @apply glass-surface rounded-xl px-4 py-2 text-sm font-medium;
-    background: rgba(255, 255, 255, 0.08) !important;
-    color: hsl(var(--foreground)) !important;
+    background: var(--accent-blue-light) !important;
+    color: var(--accent-blue) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
     border: 1px solid rgba(255, 255, 255, 0.16) !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
@@ -168,44 +207,51 @@ body,
   }
 
   .glass-button-primary:hover {
-    transform: translateY(-1px) scale(1.02);
-    background: rgba(255, 255, 255, 0.12) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    box-shadow:
-      0 16px 48px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    background: var(--accent-blue-light) !important;
+    border-color: var(--accent-blue) !important;
+    box-shadow: var(--glass-shadow-medium), 0 0 0 1px rgba(59, 130, 246, 0.1) inset;
+    transform: translateY(-1px);
+    color: var(--accent-blue-dark) !important;
   }
 
   .glass-button-primary:active {
-    transform: translateY(0) scale(0.98);
-    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateY(0);
+    background: var(--accent-blue-light) !important;
+    color: var(--accent-blue-dark) !important;
   }
 
+  /* Glass Input Component */
   .glass-input {
-    @apply glass-surface rounded-xl px-4 py-3 text-sm;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply glass-surface-secondary rounded-xl px-4 py-3 text-sm;
+    background: var(--glass-tertiary);
+    border: 1px solid var(--glass-border-subtle);
+    color: hsl(var(--foreground));
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .glass-input:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow:
-      0 0 0 3px rgba(59, 130, 246, 0.1),
-      0 8px 32px rgba(0, 0, 0, 0.12);
+    background: var(--glass-secondary);
+    border-color: var(--glass-border-medium);
+    box-shadow: 0 0 0 3px var(--glass-focus), var(--glass-shadow-light);
   }
 
-  .liquid-gradient {
-    background: var(--liquid-gradient);
+  .glass-input::placeholder {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.7;
   }
 
-  .liquid-gradient-strong {
-    background: linear-gradient(135deg,
-        rgb(59, 130, 246) 0%,
-        rgb(147, 51, 234) 50%,
-        rgb(236, 72, 153) 100%);
+  /* Solid Color Utilities */
+  .bg-accent-blue {
+    background: var(--accent-blue);
+  }
+
+  .bg-accent-purple {
+    background: var(--accent-purple);
+  }
+
+  .bg-accent-emerald {
+    background: var(--accent-emerald);
   }
 
   .floating-animation {
@@ -264,45 +310,6 @@ body,
   .dark .header-glass {
     background: rgba(0, 0, 0, 0.15);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  }
-
-  /* Quill rich text editor glassmorphic styling */
-  .ql-toolbar {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 0.75rem 0.75rem 0 0 !important;
-    padding: 0.5rem !important;
-  }
-
-  .ql-container {
-    background: transparent !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-top: none !important;
-    border-radius: 0 0 0.75rem 0.75rem !important;
-    font-family: inherit !important;
-    font-size: 0.875rem !important;
-    color: hsl(var(--foreground)) !important;
-  }
-
-  .ql-editor {
-    background: transparent !important;
-    color: hsl(var(--foreground)) !important;
-    padding: 0.75rem !important;
-    min-height: 60px !important;
-    max-height: 150px !important;
-    overflow-y: auto !important;
-    line-height: 1.5 !important;
-  }
-
-  .ql-editor.ql-blank::before {
-    color: hsl(var(--muted-foreground)) !important;
-    font-style: italic;
-    opacity: 0.7;
-  }
-
-  .ql-toolbar .ql-stroke {
-    stroke: hsl(var(--foreground)) !important;
   }
 
   .ql-toolbar .ql-fill {
@@ -379,6 +386,15 @@ body,
 
   .dark .ql-container {
     border-color: rgba(255, 255, 255, 0.1) !important;
+    background: transparent !important;
+  }
+
+  .dark .ql-editor {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .dark .ql-editor.ql-blank::before {
+    color: hsl(var(--muted-foreground)) !important;
   }
 
   .dark .ql-snow .ql-tooltip {
@@ -396,99 +412,30 @@ body,
     border-color: rgba(255, 255, 255, 0.1) !important;
   }
 
-  /* Quill rich text content styling */
-  .ql-editor h3,
-  .ql-editor h4,
-  .ql-editor h5 {
-    font-weight: 600;
-    margin: 0.5rem 0;
-    color: hsl(var(--foreground));
+  .dark .ql-toolbar button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
   }
 
-  .ql-editor strong {
-    font-weight: 600;
-    color: hsl(var(--foreground));
-  }
-
-  .ql-editor em {
-    font-style: italic;
-    color: hsl(var(--foreground));
-  }
-
-  .ql-editor u {
-    text-decoration: underline;
-    color: hsl(var(--foreground));
-  }
-
-  .ql-editor code {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 0.25rem;
-    padding: 0.125rem 0.25rem;
-    font-family: 'Courier New', monospace;
-    color: hsl(var(--foreground));
-  }
-
-  .ql-editor blockquote {
-    border-left: 3px solid rgba(255, 255, 255, 0.3);
-    margin: 0.5rem 0;
-    padding-left: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 0 0.25rem 0.25rem 0;
-    color: hsl(var(--muted-foreground));
-  }
-
-  .ql-editor pre {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.375rem;
-    padding: 0.75rem;
-    font-family: 'Courier New', monospace;
-    color: hsl(var(--foreground));
-    overflow-x: auto;
-  }
-
-  .ql-editor ol,
-  .ql-editor ul {
-    margin: 0.5rem 0;
-    padding-left: 1.5rem;
-    color: hsl(var(--foreground));
-  }
-
-  .ql-editor a {
-    color: hsl(var(--primary));
-    text-decoration: underline;
-  }
-
-  .ql-editor a:hover {
-    color: hsl(var(--primary));
-    opacity: 0.8;
+  .dark .ql-toolbar button.ql-active {
+    background: rgba(255, 255, 255, 0.15) !important;
   }
 }
 
 @layer utilities {
-  .gradient-mesh {
+  .subtle-mesh {
     background:
-      radial-gradient(ellipse at 20% 70%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 30%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-      radial-gradient(ellipse at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 30%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
   }
 
-  .text-glass {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.9) 0%,
-        rgba(255, 255, 255, 0.6) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .text-emphasis {
+    color: var(--accent-blue);
+    font-weight: 600;
   }
 
-  .dark .text-glass {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(255, 255, 255, 0.7) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .dark .text-emphasis {
+    color: #60a5fa;
   }
 
   .depth-layer-1 {
@@ -650,8 +597,8 @@ body,
 
 .rich-content blockquote {
   border-left: 3px solid rgba(255, 255, 255, 0.3);
-  padding-left: 1rem;
   margin: 0.5rem 0;
+  padding-left: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 0 0.25rem 0.25rem 0;
   color: hsl(var(--muted-foreground));
@@ -663,6 +610,7 @@ body,
 }
 
 .rich-content a:hover {
+  color: hsl(var(--primary));
   opacity: 0.8;
 }
 
@@ -843,35 +791,35 @@ body,
   color: rgb(147, 197, 253);
 }
 
-/* Avatar gradient variations */
+/* Avatar solid color variations */
 .message-avatar-1 {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #7c3aed;
 }
 
 .message-avatar-2 {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: #e11d48;
 }
 
 .message-avatar-3 {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: #0ea5e9;
 }
 
 .message-avatar-4 {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  background: #10b981;
 }
 
 .message-avatar-5 {
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  background: #f59e0b;
 }
 
 .message-avatar-6 {
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  background: #8b5cf6;
 }
 
 .message-avatar-7 {
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  background: #f97316;
 }
 
 .message-avatar-8 {
-  background: linear-gradient(135deg, #ff8a80 0%, #ea4c88 100%);
+  background: #ec4899;
 }

@@ -159,6 +159,7 @@ export function WorkspaceLayout({
         onChannelSelect={handleChannelSelect}
         workspaceId={workspace._id}
         onCollapseChange={setSidebarCollapsed}
+        selectedChannelId={selectedChannel?.id}
       />
 
       {/* Main Content */}
@@ -178,7 +179,7 @@ export function WorkspaceLayout({
         />
 
         {/* Content Area */}
-        <main className="glass-surface flex-1 overflow-hidden p-4 m-4 rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass">
+        <main className="glass-surface flex-1 overflow-hidden rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass">
           {renderContent()}
         </main>
       </div>
