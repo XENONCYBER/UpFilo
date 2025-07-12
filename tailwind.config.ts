@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
+  			// Legacy shadcn colors for compatibility
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -49,12 +50,49 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+  			
+  			// New Neumorphic + Glassmorphic Design System
+  			'neomorphic': {
+  				bg: 'var(--neomorphic-bg)',
+  				surface: 'var(--neomorphic-surface)',
+  				text: 'var(--neomorphic-text)',
+  				'text-secondary': 'var(--neomorphic-text-secondary)',
+  				border: 'var(--neomorphic-border)',
+  			},
+  			'electric-blue': 'var(--electric-blue)',
+  			'electric-purple': 'var(--electric-purple)',
+  			'soft-green': 'var(--soft-green)',
+  			'warm-orange': 'var(--warm-orange)',
+  			'coral-red': 'var(--coral-red)',
   		},
+  		
+  		boxShadow: {
+  			'neomorphic-raised': '8px 8px 16px var(--neomorphic-shadow-dark), -8px -8px 16px var(--neomorphic-shadow-light)',
+  			'neomorphic-pressed': 'inset 4px 4px 8px var(--neomorphic-shadow-dark), inset -4px -4px 8px var(--neomorphic-shadow-light)',
+  			'neomorphic-flat': '4px 4px 8px var(--neomorphic-shadow-dark), -4px -4px 8px var(--neomorphic-shadow-light)',
+  			'glass': 'var(--glass-shadow)',
+  			'glass-elevated': '0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+  		},
+  		
+  		backdropBlur: {
+  			'glass': 'var(--glass-blur)',
+  			'glass-light': 'blur(12px)',
+  			'glass-heavy': 'blur(20px)',
+  		},
+  		
+  		animation: {
+  			'float': 'float 6s ease-in-out infinite',
+  			'morph-glow': 'morphGlow 3s ease-in-out infinite',
+  			'glass-shimmer': 'glassShimmer 2s infinite',
+  		},
+  		
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+  			sm: 'calc(var(--radius) - 4px)',
+  			'neomorphic': '16px',
+  			'neomorphic-lg': '24px',
   		}
   	}
   },

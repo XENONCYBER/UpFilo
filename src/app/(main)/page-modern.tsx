@@ -21,6 +21,7 @@ import {
   Mic,
   Video,
   FileText,
+  Workflow,
   Moon,
   Sun,
 } from "lucide-react";
@@ -147,6 +148,16 @@ export default function ModernLandingPage() {
             animationDelay: "2s",
           }}
         />
+        <div
+          className="absolute w-64 h-64 rounded-full opacity-10 animate-float"
+          style={{
+            background:
+              "radial-gradient(circle, var(--soft-green) 0%, transparent 70%)",
+            left: "50%",
+            top: "30%",
+            animationDelay: "4s",
+          }}
+        />
       </div>
 
       {/* Navigation */}
@@ -174,6 +185,12 @@ export default function ModernLandingPage() {
             >
               Demo
             </a>
+            <a
+              href="#about"
+              className="text-neomorphic-text-secondary hover:text-electric-blue transition-colors"
+            >
+              About
+            </a>
 
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -184,6 +201,10 @@ export default function ModernLandingPage() {
               ) : (
                 <Moon className="w-4 h-4" />
               )}
+            </button>
+
+            <button className="btn-primary interactive-lift">
+              Get Started
             </button>
           </div>
         </div>
@@ -196,7 +217,7 @@ export default function ModernLandingPage() {
             <div className="inline-flex items-center gap-2 bg-electric-blue/10 border border-electric-blue/20 rounded-full px-4 py-2 mb-6">
               <Sparkles className="w-4 h-4 text-electric-blue" />
               <span className="text-sm font-medium text-electric-blue">
-                New: Neumorphic Design System
+                New: AI-Powered Collaboration
               </span>
             </div>
 
@@ -273,6 +294,14 @@ export default function ModernLandingPage() {
                 </Button>
               </div>
             </div>
+          </div>
+
+          {/* Demo Button */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button className="btn-glass interactive-lift px-8 py-4 text-lg font-semibold group">
+              <Play className="w-5 h-5 mr-2" />
+              Watch Demo
+            </button>
           </div>
         </div>
       </section>
