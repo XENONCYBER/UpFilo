@@ -10,10 +10,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useCreateChannel } from "@/features/channels/api/use-create-channels";
 import { useDeleteChannelGroup } from "@/features/channels/api/use-delete-channel-group";
 import { useUpdateChannelGroup } from "@/features/channels/api/use-update-channel-group";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { useConvexWorkspaceId } from "@/hooks/use-convex-workspace-id";
 import { Hint } from "./hint";
 import { NameInputDialog } from "@/components/name-input-dialog";
 import { Id } from "../../../convex/_generated/dataModel";
@@ -23,7 +33,6 @@ interface Channel {
   name: string;
   type: "group" | "user";
   subType: "text" | "voice" | "announcement" | "private";
-  unreadCount?: number;
   isActive?: boolean;
   description?: string;
 }
@@ -47,19 +56,44 @@ export const ChannelGroup = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
-  const workspaceId = useWorkspaceId();
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const workspaceId = useConvexWorkspaceId();
   const { mutate: deleteGroup } = useDeleteChannelGroup();
   const { mutate: createChannel } = useCreateChannel();
   const { mutate: updateGroup } = useUpdateChannelGroup();
 
   const onAddChannel = (channelName: string) => {
-    createChannel({
+    console.log("Creating channel:", {
       name: channelName,
-      workspaceId: workspaceId as Id<"workspaces">,
+      workspaceId: workspaceId,
       groupId: id,
-      type: type, // Use the group's type (group or user)
-      subType: "text", // Default to text subtype
+      type: type,
+      subType: "text",
     });
+
+    if (!workspaceId) {
+      console.error("No workspace ID found");
+      return;
+    }
+
+    createChannel(
+      {
+        name: channelName,
+        workspaceId: workspaceId as Id<"workspaces">,
+        groupId: id,
+        type: type, // Use the group's type (group or user)
+        subType: "text", // Default to text subtype
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Channel created successfully:", data);
+          setIsModalOpen(false);
+        },
+        onError: (error) => {
+          console.error("Failed to create channel:", error);
+        },
+      }
+    );
   };
 
   const onRenameGroup = (newName: string) => {
@@ -72,6 +106,11 @@ export const ChannelGroup = ({
 
   const onDelete = () => {
     deleteGroup({ groupId: id });
+    setIsDeleteConfirmOpen(false);
+  };
+
+  const confirmDelete = () => {
+    setIsDeleteConfirmOpen(true);
   };
 
   return (
@@ -119,7 +158,7 @@ export const ChannelGroup = ({
                 Rename Group
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={onDelete}
+                onClick={confirmDelete}
                 className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950 dark:focus:bg-red-950 cursor-pointer"
               >
                 <Trash className="size-4" />
@@ -139,7 +178,6 @@ export const ChannelGroup = ({
                 name: channel.name,
                 type: channel.subType,
                 isActive: channel.isActive,
-                unreadCount: channel.unreadCount,
                 description: channel.description,
               }}
               onClick={() => onChannelSelect?.(channel)}
@@ -154,6 +192,8 @@ export const ChannelGroup = ({
         onClose={() => setIsModalOpen(false)}
         title="Create a new channel"
         placeholder="Enter channel name"
+        buttonText="Create Channel"
+        description="Enter a name for your new channel"
       />
 
       <NameInputDialog
@@ -163,7 +203,41 @@ export const ChannelGroup = ({
         title="Rename group"
         placeholder="Enter new group name"
         defaultValue={name}
+        buttonText="Rename Group"
+        description="Enter a new name for this channel group"
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={isDeleteConfirmOpen}
+        onOpenChange={setIsDeleteConfirmOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Channel Group</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the group "{name}"?
+              {channels && channels.length > 0 && (
+                <>
+                  <br />
+                  <br />
+                  This will delete the group but keep all {channels.length}{" "}
+                  channel(s) as ungrouped channels.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onDelete}
+              className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+            >
+              Delete Group
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -1,8 +1,17 @@
 "use client";
 
-import { Check, Clock, File, Image, Video } from "lucide-react";
+import {
+  Check,
+  Clock,
+  File,
+  Image,
+  Video,
+  Music,
+  FileText,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Id } from "../../../convex/_generated/dataModel";
+import { PDFViewer } from "@/components/PDFViewer";
 
 interface RichContent {
   type?: "rich";
@@ -53,32 +62,108 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
               {message.richContent.attachments.map((attachment, index) => (
                 <div
                   key={index}
-                  className="flex items-center space-x-2 p-2 bg-white/5 dark:bg-black/5 rounded-lg border border-white/10 dark:border-black/10"
+                  className="flex items-center space-x-3 p-3 bg-white/5 dark:bg-black/5 rounded-lg border border-white/10 dark:border-black/10 hover:bg-white/10 dark:hover:bg-black/15 transition-colors"
                 >
                   <div className="flex-shrink-0">
                     {attachment.type.startsWith("image/") ? (
-                      <Image className="h-4 w-4 text-blue-500" />
+                      <div className="relative">
+                        <Image className="h-5 w-5 text-blue-500" />
+                        {/* Preview for images */}
+                        <div className="mt-2">
+                          <img
+                            src={attachment.url}
+                            alt={attachment.name}
+                            className="max-w-xs max-h-48 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() =>
+                              window.open(attachment.url, "_blank")
+                            }
+                            onError={(e) => {
+                              console.error(
+                                "Image load error:",
+                                attachment.url
+                              );
+                              // Hide the image if it fails to load
+                              const img = e.target as HTMLImageElement;
+                              img.style.display = "none";
+                            }}
+                            onLoad={() => {
+                              console.log(
+                                "Image loaded successfully:",
+                                attachment.url
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
                     ) : attachment.type.startsWith("video/") ? (
-                      <Video className="h-4 w-4 text-green-500" />
+                      <div className="relative">
+                        <Video className="h-5 w-5 text-green-500" />
+                        {/* Preview for videos */}
+                        <div className="mt-2">
+                          <video
+                            src={attachment.url}
+                            controls
+                            className="max-w-xs max-h-48 rounded-lg"
+                            preload="metadata"
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        </div>
+                      </div>
+                    ) : attachment.type.startsWith("audio/") ? (
+                      <div className="relative">
+                        <Music className="h-5 w-5 text-purple-500" />
+                        {/* Audio player */}
+                        <div className="mt-2">
+                          <audio
+                            src={attachment.url}
+                            controls
+                            className="max-w-xs"
+                            preload="metadata"
+                          >
+                            Your browser does not support the audio tag.
+                          </audio>
+                        </div>
+                      </div>
+                    ) : attachment.type === "application/pdf" ||
+                      attachment.name.toLowerCase().endsWith(".pdf") ? (
+                      <div className="mt-2 w-full max-w-lg">
+                        <PDFViewer
+                          url={attachment.url}
+                          fileName={attachment.name}
+                          className="w-full"
+                        />
+                      </div>
                     ) : (
-                      <File className="h-4 w-4 text-gray-500" />
+                      <File className="h-5 w-5 text-gray-500" />
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {attachment.name}
-                    </p>
-                    {attachment.size && (
-                      <p className="text-xs text-muted-foreground">
-                        {(attachment.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
+
+                  {/* File info and download */}
+                  {!attachment.type.startsWith("image/") &&
+                    !attachment.type.startsWith("video/") &&
+                    !attachment.type.startsWith("audio/") &&
+                    attachment.type !== "application/pdf" &&
+                    !attachment.name.toLowerCase().endsWith(".pdf") && (
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate text-foreground">
+                          {attachment.name}
+                        </p>
+                        {attachment.size && (
+                          <p className="text-xs text-muted-foreground">
+                            {(attachment.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        )}
+                      </div>
                     )}
-                  </div>
+
+                  {/* Download button */}
                   <a
                     href={attachment.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-500 hover:text-blue-400"
+                    download={attachment.name}
+                    className="flex-shrink-0 px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200"
                   >
                     Download
                   </a>

@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import Quill from "quill";
 import { toast } from "sonner";
 import { Id } from "../../../convex/_generated/dataModel";
+import { uploadFiles, UploadedFile } from "@/lib/upload";
 
 const Editor = dynamic(() => import("@/components/workspace/editor"), {
   ssr: false,
@@ -61,6 +62,23 @@ export const ChatInput = ({
         return; // Don't send empty messages
       }
 
+      // Upload files to Backblaze B2 if any
+      let uploadedFiles: UploadedFile[] = [];
+      if (hasFileContent) {
+        try {
+          uploadedFiles = await uploadFiles(images);
+          toast.success(
+            `${uploadedFiles.length} file(s) uploaded successfully`
+          );
+        } catch (error) {
+          console.error("File upload failed:", error);
+          toast.error(
+            "Failed to upload files. Message will be sent without attachments."
+          );
+          // Continue without files rather than failing completely
+        }
+      }
+
       // Prepare rich content object
       const richContent: any = {};
 
@@ -68,21 +86,20 @@ export const ChatInput = ({
         richContent.delta = parsedContent;
       }
 
-      if (hasFileContent) {
-        richContent.attachments = images.map((file) => ({
+      if (uploadedFiles.length > 0) {
+        richContent.attachments = uploadedFiles.map((file) => ({
           name: file.name,
           size: file.size,
           type: file.type,
-          // TODO: Upload files to storage and get URLs
-          url: URL.createObjectURL(file), // Temporary blob URL
+          url: file.url, // Real URL from Backblaze B2
         }));
       }
 
       // Send the message
       const contentToSend = hasTextContent
         ? plainTextContent
-        : hasFileContent
-          ? `Shared ${images.length} file${images.length > 1 ? "s" : ""}`
+        : uploadedFiles.length > 0
+          ? `Shared ${uploadedFiles.length} file${uploadedFiles.length > 1 ? "s" : ""}`
           : "";
 
       // Reset the editor immediately for better UX (optimistic UI)

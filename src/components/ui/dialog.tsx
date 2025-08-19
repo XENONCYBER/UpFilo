@@ -198,7 +198,7 @@ export function DialogTitle({
   return (
     <h2
       className={cn(
-        "text-lg font-semibold leading-none tracking-tight text-neomorphic-text",
+        "text-lg font-semibold leading-none tracking-tight text-gray-900 dark:text-white",
         className
       )}
       {...props}
@@ -216,7 +216,7 @@ export function DialogDescription({
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn("text-sm text-neomorphic-text-secondary", className)}
+      className={cn("text-sm text-gray-600 dark:text-gray-300", className)}
       {...props}
     >
       {children}

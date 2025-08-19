@@ -86,8 +86,13 @@ export function WorkspaceLayout({
   // Don't render if workspace is not loaded yet
   if (isWorkspaceLoading || !workspace) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-muted-foreground">Loading workspace...</div>
+      <div className="flex h-screen items-center justify-center bg-neomorphic-bg">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-electric-blue/20 border-t-electric-blue rounded-full animate-spin mx-auto"></div>
+          <div className="text-neomorphic-text-secondary font-medium">
+            Loading workspace...
+          </div>
+        </div>
       </div>
     );
   }
@@ -106,40 +111,107 @@ export function WorkspaceLayout({
         return <ModernMediaGallery className="flex-1" />;
       case "profile":
         return (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
-                Profile
-              </h2>
-              <p className="text-neomorphic-text-secondary">
-                Manage your profile settings
-              </p>
+          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+            <div className="text-center space-y-6 max-w-md mx-auto p-8">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-electric-blue to-electric-purple mx-auto flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">
+                  {userName?.charAt(0).toUpperCase() || "U"}
+                </span>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                  Profile Settings
+                </h2>
+                <p className="text-neomorphic-text-secondary">
+                  Manage your profile and workspace preferences
+                </p>
+              </div>
+              <div className="card-glass p-6 rounded-2xl space-y-4">
+                <div className="text-left space-y-2">
+                  <label className="text-sm font-medium text-neomorphic-text">
+                    Display Name
+                  </label>
+                  <div className="px-3 py-2 bg-neomorphic-surface/50 rounded-lg text-neomorphic-text">
+                    {userName || "Guest User"}
+                  </div>
+                </div>
+                <div className="text-left space-y-2">
+                  <label className="text-sm font-medium text-neomorphic-text">
+                    Workspace
+                  </label>
+                  <div className="px-3 py-2 bg-neomorphic-surface/50 rounded-lg text-neomorphic-text">
+                    {workspace?.name || "Unknown Workspace"}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
       case "notifications":
         return (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
-                Notifications
-              </h2>
-              <p className="text-neomorphic-text-secondary">
-                View your notifications
-              </p>
+          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+            <div className="text-center space-y-6 max-w-md mx-auto p-8">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-warm-orange to-coral-red mx-auto flex items-center justify-center">
+                <span className="text-2xl">🔔</span>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                  Notifications
+                </h2>
+                <p className="text-neomorphic-text-secondary">
+                  Stay updated with your workspace activity
+                </p>
+              </div>
+              <div className="card-glass p-6 rounded-2xl">
+                <div className="space-y-4">
+                  <div className="text-center text-neomorphic-text-secondary">
+                    No new notifications
+                  </div>
+                  <div className="text-sm text-neomorphic-text-secondary">
+                    You're all caught up! New notifications will appear here.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
       case "settings":
         return (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
-                Settings
-              </h2>
-              <p className="text-neomorphic-text-secondary">
-                Configure your workspace
-              </p>
+          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+            <div className="text-center space-y-6 max-w-lg mx-auto p-8">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-electric-purple to-electric-blue mx-auto flex items-center justify-center">
+                <span className="text-2xl">⚙️</span>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                  Workspace Settings
+                </h2>
+                <p className="text-neomorphic-text-secondary">
+                  Configure your workspace preferences and features
+                </p>
+              </div>
+              <div className="grid gap-4">
+                <div className="card-glass p-4 rounded-xl text-left space-y-2">
+                  <h3 className="font-medium text-neomorphic-text">General</h3>
+                  <p className="text-sm text-neomorphic-text-secondary">
+                    Workspace name, description, and basic settings
+                  </p>
+                </div>
+                <div className="card-glass p-4 rounded-xl text-left space-y-2">
+                  <h3 className="font-medium text-neomorphic-text">Members</h3>
+                  <p className="text-sm text-neomorphic-text-secondary">
+                    Manage workspace members and permissions
+                  </p>
+                </div>
+                <div className="card-glass p-4 rounded-xl text-left space-y-2">
+                  <h3 className="font-medium text-neomorphic-text">
+                    Integrations
+                  </h3>
+                  <p className="text-sm text-neomorphic-text-secondary">
+                    Connect external tools and services
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -151,28 +223,82 @@ export function WorkspaceLayout({
             channelType={selectedChannel.type === "user" ? "user" : "text"}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
-                Select a Channel
-              </h2>
-              <p className="text-neomorphic-text-secondary">
-                Choose a channel from the sidebar to start chatting
-              </p>
+          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+            <div className="text-center space-y-6 max-w-md mx-auto p-8">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-soft-green to-electric-blue mx-auto flex items-center justify-center">
+                <span className="text-2xl"># </span>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                  Select a Channel
+                </h2>
+                <p className="text-neomorphic-text-secondary">
+                  Choose a channel from the sidebar to start chatting with your
+                  team
+                </p>
+              </div>
+              <div className="card-glass p-6 rounded-2xl">
+                <div className="space-y-3 text-sm text-neomorphic-text-secondary">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-electric-blue rounded-full"></span>
+                    Browse channels in the sidebar
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-soft-green rounded-full"></span>
+                    Create new channels and groups
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-electric-purple rounded-full"></span>
+                    Start conversations with team members
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
       default:
         return (
           children || (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
-                  Welcome to UpFilo
-                </h2>
-                <p className="text-neomorphic-text-secondary">
-                  Select a section to get started
-                </p>
+            <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+              <div className="text-center space-y-6 max-w-lg mx-auto p-8">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-electric-blue via-electric-purple to-soft-green mx-auto flex items-center justify-center">
+                  <span className="text-3xl font-bold text-white">
+                    {workspace?.name?.charAt(0).toUpperCase() || "W"}
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-bold text-neomorphic-text">
+                    Welcome to {workspace?.name || "UpFilo"}
+                  </h2>
+                  <p className="text-lg text-neomorphic-text-secondary">
+                    Your collaborative workspace is ready to go
+                  </p>
+                </div>
+                <div className="grid gap-3">
+                  <button
+                    onClick={() => setActiveSection("channels")}
+                    className="card-glass p-4 rounded-xl text-left space-y-2 hover:scale-105 transition-transform duration-200"
+                  >
+                    <h3 className="font-medium text-neomorphic-text flex items-center gap-2">
+                      <span className="text-electric-blue">#</span> Browse
+                      Channels
+                    </h3>
+                    <p className="text-sm text-neomorphic-text-secondary">
+                      Join conversations and collaborate with your team
+                    </p>
+                  </button>
+                  <button
+                    onClick={() => setActiveSection("mediaGallery")}
+                    className="card-glass p-4 rounded-xl text-left space-y-2 hover:scale-105 transition-transform duration-200"
+                  >
+                    <h3 className="font-medium text-neomorphic-text flex items-center gap-2">
+                      <span className="text-soft-green">📁</span> Media Gallery
+                    </h3>
+                    <p className="text-sm text-neomorphic-text-secondary">
+                      Explore shared files, images, and documents
+                    </p>
+                  </button>
+                </div>
               </div>
             </div>
           )
