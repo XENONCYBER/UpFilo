@@ -161,7 +161,7 @@ const Editor = ({
         }}
         className="hidden"
       />
-      <div className="flex flex-col border border-slate-200 dark:border-white/20 rounded-md overflow-hidden focus-within:border-slate-300 dark:focus-within:border-white/30 focus-within:shadow-sm transition bg-white dark:bg-black/40 backdrop-blur-xl">
+      <div className="flex flex-col border border-neomorphic-border rounded-neomorphic overflow-hidden focus-within:border-electric-blue focus-within:shadow-neomorphic transition card-neomorphic">
         <div ref={containerRef} className="h-full ql-custom" />
         {images.length > 0 && (
           <div className="p-2">
@@ -176,7 +176,7 @@ const Editor = ({
                             prev.filter((_, i) => i !== index)
                           );
                         }}
-                        className="hidden group-hover:flex rounded-full bg-black/70 hover:bg-black dark:bg-white/20 dark:hover:bg-white/30 absolute -top-2 -right-2 text-white dark:text-white size-5 z-[4] border-2 border-white dark:border-black/20 items-center justify-center transition-all duration-200"
+                        className="hidden group-hover:flex rounded-full bg-coral-red hover:bg-coral-red/80 absolute -top-2 -right-2 text-white size-5 z-[4] border-2 border-neomorphic-surface items-center justify-center transition-all duration-200"
                       >
                         <XIcon className="size-3" />
                       </button>
@@ -189,7 +189,7 @@ const Editor = ({
                         className="object-cover"
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center text-xs text-muted-foreground p-1">
+                      <div className="flex flex-col items-center justify-center text-xs text-neomorphic-text-secondary p-1">
                         <div className="truncate w-full text-center">
                           {file.name.split(".").pop()?.toUpperCase()}
                         </div>
@@ -204,36 +204,39 @@ const Editor = ({
             </div>
           </div>
         )}
-        <div className="flex px-2 pb-1 z-[5]">
+        <div className="flex px-1.5 py-1.5 mt-2 z-[5] gap-x-2">
           <Hint
             label={isToolbarVisible ? "Hide Formatting" : "Show Formatting"}
           >
-            <Button disabled={disabled} variant="ghost" onClick={toogleToolbar}>
+            <button
+              disabled={disabled}
+              onClick={toogleToolbar}
+              className="btn-neomorphic p-2"
+            >
               <PiTextAa className="size-4" />
-            </Button>
+            </button>
           </Hint>
           {variant === "create" && (
             <Hint label="Add Media">
-              <Button
+              <button
                 disabled={disabled}
-                variant="ghost"
                 onClick={() => imageElementRef.current?.click()}
+                className="btn-neomorphic p-2"
               >
                 <ImageIcon className="size-4" />
-              </Button>
+              </button>
             </Hint>
           )}
           {variant === "update" && (
-            <div className="ml-auto flex items-center gap-x-2">
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="ml-auto flex items-center gap-x-1.5">
+              <button
                 onClick={onCancel}
                 disabled={disabled}
+                className="btn-neomorphic px-2.5 py-0.5 text-xs"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 disabled={disabled || isEmpty}
                 onClick={() => {
                   onSubmit({
@@ -241,15 +244,14 @@ const Editor = ({
                     images,
                   });
                 }}
-                size="sm"
-                className="bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+                className="btn-primary px-2.5 py-0.5 text-xs"
               >
                 Save
-              </Button>
+              </button>
             </div>
           )}
           {variant === "create" && (
-            <Button
+            <button
               disabled={disabled || isEmpty}
               onClick={() => {
                 onSubmit({
@@ -258,29 +260,17 @@ const Editor = ({
                 });
               }}
               className={cn(
-                "ml-auto size-8 p-0 rounded-full transition-all duration-200",
+                "ml-auto p-1 rounded-full transition-all duration-200 interactive-lift",
                 isEmpty
-                  ? "bg-muted hover:bg-muted/80 text-muted-foreground cursor-not-allowed"
-                  : "bg-[#007a5a] hover:bg-[#007a5a]/80 text-white shadow-md hover:shadow-lg hover:scale-105"
+                  ? "bg-neomorphic-surface text-neomorphic-text-secondary cursor-not-allowed opacity-50"
+                  : "btn-primary shadow-neomorphic hover:shadow-neomorphic-pressed"
               )}
             >
-              <MdSend className="size-4" />
-            </Button>
+              <MdSend className="size-3.5" />
+            </button>
           )}
         </div>
       </div>
-      {variant === "create" && (
-        <div
-          className={cn(
-            "px-2 pb-1 flex justify-end text-[10px] text-muted-foreground opacity-0 transition",
-            !isEmpty && "opacity-100"
-          )}
-        >
-          <p>
-            <strong>Shift+Return</strong> to add a new line
-          </p>
-        </div>
-      )}
     </div>
   );
 };

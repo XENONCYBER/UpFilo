@@ -1,12 +1,10 @@
-import { useCreateMessage } from "@/features/messages/api/use-create-message";
-import { useGenerateUploadURL } from "@/features/upload/api/use-generate-uploadURL";
+import { useSendMessage } from "@/features/messages/api/use-send-message";
 import { useChannelId } from "@/hooks/use-channel-id";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import dynamic from "next/dynamic";
 import Quill from "quill";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Id } from "../../../../../../convex/_generated/dataModel";
 
 const Editor = dynamic(() => import("@/components/workspace/editor"), {
   ssr: false,
@@ -14,16 +12,15 @@ const Editor = dynamic(() => import("@/components/workspace/editor"), {
 
 interface ChatInputProps {
   placeholder: string;
+  onSendMessage?: (content: string) => void;
+  disabled?: boolean;
 }
 
-type CreateMessageValues = {
-  channelId: Id<"channels">;
-  workspaceId: Id<"workspaces">;
-  body: string;
-  image?: Id<"_storage"> | undefined;
-};
-
-export const ChatInput = ({ placeholder }: ChatInputProps) => {
+export const ChatInput = ({
+  placeholder,
+  onSendMessage,
+  disabled,
+}: ChatInputProps) => {
   const [editorKey, setEditorKey] = useState(0);
   const [isPending, setIsPending] = useState(false);
 
@@ -32,56 +29,36 @@ export const ChatInput = ({ placeholder }: ChatInputProps) => {
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
 
-  const { mutate: generateUploadURL } = useGenerateUploadURL();
-
-  const { mutate: createMessage } = useCreateMessage();
+  const { mutate: sendMessage } = useSendMessage({ channelId });
 
   const handleSubmit = async ({
     body,
-    image,
+    images,
   }: {
     body: string;
-    image: File | null;
+    images: File[];
   }) => {
     try {
       setIsPending(true);
       editorRef.current?.enable(false);
 
-      const values: CreateMessageValues = {
-        body,
-        workspaceId,
-        channelId,
-        image: undefined,
-      };
+      // Use the sendMessage hook with the expected interface
+      await sendMessage({
+        content: body,
+        userName: "User", // TODO: Get actual user name
+        richContent: images.length > 0 ? { images } : undefined,
+      });
 
-      if (image) {
-        const url = await generateUploadURL({}, { throwError: true });
-
-        if (!url) {
-          throw new Error("Failed to generate upload URL");
-        }
-
-        const result = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": image?.type || "application/octet-stream",
-          },
-          body: image,
-        });
-
-        if (!result.ok) {
-          throw new Error("Failed to upload image");
-        }
-        const { storageId } = await result.json();
-
-        values.image = storageId;
+      // Call parent onSendMessage if provided
+      if (onSendMessage) {
+        onSendMessage(body);
       }
 
-      await createMessage(values, { throwError: true });
-
       setEditorKey((prevKey) => prevKey + 1);
+      toast.success("Message sent successfully");
     } catch (error) {
       toast.error("Failed to send message");
+      console.error("Send message error:", error);
     } finally {
       setIsPending(false);
       editorRef.current?.enable(true);
@@ -89,12 +66,12 @@ export const ChatInput = ({ placeholder }: ChatInputProps) => {
   };
 
   return (
-    <div className="px-5 w-full">
+    <div className="p-3 border-t border-neomorphic-border bg-neomorphic-surface">
       <Editor
         key={editorKey}
         placeholder={placeholder}
         onSubmit={handleSubmit}
-        disabled={isPending}
+        disabled={isPending || disabled}
         innerRef={editorRef}
       />
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./workspace/message-bubble";
 import { ChatInput } from "./workspace/chat-input";
@@ -11,6 +11,8 @@ import { useGetMessages } from "@/features/messages/api/use-get-messages";
 import { useSendMessage } from "@/features/messages/api/use-send-message";
 import { useUserSession } from "./user-session-provider";
 import { Id } from "../../convex/_generated/dataModel";
+import { UploadedFile } from "@/lib/upload";
+import { toast } from "sonner";
 
 interface Message {
   _id: Id<"messages">;
@@ -37,12 +39,19 @@ export function ModernChannelView({
   className,
 }: ChannelViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [currentChannelId, setCurrentChannelId] = useState<string>("");
+  const [previousMessageCount, setPreviousMessageCount] = useState(0);
   const { userName } = useUserSession();
 
-  // Convert channelId string to proper Convex ID
-  const convexChannelId = channelId as Id<"channels">;
+  // Validate channelId before making the query
+  const isValidChannelId = channelId && channelId.trim() !== "";
+  const convexChannelId = isValidChannelId
+    ? (channelId as Id<"channels">)
+    : null;
 
-  // Backend integration
+  // Backend integration - only fetch if we have a valid channel ID
   const { data: messages, isLoading } = useGetMessages({
     channelId: convexChannelId,
   });
@@ -50,33 +59,103 @@ export function ModernChannelView({
     channelId: convexChannelId,
   });
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, richContent?: any) => {
     if (!userName || !content.trim()) return;
 
     try {
-      // Send the message with plain text content
+      // Send the message with rich content
       await sendMessage({
         content: content.trim(),
         userName: userName,
+        richContent: richContent,
       });
+
+      // Scroll to bottom after sending message (smooth)
+      setTimeout(scrollToBottomSmooth, 100);
     } catch (error) {
       console.error("Failed to send message:", error);
+      toast.error("Failed to send message");
     }
   };
 
   // Transform backend messages to the format expected by MessageBubble
-  const transformedMessages =
-    messages?.map((message) => ({
-      id: parseInt(message._id.slice(-8), 16), // Create a numeric ID from the Convex ID
-      sender: message.userName,
-      content: message.content,
-      timestamp: new Date(message.createdAt).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      status: "read" as const,
-      isMine: message.userName === userName,
-    })) || [];
+  const transformedMessages = messages || [];
+
+  // Auto-scroll to bottom function (instant - for opening channels)
+  const scrollToBottomInstant = () => {
+    // Method 1: Using messagesEndRef (instant scroll)
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+
+    // Method 2: Fallback using ScrollArea ref
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  };
+
+  // Auto-scroll to bottom function (smooth - for new messages)
+  const scrollToBottomSmooth = () => {
+    // Method 1: Using messagesEndRef (smooth scroll)
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // Method 2: Fallback using ScrollArea ref
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  };
+
+  // Track channel changes and message count
+  useEffect(() => {
+    if (channelId !== currentChannelId) {
+      setCurrentChannelId(channelId);
+      setPreviousMessageCount(0);
+    }
+  }, [channelId, currentChannelId]);
+
+  // Auto-scroll when opening a channel (instant)
+  useEffect(() => {
+    if (
+      isValidChannelId &&
+      !isLoading &&
+      channelId === currentChannelId &&
+      transformedMessages.length > 0
+    ) {
+      // Instant scroll when opening a channel
+      setTimeout(scrollToBottomInstant, 50);
+      setPreviousMessageCount(transformedMessages.length);
+    }
+  }, [
+    channelId,
+    currentChannelId,
+    isValidChannelId,
+    isLoading,
+    transformedMessages.length,
+  ]);
+
+  // Auto-scroll when new messages arrive (smooth)
+  useEffect(() => {
+    if (
+      transformedMessages.length > previousMessageCount &&
+      previousMessageCount > 0
+    ) {
+      // Smooth scroll for new messages
+      setTimeout(scrollToBottomSmooth, 50);
+    }
+    setPreviousMessageCount(transformedMessages.length);
+  }, [transformedMessages.length, previousMessageCount]);
 
   const getChannelIcon = () => {
     switch (channelType) {
@@ -93,70 +172,85 @@ export function ModernChannelView({
     }
   };
 
-  return (
-    <div className={`flex flex-col h-full ${className}`}>
-      {/* Channel Header - Thin Strip */}
-      <div className="glass-surface flex items-center justify-between px-4 py-2 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
-        <div className="flex items-center space-x-2">
-          {getChannelIcon()}
-          <h2 className="font-medium text-foreground text-base">
-            {channelName}
-          </h2>
-        </div>
-
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-          <Input
-            placeholder="Search in channel..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="glass-input pl-8 w-48 h-7 text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Messages Area */}
-      <ScrollArea className="flex-1 p-2 custom-scrollbar">
-        <div className="space-y-3">
-          {/* Channel Welcome Message - Compact */}
-          <div className="text-center py-4 border-b border-border/50">
-            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
-              {getChannelIcon()}
+  // If channelId is not valid, show a placeholder
+  if (!isValidChannelId) {
+    return (
+      <div className={`flex flex-col h-full ${className}`}>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="neomorphic-raised w-16 h-16 rounded-neomorphic flex items-center justify-center mx-auto mb-4">
+              <Hash className="h-8 w-8 text-neomorphic-text-secondary" />
             </div>
-            <h3 className="text-lg font-medium text-foreground mb-1">
-              Welcome to #{channelName}
+            <h3 className="text-xl font-semibold text-neomorphic-text mb-2">
+              Select a Channel
             </h3>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              This is the beginning of the #{channelName} channel.
-              {channelType === "private"
-                ? " Private discussions."
-                : " Start conversations with your team."}
+            <p className="text-neomorphic-text-secondary max-w-md mx-auto">
+              Choose a channel from the sidebar to start chatting.
             </p>
           </div>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Messages */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-4">
-              <div className="text-muted-foreground">Loading messages...</div>
+  return (
+    <div className={`flex flex-col h-full ${className}`}>
+      {/* Messages Area */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea
+          ref={scrollAreaRef}
+          className="h-full px-6 py-4 custom-scrollbar"
+        >
+          <div className="space-y-2">
+            {/* Channel Welcome Message */}
+            <div className="text-center py-8 border-b border-neomorphic-border/50">
+              <div className="neomorphic-raised w-16 h-16 rounded-neomorphic flex items-center justify-center mx-auto mb-4">
+                {getChannelIcon()}
+              </div>
+              <h3 className="text-xl font-semibold text-neomorphic-text mb-2">
+                Welcome to #{channelName}
+              </h3>
+              <p className="text-neomorphic-text-secondary max-w-md mx-auto">
+                This is the beginning of the #{channelName} channel.
+                {channelType === "private"
+                  ? " Private discussions."
+                  : " Start conversations with your team."}
+              </p>
             </div>
-          ) : (
-            transformedMessages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
-            ))
-          )}
-        </div>
-      </ScrollArea>
 
-      {/* Message Input - Completely Flush */}
-      <div className="flex-shrink-0 px-2">
-        <div className="-mb-1">
-          <ChatInput
-            placeholder={`Message #${channelName}...`}
-            onSendMessage={handleSendMessage}
-            disabled={isSending}
-          />
-        </div>
+            {/* Messages */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-neomorphic-text-secondary">
+                  Loading messages...
+                </div>
+              </div>
+            ) : (
+              <>
+                {transformedMessages.map((message) => (
+                  <MessageBubble
+                    key={message._id}
+                    message={message}
+                    currentUserId={userName || undefined}
+                  />
+                ))}
+                {/* Extra spacing before scroll target to prevent overlap with chat input */}
+                <div className="h-[160px]" />
+                {/* Invisible element to scroll to */}
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Message Input */}
+      <div className="flex-shrink-0">
+        <ChatInput
+          placeholder={`Message #${channelName}...`}
+          onSendMessage={handleSendMessage}
+          disabled={isSending}
+        />
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { Id } from "../../../../convex/_generated/dataModel";
 import { useCallback, useMemo, useState } from "react";
 
 interface UseSendMessageProps {
-  channelId: Id<"channels">;
+  channelId?: Id<"channels"> | null;
 }
 
 export const useSendMessage = ({ channelId }: UseSendMessageProps) => {
@@ -21,6 +21,10 @@ export const useSendMessage = ({ channelId }: UseSendMessageProps) => {
 
   const mutate = useCallback(
     async (values: { content: string; userName: string; richContent?: any }) => {
+      if (!channelId) {
+        throw new Error("Channel ID is required to send a message");
+      }
+
       try {
         setData(null);
         setError(null);

@@ -10,7 +10,7 @@ const Editor = dynamic(() => import("@/components/workspace/editor"), {
 
 interface ChatInputProps {
   placeholder: string;
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, richContent?: any) => void;
   disabled?: boolean;
 }
 
@@ -35,22 +35,65 @@ export const ChatInput = ({
       setIsPending(true);
       editorRef.current?.enable(false);
 
-      // For now, just send the text content
-      // Image upload can be added later if needed
-      if (body.trim()) {
-        onSendMessage(body.trim());
-        setEditorKey((prevKey) => prevKey + 1);
+      // Parse the rich content from Quill
+      let parsedContent: any = null;
+      let plainTextContent = "";
+
+      try {
+        parsedContent = JSON.parse(body);
+        // Extract plain text from Delta content
+        if (parsedContent?.ops) {
+          plainTextContent = parsedContent.ops
+            .map((op: any) => (typeof op.insert === "string" ? op.insert : ""))
+            .join("")
+            .trim();
+        }
+      } catch (e) {
+        // If parsing fails, treat as plain text
+        plainTextContent = body.trim();
       }
 
-      // TODO: Handle multiple images upload
-      if (images.length > 0) {
-        console.log(
-          `Selected ${images.length} files:`,
-          images.map((f) => f.name)
-        );
-        // Add your image upload logic here
+      // Check if we have any content to send
+      const hasTextContent = plainTextContent.length > 0;
+      const hasFileContent = images.length > 0;
+
+      if (!hasTextContent && !hasFileContent) {
+        return; // Don't send empty messages
       }
+
+      // Prepare rich content object
+      const richContent: any = {};
+
+      if (parsedContent && hasTextContent) {
+        richContent.delta = parsedContent;
+      }
+
+      if (hasFileContent) {
+        richContent.attachments = images.map((file) => ({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          // TODO: Upload files to storage and get URLs
+          url: URL.createObjectURL(file), // Temporary blob URL
+        }));
+      }
+
+      // Send the message
+      const contentToSend = hasTextContent
+        ? plainTextContent
+        : hasFileContent
+          ? `Shared ${images.length} file${images.length > 1 ? "s" : ""}`
+          : "";
+
+      // Reset the editor immediately for better UX (optimistic UI)
+      setEditorKey((prevKey) => prevKey + 1);
+
+      await onSendMessage(
+        contentToSend,
+        Object.keys(richContent).length > 0 ? richContent : undefined
+      );
     } catch (error) {
+      console.error("Failed to send message:", error);
       toast.error("Failed to send message");
     } finally {
       setIsPending(false);
@@ -59,14 +102,12 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="px-5 w-full">
-      <Editor
-        key={editorKey}
-        placeholder={placeholder}
-        onSubmit={handleSubmit}
-        disabled={disabled || isPending}
-        innerRef={editorRef}
-      />
-    </div>
+    <Editor
+      key={editorKey}
+      placeholder={placeholder}
+      onSubmit={handleSubmit}
+      disabled={disabled || isPending}
+      innerRef={editorRef}
+    />
   );
 };

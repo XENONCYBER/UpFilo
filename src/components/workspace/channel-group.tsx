@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronRight, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, MoreHorizontal, Trash, Edit } from "lucide-react";
 import { ChannelItem } from "./channel-item";
 import { cn } from "@/lib/utils";
 import {
@@ -11,284 +10,160 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CreateChannelModal } from "@/features/channels/components/create-channel-modal";
-import { RenameChannelGroupModal } from "@/features/channels/components/rename-channel-group-modal";
-import { DeleteChannelGroupModal } from "@/features/channels/components/delete-channel-group-modal";
-import { RenameChannelModal } from "@/features/channels/components/rename-channel-modal";
-import { DeleteChannelModal } from "@/features/channels/components/delete-channel-modal";
+import { useCreateChannel } from "@/features/channels/api/use-create-channels";
+import { useDeleteChannelGroup } from "@/features/channels/api/use-delete-channel-group";
+import { useUpdateChannelGroup } from "@/features/channels/api/use-update-channel-group";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { Hint } from "./hint";
+import { NameInputDialog } from "@/components/name-input-dialog";
+import { Id } from "../../../convex/_generated/dataModel";
 
 interface Channel {
-  id: string;
+  _id: Id<"channels">;
   name: string;
   type: "group" | "user";
-  subType?: "text" | "voice" | "announcement" | "private";
+  subType: "text" | "voice" | "announcement" | "private";
   unreadCount?: number;
   isActive?: boolean;
   description?: string;
 }
 
-interface ChannelGroup {
-  id: string;
+interface ChannelGroupProps {
+  id: Id<"channelGroups">;
   name: string;
   channels: Channel[];
   type: "group" | "user";
   isExpanded?: boolean;
-}
-
-interface ChannelGroupProps {
-  group: ChannelGroup;
-  workspaceId: any; // Convex workspace ID
   onChannelSelect?: (channel: Channel) => void;
-  onGroupToggle?: (groupId: string) => void;
-  onAddChannel?: (groupId: string) => void;
-  onEditGroup?: (groupId: string) => void;
-  onDeleteGroup?: (groupId: string) => void;
-  searchQuery?: string;
-  className?: string;
 }
 
-export function ChannelGroup({
-  group,
-  workspaceId,
+export const ChannelGroup = ({
+  id,
+  name,
+  channels,
+  type,
   onChannelSelect,
-  onGroupToggle,
-  onAddChannel,
-  onEditGroup,
-  onDeleteGroup,
-  searchQuery,
-  className,
-}: ChannelGroupProps) {
-  const [isExpanded, setIsExpanded] = useState(group.isExpanded ?? true);
+}: ChannelGroupProps) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const workspaceId = useWorkspaceId();
+  const { mutate: deleteGroup } = useDeleteChannelGroup();
+  const { mutate: createChannel } = useCreateChannel();
+  const { mutate: updateGroup } = useUpdateChannelGroup();
 
-  // Modal states
-  const [createChannelModalOpen, setCreateChannelModalOpen] = useState(false);
-  const [renameGroupModalOpen, setRenameGroupModalOpen] = useState(false);
-  const [deleteGroupModalOpen, setDeleteGroupModalOpen] = useState(false);
-  const [renameChannelModalOpen, setRenameChannelModalOpen] = useState(false);
-  const [deleteChannelModalOpen, setDeleteChannelModalOpen] = useState(false);
-  const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
-
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
-    onGroupToggle?.(group.id);
+  const onAddChannel = (channelName: string) => {
+    createChannel({
+      name: channelName,
+      workspaceId: workspaceId as Id<"workspaces">,
+      groupId: id,
+      type: type, // Use the group's type (group or user)
+      subType: "text", // Default to text subtype
+    });
   };
 
-  const handleAddChannel = () => {
-    setCreateChannelModalOpen(true);
+  const onRenameGroup = (newName: string) => {
+    updateGroup({
+      groupId: id,
+      name: newName.trim(),
+    });
+    setIsRenameModalOpen(false);
   };
 
-  const handleEditGroup = () => {
-    setRenameGroupModalOpen(true);
+  const onDelete = () => {
+    deleteGroup({ groupId: id });
   };
-
-  const handleDeleteGroup = () => {
-    setDeleteGroupModalOpen(true);
-  };
-
-  const handleChannelContextMenu = (
-    channel: Channel,
-    action: "rename" | "delete"
-  ) => {
-    setSelectedChannel(channel);
-    if (action === "rename") {
-      setRenameChannelModalOpen(true);
-    } else {
-      setDeleteChannelModalOpen(true);
-    }
-  };
-
-  const totalUnreadCount = group.channels.reduce(
-    (total, channel) => total + (channel.unreadCount || 0),
-    0
-  );
-
-  // Filter channels based on search query
-  const filteredChannels = searchQuery
-    ? group.channels.filter((channel) =>
-        channel.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : group.channels;
 
   return (
-    <>
-      <div className={cn("space-y-1", className)}>
-        {/* Group Header */}
-        <div className="flex items-center justify-between group px-1">
-          <Button
-            variant="ghost"
-            onClick={handleToggle}
-            className="flex-1 justify-start px-2 h-8 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
-          >
-            <ChevronRight
-              className={cn(
-                "h-3 w-3 mr-1 transition-transform duration-200",
-                isExpanded && "rotate-90"
-              )}
-            />
-            <span className="uppercase tracking-wider">{group.name}</span>
-            {totalUnreadCount > 0 && (
-              <span className="ml-auto bg-destructive text-destructive-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
-                {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
-              </span>
+    <div className="space-y-1 mb-3">
+      <div className="group flex items-center justify-between px-2 py-2 rounded-lg hover:bg-neomorphic-surface/30 transition-all duration-200 min-h-[2.5rem]">
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-x-2 text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wide flex-1 min-w-0 text-left hover:text-neomorphic-text transition-colors duration-200"
+        >
+          <ChevronDown
+            className={cn(
+              "size-3 transition-transform duration-200 flex-shrink-0",
+              !isExpanded && "-rotate-90"
             )}
-          </Button>
-
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 delay-75">
-            <CreateChannelModal
-              workspaceId={workspaceId}
-              groupId={group.id as any}
-              channelType={group.type}
-              onSuccess={() => {}}
+          />
+          <span className="select-none font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
+            {name}
+          </span>
+        </button>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
+          <Hint label="Create Channel" side="top">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="p-1.5 rounded-md hover:bg-neomorphic-surface/50 transition-colors duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text"
             >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
-                title="Add channel"
-                onClick={(e) => e.stopPropagation()}
+              <Plus className="size-3.5" />
+            </button>
+          </Hint>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1.5 rounded-md hover:bg-neomorphic-surface/50 transition-colors duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text">
+                <MoreHorizontal className="size-3.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="card-glass border border-neomorphic-border shadow-lg min-w-[160px] z-50 bg-neomorphic-bg"
+              sideOffset={5}
+            >
+              <DropdownMenuItem
+                onClick={() => setIsRenameModalOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-neomorphic-text hover:bg-neomorphic-surface-hover focus:bg-neomorphic-surface-hover cursor-pointer"
               >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </CreateChannelModal>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
-                  title="Group options"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreVertical className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-40 glass-surface border-white/20 z-[100]"
+                <Edit className="size-4" />
+                Rename Group
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950 dark:focus:bg-red-950 cursor-pointer"
               >
-                <DropdownMenuItem
-                  onClick={handleEditGroup}
-                  className="flex items-center gap-2"
-                >
-                  <Edit className="h-3 w-3" />
-                  Rename Folder
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleDeleteGroup}
-                  className="text-destructive focus:text-destructive flex items-center gap-2"
-                >
-                  <Trash2 className="h-3 w-3" />
-                  Delete Folder
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                <Trash className="size-4" />
+                Delete Group
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-
-        {/* Channels List */}
-        {isExpanded && (
-          <div className="space-y-0.5 pl-3">
-            {filteredChannels.map((channel) => (
-              <div key={channel.id} className="group/channel relative">
-                <ChannelItem
-                  channel={{
-                    ...channel,
-                    type: channel.subType || "text",
-                  }}
-                  onClick={() => onChannelSelect?.(channel)}
-                />
-
-                {/* Channel context menu */}
-                <div className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/channel:opacity-100 transition-opacity duration-150 delay-75">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-5 text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreVertical className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-40 glass-surface border-white/20 z-[100]"
-                    >
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleChannelContextMenu(channel, "rename")
-                        }
-                        className="flex items-center gap-2"
-                      >
-                        <Edit className="h-3 w-3" />
-                        Rename Channel
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleChannelContextMenu(channel, "delete")
-                        }
-                        className="text-destructive focus:text-destructive flex items-center gap-2"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                        Delete Channel
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))}
-
-            {filteredChannels.length === 0 &&
-              group.channels.length > 0 &&
-              searchQuery && (
-                <div className="text-xs text-muted-foreground px-2 py-2 italic">
-                  No channels match "{searchQuery}"
-                </div>
-              )}
-
-            {group.channels.length === 0 && (
-              <div className="text-xs text-muted-foreground px-2 py-2 italic">
-                No channels in this folder
-              </div>
-            )}
-          </div>
-        )}
       </div>
+      {isExpanded && (
+        <div className="pl-4 space-y-0.5">
+          {channels?.map((channel) => (
+            <ChannelItem
+              key={channel._id}
+              channel={{
+                id: channel._id,
+                name: channel.name,
+                type: channel.subType,
+                isActive: channel.isActive,
+                unreadCount: channel.unreadCount,
+                description: channel.description,
+              }}
+              onClick={() => onChannelSelect?.(channel)}
+            />
+          ))}
+        </div>
+      )}
 
-      {/* Modals */}
-      <RenameChannelGroupModal
-        open={renameGroupModalOpen}
-        onOpenChange={setRenameGroupModalOpen}
-        group={group as any}
+      <NameInputDialog
+        isOpen={isModalOpen}
+        onNameSubmit={onAddChannel}
+        onClose={() => setIsModalOpen(false)}
+        title="Create a new channel"
+        placeholder="Enter channel name"
       />
 
-      <DeleteChannelGroupModal
-        open={deleteGroupModalOpen}
-        onOpenChange={setDeleteGroupModalOpen}
-        group={group as any}
+      <NameInputDialog
+        isOpen={isRenameModalOpen}
+        onNameSubmit={onRenameGroup}
+        onClose={() => setIsRenameModalOpen(false)}
+        title="Rename group"
+        placeholder="Enter new group name"
+        defaultValue={name}
       />
-
-      <RenameChannelModal
-        open={renameChannelModalOpen}
-        onOpenChange={setRenameChannelModalOpen}
-        channel={
-          selectedChannel
-            ? {
-                _id: selectedChannel.id as any,
-                name: selectedChannel.name,
-                description: selectedChannel.description,
-              }
-            : null
-        }
-      />
-
-      <DeleteChannelModal
-        open={deleteChannelModalOpen}
-        onOpenChange={setDeleteChannelModalOpen}
-        channel={selectedChannel as any}
-      />
-    </>
+    </div>
   );
-}
+};

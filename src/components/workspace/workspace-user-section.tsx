@@ -29,41 +29,40 @@ export function WorkspaceUserSection({
   };
 
   return (
-    <div className={cn("p-4", className)}>
+    <div className={cn("overflow-hidden", className)}>
       <div
         className={cn(
-          "flex items-center",
+          "flex items-center overflow-hidden",
           isCollapsed ? "justify-center" : "space-x-3"
         )}
       >
-        <div className="relative">
-          <Avatar className={cn(isCollapsed ? "h-10 w-10" : "h-8 w-8")}>
-            <AvatarFallback className="liquid-gradient from-blue-500 to-purple-600 text-white font-medium shadow-glass">
+        <div className="relative flex-shrink-0">
+          <Avatar className={cn(isCollapsed ? "h-10 w-10" : "h-9 w-9")}>
+            <AvatarFallback className="bg-electric-blue text-white font-semibold text-sm neomorphic-raised">
               {getInitials(userName)}
             </AvatarFallback>
           </Avatar>
           {/* Online status indicator */}
-          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white/50 dark:border-black/50 shadow-glass" />
+          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-soft-green rounded-full border-2 border-neomorphic-surface shadow-neomorphic" />
         </div>
 
         {!isCollapsed && (
           <>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-medium text-foreground truncate">
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <h3 className="text-sm font-semibold text-neomorphic-text truncate text-ellipsis whitespace-nowrap">
                 {userName}
               </h3>
-              <p className="text-xs text-muted-foreground">Online</p>
+              <p className="text-xs text-neomorphic-text-secondary">Online</p>
             </div>
 
-            <div className="flex items-center space-x-1">
-              <Button
-                variant="ghost"
-                size="icon"
+            <div className="flex items-center space-x-1 flex-shrink-0">
+              <button
                 onClick={onLogout}
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="flex items-center justify-center h-8 w-8 p-0 rounded-neomorphic bg-neomorphic-surface border-none text-neomorphic-text-secondary hover:text-coral-red transition-colors duration-200 shadow-neomorphic hover:shadow-neomorphic-pressed"
+                title="Sign out"
               >
-                <LogOut className="h-4 w-4" />
-              </Button>
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
             </div>
           </>
         )}

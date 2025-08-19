@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ModernSidebar } from "./ModernSidebar";
 import { WorkspaceHeader } from "./WorkspaceHeader";
 import { ModernChannelView } from "./ModernChannelView";
@@ -31,16 +31,44 @@ export function WorkspaceLayout({
   } | null>(null);
 
   // User session integration
-  const { userName, setUserName } = useUserSession();
+  const { userName, setUserName, hasUserNameForWorkspace } = useUserSession();
   const { data: workspace, isLoading: isWorkspaceLoading } =
     useGetWorkspaceByCustomId({ customId: workspaceId });
   const { data: channelsWithGroups } = useGetChannelsWithGroups({
     workspaceId: workspace?._id!,
   });
 
-  const handleNameSubmit = async (name: string) => {
-    setUserName(name);
-  };
+  // Check if user has a name for this workspace
+  const [shouldShowDialog, setShouldShowDialog] = useState(false);
+
+  useEffect(() => {
+    if (workspace?._id) {
+      const hasName = hasUserNameForWorkspace(workspace._id);
+      if (hasName) {
+        // Load the existing username
+        const storageKey = `upfilo-user-name-${workspace._id}`;
+        const savedName = sessionStorage.getItem(storageKey);
+        if (savedName && savedName !== userName) {
+          setUserName(savedName);
+        }
+        setShouldShowDialog(false);
+      } else {
+        setShouldShowDialog(true);
+      }
+    }
+  }, [workspace?._id, hasUserNameForWorkspace, userName, setUserName]);
+
+  const handleNameSubmit = useCallback(
+    async (name: string) => {
+      if (workspace) {
+        setUserName(name);
+        // Store in sessionStorage immediately
+        sessionStorage.setItem(`upfilo-user-name-${workspace._id}`, name);
+        setShouldShowDialog(false);
+      }
+    },
+    [workspace, setUserName]
+  );
 
   // Function to get channel name from ID
   const getChannelName = (channelId: string): string => {
@@ -75,15 +103,15 @@ export function WorkspaceLayout({
   const renderContent = () => {
     switch (activeSection) {
       case "mediaGallery":
-        return <ModernMediaGallery />;
+        return <ModernMediaGallery className="flex-1" />;
       case "profile":
         return (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-foreground mb-2">
+              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
                 Profile
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-neomorphic-text-secondary">
                 Manage your profile settings
               </p>
             </div>
@@ -93,10 +121,12 @@ export function WorkspaceLayout({
         return (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-foreground mb-2">
+              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
                 Notifications
               </h2>
-              <p className="text-muted-foreground">View your notifications</p>
+              <p className="text-neomorphic-text-secondary">
+                View your notifications
+              </p>
             </div>
           </div>
         );
@@ -104,10 +134,12 @@ export function WorkspaceLayout({
         return (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-foreground mb-2">
+              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
                 Settings
               </h2>
-              <p className="text-muted-foreground">Configure your workspace</p>
+              <p className="text-neomorphic-text-secondary">
+                Configure your workspace
+              </p>
             </div>
           </div>
         );
@@ -121,10 +153,10 @@ export function WorkspaceLayout({
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-semibold text-foreground mb-2">
+              <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
                 Select a Channel
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-neomorphic-text-secondary">
                 Choose a channel from the sidebar to start chatting
               </p>
             </div>
@@ -135,10 +167,10 @@ export function WorkspaceLayout({
           children || (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <h2 className="text-2xl font-semibold text-foreground mb-2">
+                <h2 className="text-2xl font-semibold text-neomorphic-text mb-2">
                   Welcome to UpFilo
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-neomorphic-text-secondary">
                   Select a section to get started
                 </p>
               </div>
@@ -149,47 +181,72 @@ export function WorkspaceLayout({
   };
 
   return (
-    <div className={cn("flex h-screen liquid-bg", className)}>
-      {/* Sidebar */}
+    <div
+      className={cn(
+        "flex h-screen bg-neomorphic-bg text-neomorphic-text",
+        className
+      )}
+    >
+      <NameInputDialog
+        isOpen={shouldShowDialog && !isWorkspaceLoading && !!workspace}
+        onNameSubmit={handleNameSubmit}
+        onClose={() => setShouldShowDialog(false)}
+        workspaceName={workspace?.name}
+      />
       <ModernSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         activeSection={activeSection}
         onSectionChange={setActiveSection}
         onChannelSelect={handleChannelSelect}
-        workspaceId={workspace._id}
-        onCollapseChange={setSidebarCollapsed}
+        workspaceId={workspace?._id!}
         selectedChannelId={selectedChannel?.id}
+        onCollapseChange={setSidebarCollapsed}
+        className={cn(sidebarOpen ? "block" : "hidden")}
       />
-
-      {/* Main Content */}
       <div
         className={cn(
-          "flex-1 flex flex-col overflow-hidden transition-all duration-300",
-          sidebarOpen ? (sidebarCollapsed ? "md:ml-16" : "md:ml-72") : "md:ml-0"
+          "flex-1 flex flex-col h-screen transition-all duration-300",
+          sidebarOpen && !sidebarCollapsed ? "ml-72" : "ml-16"
         )}
       >
-        {/* Header */}
         <WorkspaceHeader
-          workspaceName={workspace.name || "UpFilo Workspace"}
-          currentChannel={
-            selectedChannel ? getChannelName(selectedChannel.id) : undefined
-          }
+          workspaceName={workspace?.name}
+          currentChannel={getChannelName(selectedChannel?.id || "")}
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
         />
-
-        {/* Content Area */}
-        <main className="glass-surface flex-1 overflow-hidden rounded-2xl bg-white/20 dark:bg-black/20 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass">
-          {renderContent()}
+        <main className="flex-1 flex flex-col min-h-0">
+          {activeSection === "channels" && selectedChannel ? (
+            <ModernChannelView
+              key={selectedChannel.id}
+              channelId={selectedChannel.id}
+              channelName={getChannelName(selectedChannel?.id || "")}
+              channelType={
+                channelsWithGroups?.groupedChannels
+                  .flatMap((g: any) => g.channels)
+                  .find((c: any) => c._id === selectedChannel.id)?.type ||
+                "public"
+              }
+              className="flex-1"
+            />
+          ) : activeSection === "mediaGallery" ? (
+            <ModernMediaGallery className="flex-1" />
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                  Welcome to {workspace?.name || "your workspace"}
+                </h2>
+                <p className="text-neomorphic-text-secondary mt-2">
+                  Select a channel to start chatting or explore the media
+                  gallery.
+                </p>
+              </div>
+            </div>
+          )}
+          {children}
         </main>
       </div>
-
-      {/* Name Input Dialog */}
-      <NameInputDialog
-        isOpen={!userName}
-        onNameSubmit={handleNameSubmit}
-        workspaceName={workspace.name || "UpFilo"}
-      />
     </div>
   );
 }

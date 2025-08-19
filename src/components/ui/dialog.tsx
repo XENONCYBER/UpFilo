@@ -141,9 +141,10 @@ export function DialogContent({
       <div
         className={cn(
           "relative z-[10000] w-full max-w-lg",
-          "glass-surface-elevated",
-          "rounded-xl p-6",
+          "card-glass",
+          "rounded-neomorphic p-6",
           "animate-in zoom-in-95 slide-in-from-bottom-4 duration-300",
+          "shadow-neomorphic",
           className
         )}
         style={{ zIndex: 10000 }}
@@ -156,7 +157,7 @@ export function DialogContent({
             context.onOpenChange(false);
             onClose?.();
           }}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="btn-neomorphic absolute right-4 top-4 p-2 opacity-70 hover:opacity-100 transition-opacity"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
@@ -197,7 +198,7 @@ export function DialogTitle({
   return (
     <h2
       className={cn(
-        "text-lg font-semibold leading-none tracking-tight",
+        "text-lg font-semibold leading-none tracking-tight text-neomorphic-text",
         className
       )}
       {...props}
@@ -214,7 +215,10 @@ export function DialogDescription({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-sm text-muted-foreground", className)} {...props}>
+    <p
+      className={cn("text-sm text-neomorphic-text-secondary", className)}
+      {...props}
+    >
       {children}
     </p>
   );

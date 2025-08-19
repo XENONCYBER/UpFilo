@@ -76,7 +76,6 @@ export function ModernSidebar({
       label: "Media Gallery",
       icon: Image,
       value: "mediaGallery",
-      color: "text-blue-400",
     },
   ];
 
@@ -93,19 +92,19 @@ export function ModernSidebar({
       id: group._id,
       name: group.name,
       type: group.type,
-      isExpanded: group.isExpanded || false,
+      isExpanded: group.isExpanded || true,
       channels: (
         channelsWithGroups.groupedChannels.find(
           (gc: any) => gc._id === group._id
         )?.channels || []
       ).map((channel: any) => ({
-        id: channel._id,
+        _id: channel._id,
         name: channel.name,
         type: channel.type,
         subType: channel.subType,
         isActive: channel._id === selectedChannelId,
         description: channel.description || "",
-        // Don't include unreadCount if it's 0 or not implemented
+        unreadCount: channel.unreadCount || 0,
       })),
     }));
   };
@@ -123,7 +122,7 @@ export function ModernSidebar({
       subType: channel.subType,
       isActive: channel._id === selectedChannelId,
       description: channel.description || "",
-      // Don't include unreadCount if it's 0 or not implemented
+      unreadCount: channel.unreadCount || 0,
     })) || [];
 
   // Handlers for creating groups
@@ -149,36 +148,36 @@ export function ModernSidebar({
     <>
       <div
         className={cn(
-          "glass-surface-secondary fixed left-0 top-0 z-30 h-screen border-r border-glass-border-light transition-all duration-300 overflow-hidden",
+          "card-glass fixed left-0 top-0 z-30 h-screen border-r border-neomorphic-border transition-all duration-300 overflow-hidden",
           isCollapsed ? "w-16" : "w-72",
           className
         )}
       >
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-glass-border-subtle">
+          <div className="flex items-center justify-between p-4 border-b border-neomorphic-border">
             {!isCollapsed && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-md">
-                  <UserCircle className="w-5 h-5 text-white" />
+                <div className="neomorphic-raised w-8 h-8 rounded-neomorphic flex items-center justify-center">
+                  <UserCircle className="w-5 h-5 text-electric-blue" />
                 </div>
-                <span className="font-semibold text-foreground">UpFilo</span>
+                <span className="font-semibold text-neomorphic-text">
+                  UpFilo
+                </span>
               </div>
             )}
             <div className="flex items-center space-x-2">
               {!isCollapsed && <ThemeToggle />}
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={handleCollapseToggle}
-                className="hover:bg-glass-hover"
+                className="btn-neomorphic p-2"
               >
                 {isCollapsed ? (
                   <ChevronRight className="h-4 w-4" />
                 ) : (
                   <ChevronLeft className="h-4 w-4" />
                 )}
-              </Button>
+              </button>
             </div>
           </div>
 
@@ -187,21 +186,21 @@ export function ModernSidebar({
             {!isCollapsed && (
               <>
                 {/* Search */}
-                <div className="p-4 flex-shrink-0">
+                <div className="px-3 py-4 flex-shrink-0">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary" />
                     <Input
                       placeholder="Search channels..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9"
+                      className="input-neomorphic pl-9"
                     />
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-2 pb-4 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4 channel-scrollbar">
                   {/* Navigation Items */}
-                  <div className="space-y-2 pb-4">
+                  <div className="space-y-1 pb-6">
                     {navItems.map((item) => (
                       <WorkspaceNavItem
                         key={item.value}
@@ -209,93 +208,105 @@ export function ModernSidebar({
                         label={item.label}
                         isActive={activeSection === item.value}
                         onClick={() => onSectionChange(item.value)}
-                        className={cn("w-full justify-start", item.color)}
+                        className="w-full justify-start"
                       />
                     ))}
                   </div>
 
-                  <Separator className="my-4" />
+                  <Separator className="my-4 bg-neomorphic-border/50" />
 
                   {/* Group Channels */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between px-2">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between px-2 py-3">
+                      <span className="text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wide">
                         Channels
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
+                      <button
                         onClick={handleCreateGroupChannel}
                         title="Create new channel group"
+                        className="p-1.5 rounded-md hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-neomorphic-text transition-colors duration-200"
                       >
-                        <Plus className="h-3 w-3" />
-                      </Button>
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
                     </div>
-                    {groupChannels.map((group) => (
-                      <ChannelGroup
-                        key={group.id}
-                        group={group}
-                        workspaceId={workspaceId}
-                        onChannelSelect={handleChannelSelect}
-                        searchQuery={searchQuery}
-                      />
-                    ))}
-                    {ungroupedChannels
-                      .filter((channel) => channel.type === "group")
-                      .map((channel) => (
-                        <div key={channel.id} className="px-2">
-                          <ChannelItem
-                            channel={{
-                              ...channel,
-                              type: channel.subType as any,
-                            }}
-                            onClick={() => handleChannelSelect(channel)}
-                          />
-                        </div>
+                    <div className="space-y-1">
+                      {groupChannels.map((group) => (
+                        <ChannelGroup
+                          key={group.id}
+                          id={group.id}
+                          name={group.name}
+                          channels={group.channels}
+                          type={group.type}
+                          isExpanded={group.isExpanded}
+                          onChannelSelect={handleChannelSelect}
+                        />
                       ))}
+                      {ungroupedChannels
+                        .filter((channel) => channel.type === "group")
+                        .map((channel) => (
+                          <div key={channel.id} className="px-2">
+                            <ChannelItem
+                              channel={{
+                                id: channel.id,
+                                name: channel.name,
+                                type: channel.subType as any,
+                                isActive: channel.isActive,
+                                unreadCount: channel.unreadCount,
+                                description: channel.description,
+                              }}
+                              onClick={() => handleChannelSelect(channel)}
+                            />
+                          </div>
+                        ))}
+                    </div>
                   </div>
 
-                  <Separator className="my-4" />
+                  <Separator className="my-6 bg-neomorphic-border/50" />
 
                   {/* User Channels */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between px-2">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between px-2 py-3">
+                      <span className="text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wide">
                         User Channels
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
+                      <button
                         onClick={handleCreateUserChannel}
                         title="Create new user channel group"
+                        className="p-1.5 rounded-md hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-neomorphic-text transition-colors duration-200"
                       >
-                        <Plus className="h-3 w-3" />
-                      </Button>
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
                     </div>
-                    {userChannels.map((group) => (
-                      <ChannelGroup
-                        key={group.id}
-                        group={group}
-                        workspaceId={workspaceId}
-                        onChannelSelect={handleChannelSelect}
-                        searchQuery={searchQuery}
-                      />
-                    ))}
-                    {ungroupedChannels
-                      .filter((channel) => channel.type === "user")
-                      .map((channel) => (
-                        <div key={channel.id} className="px-2">
-                          <ChannelItem
-                            channel={{
-                              ...channel,
-                              type: channel.subType as any,
-                            }}
-                            onClick={() => handleChannelSelect(channel)}
-                          />
-                        </div>
+                    <div className="space-y-1">
+                      {userChannels.map((group) => (
+                        <ChannelGroup
+                          key={group.id}
+                          id={group.id}
+                          name={group.name}
+                          channels={group.channels}
+                          type={group.type}
+                          isExpanded={group.isExpanded}
+                          onChannelSelect={handleChannelSelect}
+                        />
                       ))}
+                      {ungroupedChannels
+                        .filter((channel) => channel.type === "user")
+                        .map((channel) => (
+                          <div key={channel.id} className="px-2">
+                            <ChannelItem
+                              channel={{
+                                id: channel.id,
+                                name: channel.name,
+                                type: channel.subType as any,
+                                isActive: channel.isActive,
+                                unreadCount: channel.unreadCount,
+                                description: channel.description,
+                              }}
+                              onClick={() => handleChannelSelect(channel)}
+                            />
+                          </div>
+                        ))}
+                    </div>
                   </div>
                 </div>
               </>
@@ -320,7 +331,7 @@ export function ModernSidebar({
           </div>
 
           {/* User Section */}
-          <div className="border-t border-white/20 dark:border-white/10 p-2">
+          <div className="border-t border-neomorphic-border bg-neomorphic-surface/50 p-3 overflow-hidden">
             <WorkspaceUserSection
               userName={userName || "Guest"}
               isCollapsed={isCollapsed}

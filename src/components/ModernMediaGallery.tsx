@@ -6,6 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Upload, Filter, Grid3x3, List } from "lucide-react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
+
+interface ModernMediaGalleryProps {
+  className?: string;
+}
 
 const mockMedia = [
   {
@@ -46,149 +51,133 @@ const mockMedia = [
   },
 ];
 
-export function ModernMediaGallery() {
-  const [searchQuery, setSearchQuery] = useState("");
+export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
-  const filteredMedia = mockMedia.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.uploadedBy.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [filter, setFilter] = useState("all");
 
   return (
-    <div className="flex flex-col h-full">
+    <div
+      className={cn(
+        "flex flex-col h-full bg-neomorphic-surface text-neomorphic-text p-4",
+        className
+      )}
+    >
       {/* Header */}
-      <div className="glass-surface p-6 border-b border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
+      <div className="flex-shrink-0 mb-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold text-foreground">
+          <h2 className="text-xl font-semibold text-neomorphic-text">
             Media Gallery
           </h2>
           <div className="flex items-center space-x-2">
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="icon"
+            <button
               onClick={() => setViewMode("grid")}
-              className="glass-button"
+              className={cn(
+                "btn-neomorphic p-2",
+                viewMode === "grid" && "btn-primary"
+              )}
             >
               <Grid3x3 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              size="icon"
+            </button>
+            <button
               onClick={() => setViewMode("list")}
-              className="glass-button"
+              className={cn(
+                "btn-neomorphic p-2",
+                viewMode === "list" && "btn-primary"
+              )}
             >
               <List className="h-4 w-4" />
-            </Button>
-            <Button className="glass-button">
+            </button>
+            <button className="btn-primary px-3 py-1.5 text-sm">
               <Upload className="h-4 w-4 mr-2" />
               Upload
-            </Button>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary" />
+            <input
               placeholder="Search media..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="glass-input pl-10"
+              className="w-full pl-10 pr-4 py-2 bg-neomorphic-surface border border-neomorphic-border rounded-neomorphic text-neomorphic-text placeholder:text-neomorphic-text-secondary focus:border-electric-blue focus:outline-none transition-colors"
             />
           </div>
-          <Button variant="outline" className="glass-button">
+          <button className="btn-neomorphic px-3 py-2 text-sm">
             <Filter className="h-4 w-4 mr-2" />
             Filter
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-6">
-        <Tabs defaultValue="all" className="h-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">All Media</TabsTrigger>
-            <TabsTrigger value="images">Images</TabsTrigger>
-            <TabsTrigger value="videos">Videos</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-          </TabsList>
+      <div className="flex-1">
+        <div className="h-full">
+          <div className="flex space-x-1 mb-4 p-1 bg-neomorphic-surface rounded-neomorphic border border-neomorphic-border">
+            <button className="btn-primary px-3 py-1.5 text-sm rounded-lg">
+              All Media
+            </button>
+            <button className="btn-neomorphic px-3 py-1.5 text-sm rounded-lg">
+              Images
+            </button>
+            <button className="btn-neomorphic px-3 py-1.5 text-sm rounded-lg">
+              Videos
+            </button>
+            <button className="btn-neomorphic px-3 py-1.5 text-sm rounded-lg">
+              Documents
+            </button>
+          </div>
 
-          <TabsContent value="all" className="h-full">
-            <ScrollArea className="h-full">
-              {viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filteredMedia.map((item) => (
-                    <div
-                      key={item.id}
-                      className="glass-card bg-white/50 dark:bg-black/30 rounded-lg border border-white/20 dark:border-white/10 p-4 hover:shadow-glass transition-all duration-300 cursor-pointer backdrop-blur-xl liquid-hover"
-                    >
-                      <div className="aspect-video glass-surface bg-white/40 dark:bg-black/30 rounded-lg mb-3 flex items-center justify-center backdrop-blur-xl shadow-glass">
-                        <span className="text-muted-foreground text-sm">
-                          {item.type.toUpperCase()}
-                        </span>
-                      </div>
-                      <h3 className="font-medium text-foreground mb-1 truncate">
+          <div className="h-full overflow-y-auto custom-scrollbar">
+            {viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {mockMedia.map((item) => (
+                  <div
+                    key={item.id}
+                    className="card-neomorphic p-3 hover:shadow-neomorphic-pressed transition-all duration-200 cursor-pointer"
+                  >
+                    <div className="aspect-video bg-neomorphic-surface rounded-neomorphic mb-3 flex items-center justify-center border border-neomorphic-border">
+                      <span className="text-neomorphic-text-secondary text-sm font-medium">
+                        {item.type.toUpperCase()}
+                      </span>
+                    </div>
+                    <h3 className="font-medium text-neomorphic-text mb-1 truncate text-sm">
+                      {item.name}
+                    </h3>
+                    <p className="text-xs text-neomorphic-text-secondary">
+                      {item.size} • {item.uploadedBy}
+                    </p>
+                    <p className="text-xs text-neomorphic-text-secondary opacity-70">
+                      {item.uploadedAt}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {mockMedia.map((item) => (
+                  <div
+                    key={item.id}
+                    className="card-neomorphic flex items-center space-x-3 p-3 hover:shadow-neomorphic-pressed cursor-pointer transition-all duration-200"
+                  >
+                    <div className="w-10 h-10 bg-neomorphic-surface rounded-neomorphic flex items-center justify-center flex-shrink-0 border border-neomorphic-border">
+                      <span className="text-xs text-neomorphic-text-secondary font-medium">
+                        {item.type.substring(0, 3).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-neomorphic-text truncate text-sm">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {item.size} • {item.uploadedBy}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {item.uploadedAt}
+                      <p className="text-xs text-neomorphic-text-secondary">
+                        {item.size} • {item.uploadedBy} • {item.uploadedAt}
                       </p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredMedia.map((item) => (
-                    <div
-                      key={item.id}
-                      className="glass-card flex items-center space-x-4 p-3 rounded-lg hover:bg-white/30 dark:hover:bg-black/30 cursor-pointer backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass liquid-hover"
-                    >
-                      <div className="w-12 h-12 glass-surface rounded flex items-center justify-center flex-shrink-0 bg-white/40 dark:bg-black/30 backdrop-blur-xl shadow-glass">
-                        <span className="text-xs text-muted-foreground">
-                          {item.type.substring(0, 3).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-foreground truncate">
-                          {item.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {item.size} • Uploaded by {item.uploadedBy} •{" "}
-                          {item.uploadedAt}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-          </TabsContent>
-
-          <TabsContent value="images">
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">Images will be shown here</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="videos">
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">Videos will be shown here</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="documents">
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">
-                Documents will be shown here
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
