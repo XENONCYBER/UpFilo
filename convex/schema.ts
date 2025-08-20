@@ -55,9 +55,14 @@ const schema = defineSchema({
         createdAt: v.number(),
         updatedAt: v.optional(v.number()),
         isEdited: v.optional(v.boolean()),
+        // Reply functionality
+        replyToId: v.optional(v.id("messages")), // ID of the message being replied to
+        replyToContent: v.optional(v.string()), // Content of the original message for quick display
+        replyToUserName: v.optional(v.string()), // Username of the original message author
     })
     .index("by_channel_id", ["channelId"])
-    .index("by_user_id", ["userId"]),
+    .index("by_user_id", ["userId"])
+    .index("by_reply_to", ["replyToId"]),
     
     users: defineTable({
         name: v.string(),

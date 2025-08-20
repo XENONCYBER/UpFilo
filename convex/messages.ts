@@ -194,6 +194,10 @@ export const sendMessage = mutation({
         content: v.string(),
         userName: v.string(),
         richContent: v.optional(v.any()),
+        // Reply functionality
+        replyToId: v.optional(v.id("messages")),
+        replyToContent: v.optional(v.string()),
+        replyToUserName: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const messageId = await ctx.db.insert("messages", {
@@ -204,6 +208,10 @@ export const sendMessage = mutation({
             userName: args.userName,
             createdAt: Date.now(),
             isEdited: false,
+            // Reply fields
+            replyToId: args.replyToId,
+            replyToContent: args.replyToContent,
+            replyToUserName: args.replyToUserName,
         });
 
         return messageId;

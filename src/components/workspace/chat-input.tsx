@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { Id } from "../../../convex/_generated/dataModel";
 import { uploadFiles, UploadedFile, UploadProgress } from "@/lib/upload";
 import { useMentionParser } from "./mentions";
+import { useReply } from "../ReplyProvider";
+import { ReplyPreview } from "../ReplyPreview";
 
 const Editor = dynamic(() => import("@/components/workspace/editor"), {
   ssr: false,
@@ -12,7 +14,11 @@ const Editor = dynamic(() => import("@/components/workspace/editor"), {
 
 interface ChatInputProps {
   placeholder: string;
-  onSendMessage: (content: string, richContent?: any) => void;
+  onSendMessage: (content: string, richContent?: any, replyData?: {
+    replyToId: Id<"messages">;
+    replyToContent: string;
+    replyToUserName: string;
+  }) => void;
   disabled?: boolean;
 }
 
@@ -25,6 +31,7 @@ export const ChatInput = ({
   const [isPending, setIsPending] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
   const { parseMentions } = useMentionParser();
+  const { replyingTo, clearReply } = useReply();
 
   const editorRef = useRef<Quill | null>(null);
 
@@ -127,10 +134,23 @@ export const ChatInput = ({
           ? `Shared ${uploadedFiles.length} file${uploadedFiles.length > 1 ? "s" : ""}`
           : "";
 
+      // Prepare reply data if replying to a message
+      const replyData = replyingTo ? {
+        replyToId: replyingTo._id,
+        replyToContent: replyingTo.content,
+        replyToUserName: replyingTo.userName,
+      } : undefined;
+
       await onSendMessage(
         contentToSend,
-        Object.keys(richContent).length > 0 ? richContent : undefined
+        Object.keys(richContent).length > 0 ? richContent : undefined,
+        replyData
       );
+
+      // Clear reply state after sending
+      if (replyingTo) {
+        clearReply();
+      }
 
       // Reset the editor AFTER everything is done for better UX
       setEditorKey((prevKey) => prevKey + 1);
@@ -145,6 +165,7 @@ export const ChatInput = ({
 
   return (
     <div className="flex flex-col gap-2">
+      <ReplyPreview />
       <Editor
         key={editorKey}
         placeholder={placeholder}

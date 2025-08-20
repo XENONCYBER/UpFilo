@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Hash, Users, Settings, Pin, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ChannelSearch } from "./ChannelSearch";
+import { ReplyProvider } from "./ReplyProvider";
 import { useGetMessages } from "@/features/messages/api/use-get-messages";
 import { useSendMessage } from "@/features/messages/api/use-send-message";
 import { useUserSession } from "./user-session-provider";
@@ -61,15 +62,22 @@ export function ModernChannelView({
     channelId: convexChannelId,
   });
 
-  const handleSendMessage = async (content: string, richContent?: any) => {
+  const handleSendMessage = async (content: string, richContent?: any, replyData?: {
+    replyToId: Id<"messages">;
+    replyToContent: string;
+    replyToUserName: string;
+  }) => {
     if (!userName || !content.trim()) return;
 
     try {
-      // Send the message with rich content
+      // Send the message with rich content and reply data
       await sendMessage({
         content: content.trim(),
         userName: userName,
         richContent: richContent,
+        replyToId: replyData?.replyToId,
+        replyToContent: replyData?.replyToContent,
+        replyToUserName: replyData?.replyToUserName,
       });
 
       // Scroll to bottom after sending message (smooth)
@@ -196,20 +204,21 @@ export function ModernChannelView({
   }
 
   return (
-    <div className={`flex flex-col h-full ${className}`}>
-      {/* Channel Header */}
-      <div className="bg-neomorphic-bg border-b border-neomorphic-border px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {getChannelIcon()}
-            <div>
-              <h2 className="text-lg font-semibold text-neomorphic-text">
-                #{channelName}
-              </h2>
-              <p className="text-sm text-neomorphic-text-secondary">
-                {channelType === "private" ? "Private channel" : "Public channel"}
-              </p>
-            </div>
+    <ReplyProvider>
+      <div className={`flex flex-col h-full ${className}`}>
+        {/* Channel Header */}
+        <div className="bg-neomorphic-bg border-b border-neomorphic-border px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {getChannelIcon()}
+              <div>
+                <h2 className="text-lg font-semibold text-neomorphic-text">
+                  #{channelName}
+                </h2>
+                <p className="text-sm text-neomorphic-text-secondary">
+                  {channelType === "private" ? "Private channel" : "Public channel"}
+                </p>
+              </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -295,5 +304,6 @@ export function ModernChannelView({
         />
       </div>
     </div>
+    </ReplyProvider>
   );
 }
