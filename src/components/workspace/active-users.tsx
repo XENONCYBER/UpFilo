@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { getUserColor, getUserInitials } from "@/lib/user-colors";
 import { Users, Clock } from "lucide-react";
 
 interface ActiveUser {
@@ -23,16 +24,6 @@ export function ActiveUsers({
   isCollapsed = false,
   className,
 }: ActiveUsersProps) {
-  // Get first letter of the name for avatar
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2); // Max 2 letters
-  };
-
   // Format last activity time
   const formatLastActivity = (timestamp: number) => {
     const now = Date.now();
@@ -87,8 +78,8 @@ export function ActiveUsers({
               >
                 <div className="relative flex-shrink-0">
                   <Avatar className="h-6 w-6">
-                    <AvatarFallback className="bg-electric-purple text-white font-semibold text-xs">
-                      {getInitials(user.userName)}
+                    <AvatarFallback className={cn("text-white font-semibold text-xs", getUserColor(user.userName))}>
+                      {getUserInitials(user.userName)}
                     </AvatarFallback>
                   </Avatar>
                   {/* Activity status indicator */}
@@ -129,8 +120,8 @@ export function ActiveUsers({
           {users.slice(0, 3).map((user) => (
             <div key={user.userName} className="relative flex-shrink-0">
               <Avatar className="h-6 w-6">
-                <AvatarFallback className="bg-electric-purple text-white font-semibold text-[10px]">
-                  {getInitials(user.userName)}
+                <AvatarFallback className={cn("text-white font-semibold text-[10px]", getUserColor(user.userName))}>
+                  {getUserInitials(user.userName)}
                 </AvatarFallback>
               </Avatar>
               {/* Activity status indicator */}

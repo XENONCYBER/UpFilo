@@ -10,6 +10,7 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getUserColor, getUserInitials } from "@/lib/user-colors";
 import { Id } from "../../../convex/_generated/dataModel";
 import { PDFViewer } from "@/components/PDFViewer";
 import { Mention, useMentionParser } from "./mentions";
@@ -216,8 +217,8 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
     <div className="group flex items-start space-x-3 py-2 px-4 hover:bg-white/10 dark:hover:bg-black/10 rounded-lg transition-colors duration-200 message-bubble">
       {/* Avatar */}
       <div className="flex-shrink-0">
-        <div className="w-9 h-9 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
-          {message.userName.charAt(0).toUpperCase()}
+        <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm", getUserColor(message.userName))}>
+          {getUserInitials(message.userName)}
         </div>
       </div>
 

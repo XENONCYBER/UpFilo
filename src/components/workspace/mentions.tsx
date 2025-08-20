@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { getUserColor, getUserInitials, getUserMentionColor } from "@/lib/user-colors";
 
 interface ActiveUser {
   userName: string;
@@ -116,8 +117,8 @@ export const MentionDropdown: React.FC<MentionDropdownProps> = ({
             onClick={() => onSelectUser(user.userName)}
           >
             <Avatar className="h-6 w-6">
-              <AvatarFallback className="text-xs bg-electric-blue/20 text-electric-blue">
-                {user.userName.charAt(0).toUpperCase()}
+              <AvatarFallback className={cn("text-xs text-white", getUserColor(user.userName))}>
+                {getUserInitials(user.userName)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
@@ -163,7 +164,8 @@ export const Mention: React.FC<MentionProps> = ({ userName, className }) => {
   return (
     <span 
       className={cn(
-        "inline-flex items-center px-1.5 py-0.5 mx-0.5 text-sm font-medium bg-electric-blue/20 text-electric-blue rounded-md border border-electric-blue/30",
+        "inline-flex items-center px-1.5 py-0.5 mx-0.5 text-sm font-medium rounded-md border",
+        getUserMentionColor(userName),
         className
       )}
     >

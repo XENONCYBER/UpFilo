@@ -11,6 +11,7 @@ import { useGetWorkspaceByCustomId } from "@/features/workspaces/api/use-get-wor
 import { useGetChannelsWithGroups } from "@/features/channels/api/use-get-channels";
 import { useUpdateUserPresence } from "@/features/workspaces/api/use-update-user-presence";
 import { useCleanupInactiveUsers } from "@/features/workspaces/api/use-cleanup-inactive-users";
+import { getUserColor, getUserInitials } from "@/lib/user-colors";
 import { cn } from "@/lib/utils";
 
 interface WorkspaceLayoutProps {
@@ -215,9 +216,9 @@ export function WorkspaceLayout({
         return (
           <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
             <div className="text-center space-y-6 max-w-md mx-auto p-8">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-electric-blue to-electric-purple mx-auto flex items-center justify-center">
+              <div className={cn("w-20 h-20 rounded-full mx-auto flex items-center justify-center", getUserColor(userName || "U"))}>
                 <span className="text-2xl font-bold text-white">
-                  {userName?.charAt(0).toUpperCase() || "U"}
+                  {getUserInitials(userName || "U")}
                 </span>
               </div>
               <div className="space-y-2">
@@ -363,19 +364,23 @@ export function WorkspaceLayout({
           children || (
             <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
               <div className="text-center space-y-6 max-w-lg mx-auto p-8">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-electric-blue via-electric-purple to-soft-green mx-auto flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">
-                    {workspace?.name?.charAt(0).toUpperCase() || "W"}
-                  </span>
+              {userName && (
+                <div className="text-center">
+                  <div className={`w-20 h-20 rounded-full ${getUserColor(userName)} mx-auto flex items-center justify-center`}>
+                    <span className="text-3xl font-bold text-white">
+                      {getUserInitials(userName)}
+                    </span>
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <h2 className="text-3xl font-bold text-neomorphic-text">
-                    Welcome to {workspace?.name || "UpFilo"}
-                  </h2>
-                  <p className="text-lg text-neomorphic-text-secondary">
-                    Your collaborative workspace is ready to go
-                  </p>
-                </div>
+              )}
+              <div className="space-y-3">
+                <h2 className="text-3xl font-bold text-neomorphic-text">
+                  Welcome to {workspace?.name || "UpFilo"}
+                </h2>
+                <p className="text-lg text-neomorphic-text-secondary">
+                  {userName ? `Hello ${userName}! Your` : "Your"} collaborative workspace is ready to go
+                </p>
+              </div>
                 <div className="grid gap-3">
                   <button
                     onClick={() => setActiveSection("channels")}
