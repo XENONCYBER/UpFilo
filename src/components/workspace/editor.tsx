@@ -9,12 +9,20 @@ import {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, XIcon } from "lucide-react";
+import { ImageIcon, XIcon, AtSignIcon } from "lucide-react";
 import { MdSend } from "react-icons/md";
 import { Hint } from "./hint";
 import { Delta, Op } from "quill/core";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { CircularProgress } from "@/components/ui/circular-progress";
+import { UploadProgress } from "@/lib/upload";
+import { MentionModule, registerMentionModule } from "@/lib/mention-module";
+import { useGetAllWorkspaceUsers } from "@/features/workspaces/api/use-get-all-workspace-users";
+import { useConvexWorkspaceId } from "@/hooks/use-convex-workspace-id";
+
+// Register the mention module
+registerMentionModule();
 
 type EditorValue = {
   images: File[];
@@ -29,6 +37,7 @@ interface editorProps {
   defaultValue?: Delta | Op[];
   innerRef?: MutableRefObject<Quill | null>;
   variant?: "create" | "update";
+  uploadProgress?: UploadProgress[];
 }
 
 const Editor = ({
@@ -39,10 +48,16 @@ const Editor = ({
   innerRef,
   variant = "create",
   disabled = false,
+  uploadProgress = [],
 }: editorProps) => {
   const [text, setText] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+
+  const workspaceId = useConvexWorkspaceId();
+  const { data: allUsers = [] } = useGetAllWorkspaceUsers({ 
+    workspaceId: workspaceId!
+  });
 
   const containerRef = useRef<HTMLDivElement>(null);
   const submitRef = useRef(onSubmit);
@@ -50,8 +65,14 @@ const Editor = ({
   const defaultValueRef = useRef(defaultValue);
   const quillRef = useRef<Quill | null>(null);
   const disabledRef = useRef(disabled);
+  const mentionModuleRef = useRef<MentionModule | null>(null);
 
   const imageElementRef = useRef<HTMLInputElement>(null);
+
+  // Helper function to get upload progress for a specific file
+  const getFileProgress = (file: File) => {
+    return uploadProgress.find(p => p.file.name === file.name && p.file.size === file.size);
+  };
 
   useLayoutEffect(() => {
     submitRef.current = onSubmit;
@@ -61,7 +82,7 @@ const Editor = ({
   });
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !workspaceId) return;
 
     const container = containerRef.current;
     const editorContainer = container.appendChild(
@@ -77,6 +98,12 @@ const Editor = ({
           ["link"],
           [{ list: "ordered" }, { list: "bullet" }],
         ],
+        mention: {
+          users: allUsers,
+          onMentionSelect: (userName: string) => {
+            console.log('Mentioned user:', userName);
+          }
+        },
         keyboard: {
           bindings: {
             enter: {
@@ -109,6 +136,9 @@ const Editor = ({
     quillRef.current = quill;
     quillRef.current.focus();
 
+    // Get the mention module instance
+    mentionModuleRef.current = quill.getModule('mention') as MentionModule;
+
     if (innerRef) {
       innerRef.current = quill;
     }
@@ -122,6 +152,10 @@ const Editor = ({
     return () => {
       quill.off(Quill.events.TEXT_CHANGE);
       quill.off(Quill.events.SELECTION_CHANGE);
+      if (mentionModuleRef.current) {
+        mentionModuleRef.current.destroy();
+        mentionModuleRef.current = null;
+      }
       if (container) {
         container.innerHTML = "";
       }
@@ -132,7 +166,14 @@ const Editor = ({
         innerRef.current = null;
       }
     };
-  }, [innerRef]);
+  }, [innerRef, workspaceId, allUsers]);
+
+  // Update mention module when all users change
+  useEffect(() => {
+    if (mentionModuleRef.current && allUsers.length > 0) {
+      mentionModuleRef.current.updateUsers(allUsers);
+    }
+  }, [allUsers]);
 
   const toogleToolbar = () => {
     setIsToolbarVisible((current) => !current);
@@ -140,6 +181,16 @@ const Editor = ({
 
     if (toolbarElement) {
       toolbarElement.classList.toggle("hidden");
+    }
+  };
+
+  const triggerMention = () => {
+    if (quillRef.current) {
+      const selection = quillRef.current.getSelection();
+      if (selection) {
+        quillRef.current.insertText(selection.index, "@");
+        quillRef.current.setSelection(selection.index + 1);
+      }
     }
   };
 
@@ -166,41 +217,84 @@ const Editor = ({
         {images.length > 0 && (
           <div className="p-2">
             <div className="flex flex-wrap gap-2">
-              {images.map((file, index) => (
-                <div key={index} className="relative group">
-                  <div className="relative size-16 flex items-center justify-center group/image border border-border rounded-lg overflow-hidden">
-                    <Hint label="Remove File">
-                      <button
-                        onClick={() => {
-                          setImages((prev) =>
-                            prev.filter((_, i) => i !== index)
-                          );
-                        }}
-                        className="hidden group-hover:flex rounded-full bg-coral-red hover:bg-coral-red/80 absolute -top-2 -right-2 text-white size-5 z-[4] border-2 border-neomorphic-surface items-center justify-center transition-all duration-200"
-                      >
-                        <XIcon className="size-3" />
-                      </button>
-                    </Hint>
-                    {file.type.startsWith("image/") ? (
-                      <Image
-                        src={URL.createObjectURL(file)}
-                        alt="Uploaded"
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-xs text-neomorphic-text-secondary p-1">
-                        <div className="truncate w-full text-center">
-                          {file.name.split(".").pop()?.toUpperCase()}
+              {images.map((file, index) => {
+                const fileProgress = getFileProgress(file);
+                const isUploading = fileProgress?.status === 'uploading';
+                const isCompleted = fileProgress?.status === 'completed';
+                const isError = fileProgress?.status === 'error';
+                
+                return (
+                  <div key={index} className="relative group">
+                    <div className="relative size-16 flex items-center justify-center group/image border border-border rounded-lg overflow-hidden">
+                      <Hint label="Remove File">
+                        <button
+                          onClick={() => {
+                            setImages((prev) =>
+                              prev.filter((_, i) => i !== index)
+                            );
+                          }}
+                          className="hidden group-hover:flex rounded-full bg-coral-red hover:bg-coral-red/80 absolute -top-2 -right-2 text-white size-5 z-[4] border-2 border-neomorphic-surface items-center justify-center transition-all duration-200"
+                        >
+                          <XIcon className="size-3" />
+                        </button>
+                      </Hint>
+                      
+                      {/* Media Content */}
+                      {file.type.startsWith("image/") ? (
+                        <Image
+                          src={URL.createObjectURL(file)}
+                          alt="Uploaded"
+                          fill
+                          className={cn(
+                            "object-cover transition-opacity duration-200",
+                            isUploading ? "opacity-50" : "opacity-100"
+                          )}
+                        />
+                      ) : (
+                        <div className={cn(
+                          "flex flex-col items-center justify-center text-xs text-neomorphic-text-secondary p-1 transition-opacity duration-200",
+                          isUploading ? "opacity-50" : "opacity-100"
+                        )}>
+                          <div className="truncate w-full text-center">
+                            {file.name.split(".").pop()?.toUpperCase()}
+                          </div>
+                          <div className="text-[10px] opacity-70">
+                            {(file.size / 1024 / 1024).toFixed(1)}MB
+                          </div>
                         </div>
-                        <div className="text-[10px] opacity-70">
-                          {(file.size / 1024 / 1024).toFixed(1)}MB
+                      )}
+                      
+                      {/* Upload Progress Overlay */}
+                      {fileProgress && (isUploading || fileProgress.status === 'pending') && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                          <CircularProgress
+                            value={fileProgress.progress}
+                            size={32}
+                            strokeWidth={3}
+                            className="text-white"
+                          />
                         </div>
-                      </div>
-                    )}
+                      )}
+                      
+                      {/* Completed Indicator */}
+                      {isCompleted && (
+                        <div className="absolute top-1 left-1 bg-green-500 text-white rounded-full p-0.5">
+                          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                      
+                      {/* Error Indicator */}
+                      {isError && (
+                        <div className="absolute top-1 left-1 bg-red-500 text-white rounded-full p-0.5">
+                          <XIcon className="w-2.5 h-2.5" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -214,6 +308,15 @@ const Editor = ({
               className="btn-neomorphic p-2"
             >
               <PiTextAa className="size-4" />
+            </button>
+          </Hint>
+          <Hint label="Mention User">
+            <button
+              disabled={disabled}
+              onClick={triggerMention}
+              className="btn-neomorphic p-2"
+            >
+              <AtSignIcon className="size-4" />
             </button>
           </Hint>
           {variant === "create" && (

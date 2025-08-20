@@ -23,8 +23,11 @@ import { useGetChannelGroups } from "@/features/channels/api/use-get-channel-gro
 import { CreateChannelGroupModal } from "@/features/channels/components/create-channel-group-modal";
 import { ThemeToggle } from "./theme-toggle";
 import { Id } from "../../convex/_generated/dataModel";
+import { ActiveUsers } from "./workspace/active-users";
+import { useGetActiveUsers } from "@/features/workspaces/api/use-get-active-users";
 
 import { useUserSession } from "./user-session-provider";
+import { useRouter } from "next/navigation";
 
 interface ModernSidebarProps {
   isOpen: boolean;
@@ -56,6 +59,12 @@ export function ModernSidebar({
 
   // Get user session
   const { userName } = useUserSession();
+
+  // Get active users in workspace
+  const { data: activeUsers, isLoading: activeUsersLoading } = useGetActiveUsers({
+    workspaceId,
+    timeWindow: 24 * 60 * 60 * 1000, // 24 hours
+  });
 
   // Get channels data
   const { data: channelsWithGroups } = useGetChannelsWithGroups({
@@ -319,6 +328,14 @@ export function ModernSidebar({
                         ))}
                     </div>
                   </div>
+
+                  {/* Active Users Section */}
+                  {!activeUsersLoading && activeUsers && activeUsers.length > 0 && (
+                    <>
+                      <Separator className="my-4 bg-neomorphic-border/30" />
+                      <ActiveUsers users={activeUsers} />
+                    </>
+                  )}
                 </div>
               </>
             )}
@@ -462,6 +479,14 @@ export function ModernSidebar({
                       </Button>
                     ))}
                 </div>
+
+                {/* Active Users - Collapsed */}
+                {!activeUsersLoading && activeUsers && activeUsers.length > 0 && (
+                  <>
+                    <div className="w-8 h-px bg-neomorphic-border/30 my-2 flex-shrink-0" />
+                    <ActiveUsers users={activeUsers} isCollapsed={true} />
+                  </>
+                )}
               </div>
             )}
           </div>

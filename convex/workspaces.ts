@@ -211,3 +211,128 @@ export const getByName = query({
         return workspace;
     },
 });
+
+// Get active users in a workspace (users who have sent messages recently)
+export const getActiveUsers = query({
+    args: { 
+        workspaceId: v.id("workspaces"),
+        timeWindow: v.optional(v.number()), // Time window in milliseconds, default 24 hours
+    },
+    handler: async (ctx, args) => {
+        const timeWindow = args.timeWindow || 24 * 60 * 60 * 1000; // 24 hours
+        const cutoffTime = Date.now() - timeWindow;
+
+        // Get all channels in this workspace
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const activeUsers = new Map<string, {
+            userName: string;
+            lastActivity: number;
+            messageCount: number;
+        }>();
+
+        // Get recent messages from all channels
+        for (const channelId of channelIds) {
+            const recentMessages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .filter((q) => q.gte(q.field("createdAt"), cutoffTime))
+                .collect();
+
+            // Track user activity
+            recentMessages.forEach(message => {
+                const existing = activeUsers.get(message.userName);
+                if (!existing || message.createdAt > existing.lastActivity) {
+                    activeUsers.set(message.userName, {
+                        userName: message.userName,
+                        lastActivity: message.createdAt,
+                        messageCount: (existing?.messageCount || 0) + 1,
+                    });
+                }
+            });
+        }
+
+        // Convert to array and sort by last activity
+        const activeUsersList = Array.from(activeUsers.values())
+            .sort((a, b) => b.lastActivity - a.lastActivity);
+
+        return activeUsersList;
+    },
+});
+
+// Get all users who have ever interacted with a workspace (for mentions)
+export const getAllWorkspaceUsers = query({
+    args: { 
+        workspaceId: v.id("workspaces"),
+    },
+    handler: async (ctx, args) => {
+        // Get all channels in this workspace
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const allUsers = new Map<string, {
+            userName: string;
+            lastActivity: number;
+            messageCount: number;
+            isActive: boolean;
+        }>();
+
+        // Get all messages from all channels to find all users
+        for (const channelId of channelIds) {
+            const messages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .collect();
+
+            // Track all users who have sent messages
+            messages.forEach(message => {
+                const existing = allUsers.get(message.userName);
+                const now = Date.now();
+                const isActive = (now - message.createdAt) < (5 * 60 * 1000); // Active if message sent in last 5 minutes
+                
+                if (!existing || message.createdAt > existing.lastActivity) {
+                    allUsers.set(message.userName, {
+                        userName: message.userName,
+                        lastActivity: message.createdAt,
+                        messageCount: (existing?.messageCount || 0) + 1,
+                        isActive: isActive || (existing?.isActive || false),
+                    });
+                }
+            });
+        }
+
+        // Add some default users for demo purposes if no users found
+        if (allUsers.size === 0) {
+            const defaultUsers = [
+                { userName: "john_doe", lastActivity: Date.now() - 10000, messageCount: 0, isActive: false },
+                { userName: "jane_smith", lastActivity: Date.now() - 30000, messageCount: 0, isActive: false },
+                { userName: "alex_chen", lastActivity: Date.now() - 60000, messageCount: 0, isActive: false },
+                { userName: "sarah_wilson", lastActivity: Date.now() - 120000, messageCount: 0, isActive: false },
+                { userName: "mike_brown", lastActivity: Date.now() - 300000, messageCount: 0, isActive: false },
+            ];
+
+            defaultUsers.forEach(user => {
+                allUsers.set(user.userName, user);
+            });
+        }
+
+        // Convert to array and sort by activity (active users first, then by last activity)
+        const allUsersList = Array.from(allUsers.values())
+            .sort((a, b) => {
+                // Active users first
+                if (a.isActive && !b.isActive) return -1;
+                if (!a.isActive && b.isActive) return 1;
+                // Then by last activity
+                return b.lastActivity - a.lastActivity;
+            });
+
+        return allUsersList;
+    },
+});

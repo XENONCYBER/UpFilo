@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Id } from "../../../convex/_generated/dataModel";
 import { PDFViewer } from "@/components/PDFViewer";
+import { Mention, useMentionParser } from "./mentions";
 
 interface RichContent {
   type?: "rich";
@@ -45,10 +46,46 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   const isMine = message.userId === currentUserId;
+  const { renderTextWithMentions } = useMentionParser();
+  
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const renderMessageContent = () => {
+    // If there's rich content with Delta, try to parse it for mentions
+    if (message.richContent?.delta) {
+      try {
+        const delta = message.richContent.delta;
+        if (delta.ops) {
+          return (
+            <div className="mb-0 whitespace-pre-wrap break-words">
+              {delta.ops.map((op: any, index: number) => {
+                if (typeof op.insert === 'string') {
+                  return (
+                    <span key={index}>
+                      {renderTextWithMentions(op.insert)}
+                    </span>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          );
+        }
+      } catch (e) {
+        console.error('Error parsing delta content:', e);
+      }
+    }
+    
+    // Fallback to regular content parsing
+    return (
+      <div className="mb-0 whitespace-pre-wrap break-words">
+        {renderTextWithMentions(message.content)}
+      </div>
+    );
+  };
 
   const renderRichContent = () => {
     if (!message.richContent) return null;
@@ -203,9 +240,7 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
 
         {/* Message Body */}
         <div className="text-foreground text-sm leading-relaxed">
-          <p className="mb-0 whitespace-pre-wrap break-words">
-            {message.content}
-          </p>
+          {renderMessageContent()}
           {renderRichContent()}
         </div>
 
