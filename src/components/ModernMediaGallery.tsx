@@ -1,13 +1,7 @@
 "use client";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Search,
-  Upload,
-  Filter,
   Grid3x3,
   List,
   FileText,
