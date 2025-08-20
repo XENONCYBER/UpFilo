@@ -9,6 +9,8 @@ import { NameInputDialog } from "./name-input-dialog";
 import { useUserSession } from "./user-session-provider";
 import { useGetWorkspaceByCustomId } from "@/features/workspaces/api/use-get-workspace-by-custom-id";
 import { useGetChannelsWithGroups } from "@/features/channels/api/use-get-channels";
+import { useUpdateUserPresence } from "@/features/workspaces/api/use-update-user-presence";
+import { useCleanupInactiveUsers } from "@/features/workspaces/api/use-cleanup-inactive-users";
 import { cn } from "@/lib/utils";
 
 interface WorkspaceLayoutProps {
@@ -37,6 +39,10 @@ export function WorkspaceLayout({
   const { data: channelsWithGroups } = useGetChannelsWithGroups({
     workspaceId: workspace?._id!,
   });
+  
+  // User presence tracking
+  const { updatePresence } = useUpdateUserPresence();
+  const { cleanupInactiveUsers } = useCleanupInactiveUsers();
 
   // Check if user has a name for this workspace
   const [shouldShowDialog, setShouldShowDialog] = useState(false);
@@ -57,6 +63,79 @@ export function WorkspaceLayout({
       }
     }
   }, [workspace?._id, hasUserNameForWorkspace, userName, setUserName]);
+  
+  // Update user presence when user session is established
+  useEffect(() => {
+    if (workspace?._id && userName && !shouldShowDialog) {
+      const updateUserPresenceStatus = async () => {
+        try {
+          await updatePresence({
+            userName,
+            workspaceId: workspace._id,
+            status: "online",
+          });
+        } catch (error) {
+          console.error("Failed to update user presence:", error);
+        }
+      };
+      
+      updateUserPresenceStatus();
+      
+      // Set up periodic presence updates every 30 seconds
+      const presenceInterval = setInterval(updateUserPresenceStatus, 30000);
+      
+      // Set up cleanup of inactive users every 2 minutes
+      const cleanupInterval = setInterval(() => {
+        cleanupInactiveUsers(workspace._id, 5 * 60 * 1000) // 5 minutes threshold
+          .catch(error => console.error("Failed to cleanup inactive users:", error));
+      }, 2 * 60 * 1000); // Every 2 minutes
+      
+      // Update presence to offline when user leaves
+      const handleBeforeUnload = () => {
+        updatePresence({
+          userName,
+          workspaceId: workspace._id,
+          status: "offline",
+        });
+      };
+      
+      // Handle visibility changes (tab switching, minimizing)
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          // User switched away - set to away
+          updatePresence({
+            userName,
+            workspaceId: workspace._id,
+            status: "away",
+          });
+        } else {
+          // User returned - set to online
+          updatePresence({
+            userName,
+            workspaceId: workspace._id,
+            status: "online",
+          });
+        }
+      };
+      
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      
+      // Cleanup
+      return () => {
+        clearInterval(presenceInterval);
+        clearInterval(cleanupInterval);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        // Set user to offline when component unmounts
+        updatePresence({
+          userName,
+          workspaceId: workspace._id,
+          status: "offline",
+        });
+      };
+    }
+  }, [workspace?._id, userName, shouldShowDialog, updatePresence]);
 
   const handleNameSubmit = useCallback(
     async (name: string) => {
@@ -65,9 +144,20 @@ export function WorkspaceLayout({
         // Store in sessionStorage immediately
         sessionStorage.setItem(`upfilo-user-name-${workspace._id}`, name);
         setShouldShowDialog(false);
+        
+        // Update user presence to "online" when they join
+        try {
+          await updatePresence({
+            userName: name,
+            workspaceId: workspace._id,
+            status: "online",
+          });
+        } catch (error) {
+          console.error("Failed to update user presence:", error);
+        }
       }
     },
-    [workspace, setUserName]
+    [workspace, setUserName, updatePresence]
   );
 
   // Function to get channel name from ID
@@ -103,6 +193,18 @@ export function WorkspaceLayout({
   ) => {
     setSelectedChannel({ id: channelId, type: channelType });
     setActiveSection("channels");
+    
+    // Update user presence with current channel
+    if (workspace?._id && userName) {
+      updatePresence({
+        userName,
+        workspaceId: workspace._id,
+        status: "online",
+        currentChannel: channelId as any, // Type assertion for now
+      }).catch(error => {
+        console.error("Failed to update presence with channel:", error);
+      });
+    }
   };
 
   const renderContent = () => {

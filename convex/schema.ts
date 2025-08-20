@@ -69,6 +69,18 @@ const schema = defineSchema({
         updatedAt: v.number(),
     })
     .index("by_email", ["email"]),
+    
+    userPresence: defineTable({
+        userName: v.string(),
+        workspaceId: v.id("workspaces"),
+        status: v.union(v.literal("online"), v.literal("offline"), v.literal("away")),
+        lastSeen: v.number(),
+        joinedAt: v.number(),
+        currentChannel: v.optional(v.id("channels")),
+    })
+    .index("by_workspace_id", ["workspaceId"])
+    .index("by_user_workspace", ["userName", "workspaceId"])
+    .index("by_workspace_status", ["workspaceId", "status"]),
 });
 
 export default schema;

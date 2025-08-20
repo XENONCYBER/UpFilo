@@ -8,6 +8,8 @@ interface ActiveUser {
   userName: string;
   lastActivity: number;
   messageCount: number;
+  status?: "online" | "offline" | "away";
+  joinedAt?: number;
 }
 
 interface ActiveUsersProps {
@@ -44,10 +46,16 @@ export function ActiveUsers({
     return "1d+ ago";
   };
 
-  // Determine activity status color
-  const getActivityColor = (timestamp: number) => {
+  // Determine activity status color based on user status and last activity
+  const getActivityColor = (user: ActiveUser) => {
+    // If user has explicit status, use that
+    if (user.status === "online") return "bg-soft-green";
+    if (user.status === "away") return "bg-warm-orange";
+    if (user.status === "offline") return "bg-gray-400";
+    
+    // Fallback to time-based status for backwards compatibility
     const now = Date.now();
-    const diff = now - timestamp;
+    const diff = now - user.lastActivity;
     const minutes = Math.floor(diff / (1000 * 60));
     
     if (minutes < 5) return "bg-soft-green"; // Very recent
@@ -87,7 +95,7 @@ export function ActiveUsers({
                   <span 
                     className={cn(
                       "absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-neomorphic-surface",
-                      getActivityColor(user.lastActivity)
+                      getActivityColor(user)
                     )} 
                   />
                 </div>
@@ -129,7 +137,7 @@ export function ActiveUsers({
               <span 
                 className={cn(
                   "absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full border border-neomorphic-surface",
-                  getActivityColor(user.lastActivity)
+                  getActivityColor(user)
                 )} 
               />
             </div>

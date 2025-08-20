@@ -336,3 +336,140 @@ export const getAllWorkspaceUsers = query({
         return allUsersList;
     },
 });
+
+// Update user presence when they join/leave a workspace
+export const updateUserPresence = mutation({
+    args: {
+        userName: v.string(),
+        workspaceId: v.id("workspaces"),
+        status: v.union(v.literal("online"), v.literal("offline"), v.literal("away")),
+        currentChannel: v.optional(v.id("channels")),
+    },
+    handler: async (ctx, args) => {
+        const now = Date.now();
+        
+        // Check if user presence already exists
+        const existingPresence = await ctx.db
+            .query("userPresence")
+            .withIndex("by_user_workspace", (q) => 
+                q.eq("userName", args.userName).eq("workspaceId", args.workspaceId)
+            )
+            .first();
+
+        if (existingPresence) {
+            // Update existing presence
+            await ctx.db.patch(existingPresence._id, {
+                status: args.status,
+                lastSeen: now,
+                currentChannel: args.currentChannel,
+            });
+            return existingPresence._id;
+        } else {
+            // Create new presence record
+            const presenceId = await ctx.db.insert("userPresence", {
+                userName: args.userName,
+                workspaceId: args.workspaceId,
+                status: args.status,
+                lastSeen: now,
+                joinedAt: now,
+                currentChannel: args.currentChannel,
+            });
+            return presenceId;
+        }
+    },
+});
+
+// Get active users based on presence data instead of just messages
+export const getActiveUsersWithPresence = query({
+    args: { 
+        workspaceId: v.id("workspaces"),
+        timeWindow: v.optional(v.number()), // Time window in milliseconds, default 5 minutes
+    },
+    handler: async (ctx, args) => {
+        const timeWindow = args.timeWindow || 5 * 60 * 1000; // 5 minutes
+        const cutoffTime = Date.now() - timeWindow;
+
+        // Get users with recent presence updates who are not offline
+        const activePresences = await ctx.db
+            .query("userPresence")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .filter((q) => 
+                q.and(
+                    q.gte(q.field("lastSeen"), cutoffTime), // Active within timeWindow
+                    q.neq(q.field("status"), "offline")      // Not offline
+                )
+            )
+            .collect();
+
+        // Also get message activity for message count
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const messageActivity = new Map<string, number>();
+
+        // Count messages for each user
+        for (const channelId of channelIds) {
+            const recentMessages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .filter((q) => q.gte(q.field("createdAt"), cutoffTime))
+                .collect();
+
+            recentMessages.forEach(message => {
+                const count = messageActivity.get(message.userName) || 0;
+                messageActivity.set(message.userName, count + 1);
+            });
+        }
+
+        // Combine presence data with message activity
+        const activeUsers = activePresences.map(presence => ({
+            userName: presence.userName,
+            lastActivity: presence.lastSeen,
+            messageCount: messageActivity.get(presence.userName) || 0,
+            status: presence.status,
+            joinedAt: presence.joinedAt,
+        }));
+
+        // Sort by last activity (most recent first)
+        return activeUsers.sort((a, b) => b.lastActivity - a.lastActivity);
+    },
+});
+
+// Cleanup inactive users (set to offline if inactive for more than 5 minutes)
+export const cleanupInactiveUsers = mutation({
+    args: {
+        workspaceId: v.id("workspaces"),
+        inactivityThreshold: v.optional(v.number()), // milliseconds, default 5 minutes
+    },
+    handler: async (ctx, args) => {
+        const threshold = args.inactivityThreshold || 5 * 60 * 1000; // 5 minutes
+        const cutoffTime = Date.now() - threshold;
+
+        // Find users who are marked as online/away but haven't been seen recently
+        const stalePresences = await ctx.db
+            .query("userPresence")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .filter((q) => 
+                q.and(
+                    q.lt(q.field("lastSeen"), cutoffTime), // Haven't been seen recently
+                    q.neq(q.field("status"), "offline")    // Currently not offline
+                )
+            )
+            .collect();
+
+        // Update them to offline
+        const updatePromises = stalePresences.map(presence => 
+            ctx.db.patch(presence._id, { status: "offline" })
+        );
+
+        await Promise.all(updatePromises);
+        
+        return {
+            updatedCount: stalePresences.length,
+            updatedUsers: stalePresences.map(p => p.userName)
+        };
+    },
+});

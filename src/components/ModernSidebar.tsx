@@ -24,10 +24,11 @@ import { CreateChannelGroupModal } from "@/features/channels/components/create-c
 import { ThemeToggle } from "./theme-toggle";
 import { Id } from "../../convex/_generated/dataModel";
 import { ActiveUsers } from "./workspace/active-users";
-import { useGetActiveUsers } from "@/features/workspaces/api/use-get-active-users";
+import { useGetActiveUsersWithPresence } from "@/features/workspaces/api/use-get-active-users-with-presence";
 
 import { useUserSession } from "./user-session-provider";
 import { useRouter } from "next/navigation";
+import { useUpdateUserPresence } from "@/features/workspaces/api/use-update-user-presence";
 
 interface ModernSidebarProps {
   isOpen: boolean;
@@ -60,17 +61,31 @@ export function ModernSidebar({
   // Get user session
   const { userName, clearUserName } = useUserSession();
   const router = useRouter();
+  const { updatePresence } = useUpdateUserPresence();
 
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Update user presence to offline before signing out
+    if (userName && workspaceId) {
+      try {
+        await updatePresence({
+          userName,
+          workspaceId,
+          status: "offline",
+        });
+      } catch (error) {
+        console.error("Failed to update presence on logout:", error);
+      }
+    }
+    
     clearUserName();
     router.push("/"); // Navigate to home page
   };
 
   // Get active users in workspace
-  const { data: activeUsers, isLoading: activeUsersLoading } = useGetActiveUsers({
+  const { data: activeUsers, isLoading: activeUsersLoading } = useGetActiveUsersWithPresence({
     workspaceId,
-    timeWindow: 24 * 60 * 60 * 1000, // 24 hours
+    timeWindow: 5 * 60 * 1000, // 5 minutes
   });
 
   // Get channels data
