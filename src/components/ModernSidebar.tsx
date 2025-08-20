@@ -58,7 +58,14 @@ export function ModernSidebar({
   const [createUserModalOpen, setCreateUserModalOpen] = useState(false);
 
   // Get user session
-  const { userName } = useUserSession();
+  const { userName, clearUserName } = useUserSession();
+  const router = useRouter();
+
+  // Handle logout
+  const handleLogout = () => {
+    clearUserName();
+    router.push("/"); // Navigate to home page
+  };
 
   // Get active users in workspace
   const { data: activeUsers, isLoading: activeUsersLoading } = useGetActiveUsers({
@@ -501,6 +508,7 @@ export function ModernSidebar({
             <WorkspaceUserSection
               userName={userName || "Guest"}
               isCollapsed={isCollapsed}
+              onLogout={handleLogout}
             />
           </div>
         </div>
