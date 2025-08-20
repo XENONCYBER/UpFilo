@@ -7,6 +7,7 @@ import { ChatInput } from "./workspace/chat-input";
 import { Button } from "@/components/ui/button";
 import { Hash, Users, Settings, Pin, Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { ChannelSearch } from "./ChannelSearch";
 import { useGetMessages } from "@/features/messages/api/use-get-messages";
 import { useSendMessage } from "@/features/messages/api/use-send-message";
 import { useUserSession } from "./user-session-provider";
@@ -39,6 +40,7 @@ export function ModernChannelView({
   className,
 }: ChannelViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [currentChannelId, setCurrentChannelId] = useState<string>("");
@@ -195,6 +197,46 @@ export function ModernChannelView({
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
+      {/* Channel Header */}
+      <div className="bg-neomorphic-bg border-b border-neomorphic-border px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {getChannelIcon()}
+            <div>
+              <h2 className="text-lg font-semibold text-neomorphic-text">
+                #{channelName}
+              </h2>
+              <p className="text-sm text-neomorphic-text-secondary">
+                {channelType === "private" ? "Private channel" : "Public channel"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="text-neomorphic-text-secondary hover:text-neomorphic-text hover:bg-neomorphic-surface"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Search Component */}
+      <div className="relative">
+        <ChannelSearch
+          channelId={convexChannelId}
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+          onMessageSelect={(messageId) => {
+            // TODO: Scroll to specific message
+            console.log("Selected message:", messageId);
+          }}
+        />
+      </div>
+
       {/* Messages Area */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea

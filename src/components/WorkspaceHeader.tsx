@@ -68,16 +68,26 @@ export function WorkspaceHeader({
         <div className="relative w-full">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary" />
           <Input
-            placeholder="Search messages and files..."
-            className="input-neomorphic pl-11 h-10 bg-neomorphic-surface/30 border-neomorphic-border/50 focus:border-electric-blue/50 focus:ring-1 focus:ring-electric-blue/20"
-            onChange={(e) => onSearch?.(e.target.value)}
+            placeholder="Search messages and files... (Ctrl+K)"
+            className="input-neomorphic pl-11 h-10 bg-neomorphic-surface/30 border-neomorphic-border/50 focus:border-electric-blue/50 focus:ring-1 focus:ring-electric-blue/20 cursor-pointer"
+            onFocus={() => {
+              console.log("Search input focused, calling onSearch");
+              onSearch?.("");
+            }}
+            readOnly
           />
         </div>
       </div>
 
       {/* Right Section */}
       <div className="flex items-center space-x-3">
-        <button className="btn-neomorphic p-2 md:hidden hover:scale-105 transition-transform duration-200">
+        <button 
+          className="btn-neomorphic p-2 md:hidden hover:scale-105 transition-transform duration-200"
+          onClick={() => {
+            console.log("Mobile search button clicked");
+            onSearch?.("");
+          }}
+        >
           <Search className="h-5 w-5" />
         </button>
 

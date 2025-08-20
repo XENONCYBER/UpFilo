@@ -6,6 +6,7 @@ import { WorkspaceHeader } from "./WorkspaceHeader";
 import { ModernChannelView } from "./ModernChannelView";
 import { ModernMediaGallery } from "./ModernMediaGallery";
 import { NameInputDialog } from "./name-input-dialog";
+import { SearchModal } from "./SearchModal";
 import { useUserSession } from "./user-session-provider";
 import { useGetWorkspaceByCustomId } from "@/features/workspaces/api/use-get-workspace-by-custom-id";
 import { useGetChannelsWithGroups } from "@/features/channels/api/use-get-channels";
@@ -28,6 +29,7 @@ export function WorkspaceLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("channels");
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<{
     id: string;
     type: "group" | "user";
@@ -160,6 +162,22 @@ export function WorkspaceLayout({
     },
     [workspace, setUserName, updatePresence]
   );
+
+  // Keyboard shortcut for search (Ctrl+K or Cmd+K)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        setIsSearchModalOpen(true);
+      }
+      if (event.key === 'Escape') {
+        setIsSearchModalOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Function to get channel name from ID
   const getChannelName = (channelId: string): string => {
@@ -447,6 +465,11 @@ export function WorkspaceLayout({
           workspaceName={workspace?.name}
           currentChannel={getChannelName(selectedChannel?.id || "")}
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+          onSearch={(query) => {
+            // Always open search modal when search is triggered
+            console.log("Search triggered, opening modal");
+            setIsSearchModalOpen(true);
+          }}
         />
         <main className="flex-1 flex flex-col min-h-0">
           {activeSection === "channels" && selectedChannel ? (
@@ -480,6 +503,43 @@ export function WorkspaceLayout({
           {children}
         </main>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onMessageSelect={(messageId, channelId) => {
+          // Find the channel to get its proper type
+          let channelType: "group" | "user" = "group"; // Default
+          let channelName = getChannelName(channelId);
+          
+          if (channelsWithGroups) {
+            for (const group of channelsWithGroups.groupedChannels) {
+              const channel = group.channels.find((ch: any) => ch._id === channelId);
+              if (channel) {
+                channelType = channel.type === "user" ? "user" : "group";
+                channelName = channel.name;
+                break;
+              }
+            }
+          }
+          
+          // Navigate to the channel and message
+          setSelectedChannel({
+            id: channelId,
+            type: channelType,
+          });
+          setActiveSection("channels");
+          setIsSearchModalOpen(false);
+          // TODO: Scroll to specific message
+          console.log("Navigate to message:", messageId, "in channel:", channelId);
+        }}
+        onFileSelect={(fileUrl) => {
+          // Open file in new tab
+          window.open(fileUrl, '_blank');
+          setIsSearchModalOpen(false);
+        }}
+      />
     </div>
   );
 }
