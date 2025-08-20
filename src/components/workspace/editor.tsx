@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, XIcon, AtSignIcon } from "lucide-react";
+import { ImageIcon, XIcon, AtSignIcon, FileText, Video, Music, FileIcon, Archive, Code } from "lucide-react";
 import { MdSend } from "react-icons/md";
 import { Hint } from "./hint";
 import { Delta, Op } from "quill/core";
@@ -23,6 +23,52 @@ import { useConvexWorkspaceId } from "@/hooks/use-convex-workspace-id";
 
 // Register the mention module
 registerMentionModule();
+
+// Helper function to get file type icon
+const getFileTypeIcon = (type: string, fileName: string) => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  
+  if (type.startsWith('video/')) {
+    return <Video className="size-6 text-white" />;
+  } else if (type.startsWith('audio/')) {
+    return <Music className="size-6 text-white" />;
+  } else if (type === 'application/pdf' || extension === 'pdf') {
+    return <FileText className="size-6 text-white" />;
+  } else if (['doc', 'docx'].includes(extension || '')) {
+    return <FileText className="size-6 text-white" />;
+  } else if (['txt', 'rtf'].includes(extension || '')) {
+    return <FileText className="size-6 text-white" />;
+  } else if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension || '')) {
+    return <Archive className="size-6 text-white" />;
+  } else if (['js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'xml', 'py', 'java', 'cpp', 'c'].includes(extension || '')) {
+    return <Code className="size-6 text-white" />;
+  } else {
+    return <FileIcon className="size-6 text-white" />;
+  }
+};
+
+// Helper function to get file type background color
+const getFileTypeStyles = (type: string, fileName: string) => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  
+  if (type.startsWith('video/')) {
+    return { bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600' };
+  } else if (type.startsWith('audio/')) {
+    return { bgColor: 'bg-gradient-to-br from-pink-500 to-pink-600' };
+  } else if (type === 'application/pdf' || extension === 'pdf') {
+    return { bgColor: 'bg-gradient-to-br from-red-500 to-red-600' };
+  } else if (['doc', 'docx'].includes(extension || '')) {
+    return { bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600' };
+  } else if (['txt', 'rtf'].includes(extension || '')) {
+    return { bgColor: 'bg-gradient-to-br from-gray-500 to-gray-600' };
+  } else if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension || '')) {
+    return { bgColor: 'bg-gradient-to-br from-yellow-500 to-yellow-600' };
+  } else if (['js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'xml', 'py', 'java', 'cpp', 'c'].includes(extension || '')) {
+    return { bgColor: 'bg-gradient-to-br from-green-500 to-green-600' };
+  } else {
+    return { bgColor: 'bg-gradient-to-br from-slate-500 to-slate-600' };
+  }
+};
 
 type EditorValue = {
   images: File[];
@@ -225,44 +271,59 @@ const Editor = ({
                 
                 return (
                   <div key={index} className="relative group">
-                    <div className="relative size-16 flex items-center justify-center group/image border border-border rounded-lg overflow-hidden">
-                      <Hint label="Remove File">
-                        <button
-                          onClick={() => {
-                            setImages((prev) =>
-                              prev.filter((_, i) => i !== index)
-                            );
-                          }}
-                          className="hidden group-hover:flex rounded-full bg-coral-red hover:bg-coral-red/80 absolute -top-2 -right-2 text-white size-5 z-[4] border-2 border-neomorphic-surface items-center justify-center transition-all duration-200"
-                        >
-                          <XIcon className="size-3" />
-                        </button>
-                      </Hint>
-                      
+                    <div className="relative size-16 flex items-center justify-center border border-border rounded-lg overflow-hidden">
                       {/* Media Content */}
-                      {file.type.startsWith("image/") ? (
-                        <Image
-                          src={URL.createObjectURL(file)}
-                          alt="Uploaded"
-                          fill
-                          className={cn(
-                            "object-cover transition-opacity duration-200",
-                            isUploading ? "opacity-50" : "opacity-100"
-                          )}
-                        />
-                      ) : (
-                        <div className={cn(
-                          "flex flex-col items-center justify-center text-xs text-neomorphic-text-secondary p-1 transition-opacity duration-200",
-                          isUploading ? "opacity-50" : "opacity-100"
-                        )}>
-                          <div className="truncate w-full text-center">
-                            {file.name.split(".").pop()?.toUpperCase()}
+                      <div className="absolute inset-0 group-hover:opacity-0 transition-opacity duration-200">
+                        {file.type.startsWith("image/") ? (
+                          <Image
+                            src={URL.createObjectURL(file)}
+                            alt="Uploaded"
+                            fill
+                            className={cn(
+                              "object-cover rounded-lg",
+                              isUploading ? "opacity-50" : "opacity-100"
+                            )}
+                          />
+                        ) : (
+                          <div className={cn(
+                            "flex flex-col items-center justify-center h-full w-full relative rounded-lg",
+                            isUploading ? "opacity-50" : "opacity-100",
+                            getFileTypeStyles(file.type, file.name).bgColor
+                          )}>
+                            {/* File size label - top right corner */}
+                            <div className="absolute top-1 right-1 bg-black/60 text-white text-[7px] font-semibold px-1 py-0.5 rounded text-center leading-none">
+                              {(file.size / 1024 / 1024).toFixed(1)}MB
+                            </div>
+                            
+                            {/* File icon - centered and larger */}
+                            <div className="flex items-center justify-center mb-1">
+                              {getFileTypeIcon(file.type, file.name)}
+                            </div>
+                            
+                            {/* File extension only - no overlap */}
+                            <div className="text-[10px] font-bold text-white text-center leading-none">
+                              {file.name.split(".").pop()?.toUpperCase()}
+                            </div>
                           </div>
-                          <div className="text-[10px] opacity-70">
-                            {(file.size / 1024 / 1024).toFixed(1)}MB
-                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Hover overlay - covers entire container */}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg" />
+                      
+                      {/* Remove button - centered in container */}
+                      <button
+                        onClick={() => {
+                          setImages((prev) =>
+                            prev.filter((_, i) => i !== index)
+                          );
+                        }}
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 z-10"
+                      >
+                        <div className="rounded-full bg-neomorphic-bg text-coral-red hover:text-coral-red/80 size-8 flex items-center justify-center shadow-neomorphic hover:shadow-neomorphic-pressed border border-neomorphic-border transition-all duration-200">
+                          <XIcon className="size-4" />
                         </div>
-                      )}
+                      </button>
                       
                       {/* Upload Progress Overlay */}
                       {fileProgress && (isUploading || fileProgress.status === 'pending') && (
@@ -363,13 +424,13 @@ const Editor = ({
                 });
               }}
               className={cn(
-                "ml-auto p-1 rounded-full transition-all duration-200 interactive-lift",
+                "ml-auto p-2 rounded-full transition-all duration-200 interactive-lift min-w-[36px] min-h-[36px] flex items-center justify-center",
                 isEmpty
                   ? "bg-neomorphic-surface text-neomorphic-text-secondary cursor-not-allowed opacity-50"
-                  : "btn-primary shadow-neomorphic hover:shadow-neomorphic-pressed"
+                  : "btn-primary shadow-neomorphic hover:shadow-neomorphic-pressed hover:scale-105"
               )}
             >
-              <MdSend className="size-3.5" />
+              <MdSend className="size-4" />
             </button>
           )}
         </div>
