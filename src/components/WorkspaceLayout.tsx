@@ -6,9 +6,13 @@ import { WorkspaceHeader } from "./WorkspaceHeader";
 import { ModernChannelView } from "./ModernChannelView";
 import { ModernMediaGallery } from "./ModernMediaGallery";
 import { NameInputDialog } from "./name-input-dialog";
+import { SearchModal } from "./SearchModal";
 import { useUserSession } from "./user-session-provider";
 import { useGetWorkspaceByCustomId } from "@/features/workspaces/api/use-get-workspace-by-custom-id";
 import { useGetChannelsWithGroups } from "@/features/channels/api/use-get-channels";
+import { useUpdateUserPresence } from "@/features/workspaces/api/use-update-user-presence";
+import { useCleanupInactiveUsers } from "@/features/workspaces/api/use-cleanup-inactive-users";
+import { getUserColor, getUserInitials } from "@/lib/user-colors";
 import { cn } from "@/lib/utils";
 
 interface WorkspaceLayoutProps {
@@ -25,6 +29,7 @@ export function WorkspaceLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("channels");
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<{
     id: string;
     type: "group" | "user";
@@ -37,6 +42,10 @@ export function WorkspaceLayout({
   const { data: channelsWithGroups } = useGetChannelsWithGroups({
     workspaceId: workspace?._id!,
   });
+  
+  // User presence tracking
+  const { updatePresence } = useUpdateUserPresence();
+  const { cleanupInactiveUsers } = useCleanupInactiveUsers();
 
   // Check if user has a name for this workspace
   const [shouldShowDialog, setShouldShowDialog] = useState(false);
@@ -57,6 +66,79 @@ export function WorkspaceLayout({
       }
     }
   }, [workspace?._id, hasUserNameForWorkspace, userName, setUserName]);
+  
+  // Update user presence when user session is established
+  useEffect(() => {
+    if (workspace?._id && userName && !shouldShowDialog) {
+      const updateUserPresenceStatus = async () => {
+        try {
+          await updatePresence({
+            userName,
+            workspaceId: workspace._id,
+            status: "online",
+          });
+        } catch (error) {
+          console.error("Failed to update user presence:", error);
+        }
+      };
+      
+      updateUserPresenceStatus();
+      
+      // Set up periodic presence updates every 30 seconds
+      const presenceInterval = setInterval(updateUserPresenceStatus, 30000);
+      
+      // Set up cleanup of inactive users every 2 minutes
+      const cleanupInterval = setInterval(() => {
+        cleanupInactiveUsers(workspace._id, 5 * 60 * 1000) // 5 minutes threshold
+          .catch(error => console.error("Failed to cleanup inactive users:", error));
+      }, 2 * 60 * 1000); // Every 2 minutes
+      
+      // Update presence to offline when user leaves
+      const handleBeforeUnload = () => {
+        updatePresence({
+          userName,
+          workspaceId: workspace._id,
+          status: "offline",
+        });
+      };
+      
+      // Handle visibility changes (tab switching, minimizing)
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          // User switched away - set to away
+          updatePresence({
+            userName,
+            workspaceId: workspace._id,
+            status: "away",
+          });
+        } else {
+          // User returned - set to online
+          updatePresence({
+            userName,
+            workspaceId: workspace._id,
+            status: "online",
+          });
+        }
+      };
+      
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      
+      // Cleanup
+      return () => {
+        clearInterval(presenceInterval);
+        clearInterval(cleanupInterval);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        // Set user to offline when component unmounts
+        updatePresence({
+          userName,
+          workspaceId: workspace._id,
+          status: "offline",
+        });
+      };
+    }
+  }, [workspace?._id, userName, shouldShowDialog, updatePresence]);
 
   const handleNameSubmit = useCallback(
     async (name: string) => {
@@ -65,10 +147,37 @@ export function WorkspaceLayout({
         // Store in sessionStorage immediately
         sessionStorage.setItem(`upfilo-user-name-${workspace._id}`, name);
         setShouldShowDialog(false);
+        
+        // Update user presence to "online" when they join
+        try {
+          await updatePresence({
+            userName: name,
+            workspaceId: workspace._id,
+            status: "online",
+          });
+        } catch (error) {
+          console.error("Failed to update user presence:", error);
+        }
       }
     },
-    [workspace, setUserName]
+    [workspace, setUserName, updatePresence]
   );
+
+  // Keyboard shortcut for search (Ctrl+K or Cmd+K)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        setIsSearchModalOpen(true);
+      }
+      if (event.key === 'Escape') {
+        setIsSearchModalOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Function to get channel name from ID
   const getChannelName = (channelId: string): string => {
@@ -103,6 +212,18 @@ export function WorkspaceLayout({
   ) => {
     setSelectedChannel({ id: channelId, type: channelType });
     setActiveSection("channels");
+    
+    // Update user presence with current channel
+    if (workspace?._id && userName) {
+      updatePresence({
+        userName,
+        workspaceId: workspace._id,
+        status: "online",
+        currentChannel: channelId as any, // Type assertion for now
+      }).catch(error => {
+        console.error("Failed to update presence with channel:", error);
+      });
+    }
   };
 
   const renderContent = () => {
@@ -113,9 +234,9 @@ export function WorkspaceLayout({
         return (
           <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
             <div className="text-center space-y-6 max-w-md mx-auto p-8">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-electric-blue to-electric-purple mx-auto flex items-center justify-center">
+              <div className={cn("w-20 h-20 rounded-full mx-auto flex items-center justify-center", getUserColor(userName || "U"))}>
                 <span className="text-2xl font-bold text-white">
-                  {userName?.charAt(0).toUpperCase() || "U"}
+                  {getUserInitials(userName || "U")}
                 </span>
               </div>
               <div className="space-y-2">
@@ -261,19 +382,23 @@ export function WorkspaceLayout({
           children || (
             <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
               <div className="text-center space-y-6 max-w-lg mx-auto p-8">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-electric-blue via-electric-purple to-soft-green mx-auto flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">
-                    {workspace?.name?.charAt(0).toUpperCase() || "W"}
-                  </span>
+              {userName && (
+                <div className="text-center">
+                  <div className={`w-20 h-20 rounded-full ${getUserColor(userName)} mx-auto flex items-center justify-center`}>
+                    <span className="text-3xl font-bold text-white">
+                      {getUserInitials(userName)}
+                    </span>
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <h2 className="text-3xl font-bold text-neomorphic-text">
-                    Welcome to {workspace?.name || "UpFilo"}
-                  </h2>
-                  <p className="text-lg text-neomorphic-text-secondary">
-                    Your collaborative workspace is ready to go
-                  </p>
-                </div>
+              )}
+              <div className="space-y-3">
+                <h2 className="text-3xl font-bold text-neomorphic-text">
+                  Welcome to {workspace?.name || "UpFilo"}
+                </h2>
+                <p className="text-lg text-neomorphic-text-secondary">
+                  {userName ? `Hello ${userName}! Your` : "Your"} collaborative workspace is ready to go
+                </p>
+              </div>
                 <div className="grid gap-3">
                   <button
                     onClick={() => setActiveSection("channels")}
@@ -340,6 +465,11 @@ export function WorkspaceLayout({
           workspaceName={workspace?.name}
           currentChannel={getChannelName(selectedChannel?.id || "")}
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+          onSearch={(query) => {
+            // Always open search modal when search is triggered
+            console.log("Search triggered, opening modal");
+            setIsSearchModalOpen(true);
+          }}
         />
         <main className="flex-1 flex flex-col min-h-0">
           {activeSection === "channels" && selectedChannel ? (
@@ -373,6 +503,43 @@ export function WorkspaceLayout({
           {children}
         </main>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        onMessageSelect={(messageId, channelId) => {
+          // Find the channel to get its proper type
+          let channelType: "group" | "user" = "group"; // Default
+          let channelName = getChannelName(channelId);
+          
+          if (channelsWithGroups) {
+            for (const group of channelsWithGroups.groupedChannels) {
+              const channel = group.channels.find((ch: any) => ch._id === channelId);
+              if (channel) {
+                channelType = channel.type === "user" ? "user" : "group";
+                channelName = channel.name;
+                break;
+              }
+            }
+          }
+          
+          // Navigate to the channel and message
+          setSelectedChannel({
+            id: channelId,
+            type: channelType,
+          });
+          setActiveSection("channels");
+          setIsSearchModalOpen(false);
+          // TODO: Scroll to specific message
+          console.log("Navigate to message:", messageId, "in channel:", channelId);
+        }}
+        onFileSelect={(fileUrl) => {
+          // Open file in new tab
+          window.open(fileUrl, '_blank');
+          setIsSearchModalOpen(false);
+        }}
+      />
     </div>
   );
 }

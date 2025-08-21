@@ -8,10 +8,16 @@ import {
   Video,
   Music,
   FileText,
+  Reply,
+  MoreVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getUserColor, getUserInitials } from "@/lib/user-colors";
 import { Id } from "../../../convex/_generated/dataModel";
 import { PDFViewer } from "@/components/PDFViewer";
+import { Mention, useMentionParser } from "./mentions";
+import { useReply } from "../ReplyProvider";
+import { useState } from "react";
 
 interface RichContent {
   type?: "rich";
@@ -36,6 +42,10 @@ interface Message {
   richContent?: RichContent;
   userAvatar?: string;
   _creationTime: number;
+  // Reply fields
+  replyToId?: Id<"messages">;
+  replyToContent?: string;
+  replyToUserName?: string;
 }
 
 interface MessageBubbleProps {
@@ -45,10 +55,58 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   const isMine = message.userId === currentUserId;
+  const { renderTextWithMentions } = useMentionParser();
+  const { setReplyingTo } = useReply();
+  const [showActions, setShowActions] = useState(false);
+  
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const handleReply = () => {
+    setReplyingTo({
+      _id: message._id,
+      content: message.content,
+      userName: message.userName,
+      createdAt: message.createdAt,
+    });
+    setShowActions(false);
+  };
+
+  const renderMessageContent = () => {
+    // If there's rich content with Delta, try to parse it for mentions
+    if (message.richContent?.delta) {
+      try {
+        const delta = message.richContent.delta;
+        if (delta.ops) {
+          return (
+            <div className="mb-0 whitespace-pre-wrap break-words">
+              {delta.ops.map((op: any, index: number) => {
+                if (typeof op.insert === 'string') {
+                  return (
+                    <span key={index}>
+                      {renderTextWithMentions(op.insert)}
+                    </span>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          );
+        }
+      } catch (e) {
+        console.error('Error parsing delta content:', e);
+      }
+    }
+    
+    // Fallback to regular content parsing
+    return (
+      <div className="mb-0 whitespace-pre-wrap break-words">
+        {renderTextWithMentions(message.content)}
+      </div>
+    );
+  };
 
   const renderRichContent = () => {
     if (!message.richContent) return null;
@@ -176,16 +234,58 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   };
 
   return (
-    <div className="group flex items-start space-x-3 py-2 px-4 hover:bg-white/10 dark:hover:bg-black/10 rounded-lg transition-colors duration-200 message-bubble">
+    <div className="group flex items-start space-x-3 py-3 px-4 hover:bg-white/5 dark:hover:bg-white/5 rounded-lg transition-all duration-200 message-bubble relative">
       {/* Avatar */}
       <div className="flex-shrink-0">
-        <div className="w-9 h-9 bg-gradient-to-br from-purple-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
-          {message.userName.charAt(0).toUpperCase()}
+        <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center text-white font-semibold text-sm", getUserColor(message.userName))}>
+          {getUserInitials(message.userName)}
         </div>
       </div>
 
       {/* Message Content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 relative">
+        {/* Message Actions - Positioned as overlay */}
+        <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out z-10">
+          <div className="flex items-center gap-2 bg-neomorphic-surface backdrop-blur-sm rounded-xl shadow-neomorphic-inset p-2">
+            <button
+              onClick={handleReply}
+              className="p-2 bg-neomorphic-surface hover:bg-neomorphic-surface-hover rounded-lg shadow-neomorphic hover:shadow-neomorphic-pressed transition-all duration-200 text-neomorphic-text-secondary hover:text-electric-blue active:shadow-neomorphic-inset transform hover:-translate-y-0.5 active:translate-y-0"
+              title="Reply"
+            >
+              <Reply className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setShowActions(!showActions)}
+              className="p-2 bg-neomorphic-surface hover:bg-neomorphic-surface-hover rounded-lg shadow-neomorphic hover:shadow-neomorphic-pressed transition-all duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text active:shadow-neomorphic-inset transform hover:-translate-y-0.5 active:translate-y-0"
+              title="More actions"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        {/* Reply Preview - shown if this message is a reply */}
+        {message.replyToId && message.replyToContent && message.replyToUserName && (
+          <div className="mb-2 p-2 border-l-4 border-electric-blue bg-neomorphic-surface/30 rounded-r-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <Reply className="h-3 w-3 text-electric-blue" />
+              <div className={`w-4 h-4 rounded-full ${getUserColor(message.replyToUserName)} flex items-center justify-center`}>
+                <span className="text-[8px] font-bold text-white">
+                  {getUserInitials(message.replyToUserName)}
+                </span>
+              </div>
+              <span className="text-xs font-medium text-neomorphic-text">
+                {message.replyToUserName}
+              </span>
+            </div>
+            <p className="text-xs text-neomorphic-text-secondary truncate">
+              {message.replyToContent.length > 60 
+                ? message.replyToContent.substring(0, 60) + "..."
+                : message.replyToContent
+              }
+            </p>
+          </div>
+        )}
+
         {/* Message Header */}
         <div className="flex items-baseline space-x-2 mb-1">
           <span className="font-semibold text-foreground text-sm">
@@ -203,9 +303,7 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
 
         {/* Message Body */}
         <div className="text-foreground text-sm leading-relaxed">
-          <p className="mb-0 whitespace-pre-wrap break-words">
-            {message.content}
-          </p>
+          {renderMessageContent()}
           {renderRichContent()}
         </div>
 

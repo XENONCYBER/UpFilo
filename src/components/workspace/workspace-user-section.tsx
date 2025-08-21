@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { getUserColor, getUserInitials } from "@/lib/user-colors";
 import { LogOut } from "lucide-react";
 
 interface WorkspaceUserSectionProps {
@@ -17,16 +18,6 @@ export function WorkspaceUserSection({
   onLogout,
   className,
 }: WorkspaceUserSectionProps) {
-  // Get first letter of the name for avatar
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2); // Max 2 letters
-  };
-
   return (
     <div
       className={cn(
@@ -37,8 +28,8 @@ export function WorkspaceUserSection({
     >
       <div className="relative flex-shrink-0">
         <Avatar className={cn(isCollapsed ? "h-10 w-10" : "h-9 w-9")}>
-          <AvatarFallback className="bg-electric-blue text-white font-semibold text-sm neomorphic-raised">
-            {getInitials(userName)}
+          <AvatarFallback className={cn("text-white font-semibold text-sm neomorphic-raised", getUserColor(userName))}>
+            {getUserInitials(userName)}
           </AvatarFallback>
         </Avatar>
         {/* Online status indicator */}

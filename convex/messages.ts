@@ -194,6 +194,10 @@ export const sendMessage = mutation({
         content: v.string(),
         userName: v.string(),
         richContent: v.optional(v.any()),
+        // Reply functionality
+        replyToId: v.optional(v.id("messages")),
+        replyToContent: v.optional(v.string()),
+        replyToUserName: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const messageId = await ctx.db.insert("messages", {
@@ -204,6 +208,10 @@ export const sendMessage = mutation({
             userName: args.userName,
             createdAt: Date.now(),
             isEdited: false,
+            // Reply fields
+            replyToId: args.replyToId,
+            replyToContent: args.replyToContent,
+            replyToUserName: args.replyToUserName,
         });
 
         return messageId;
@@ -259,5 +267,175 @@ export const deleteMessage = mutation({
 
         await ctx.db.delete(args.messageId);
         return args.messageId;
+    },
+});
+
+// Search messages in a channel
+export const searchMessages = query({
+    args: {
+        channelId: v.id("channels"),
+        searchQuery: v.string(),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        if (!args.searchQuery.trim()) {
+            return [];
+        }
+
+        const messages = await ctx.db
+            .query("messages")
+            .withIndex("by_channel_id", (q) => q.eq("channelId", args.channelId))
+            .order("desc")
+            .take(args.limit || 100);
+
+        // Filter messages that contain the search query (case-insensitive)
+        const filteredMessages = messages.filter(message => 
+            message.content.toLowerCase().includes(args.searchQuery.toLowerCase()) ||
+            message.userName.toLowerCase().includes(args.searchQuery.toLowerCase())
+        );
+
+        return filteredMessages.reverse(); // Return in chronological order
+    },
+});
+
+// Search messages across all channels in a workspace
+export const searchWorkspaceMessages = query({
+    args: {
+        workspaceId: v.id("workspaces"),
+        searchQuery: v.string(),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        if (!args.searchQuery.trim()) {
+            return [];
+        }
+
+        // Get all channels in the workspace
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const allMessages: any[] = [];
+
+        // Search messages in all channels
+        for (const channelId of channelIds) {
+            const messages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .order("desc")
+                .take(50); // Limit per channel to avoid performance issues
+
+            // Filter messages that contain the search query
+            const filteredMessages = messages.filter(message => 
+                message.content.toLowerCase().includes(args.searchQuery.toLowerCase()) ||
+                message.userName.toLowerCase().includes(args.searchQuery.toLowerCase())
+            );
+
+            // Add channel information to messages
+            const channel = channels.find(c => c._id === channelId);
+            const messagesWithChannel = filteredMessages.map(message => ({
+                ...message,
+                channelName: channel?.name || "Unknown",
+                channelType: channel?.type || "text",
+            }));
+
+            allMessages.push(...messagesWithChannel);
+        }
+
+        // Sort by creation time (newest first) and apply limit
+        allMessages.sort((a, b) => b.createdAt - a.createdAt);
+        return allMessages.slice(0, args.limit || 50);
+    },
+});
+
+// Search files/attachments in a workspace
+export const searchWorkspaceFiles = query({
+    args: {
+        workspaceId: v.id("workspaces"),
+        searchQuery: v.string(),
+        fileType: v.optional(v.union(
+            v.literal("all"),
+            v.literal("images"), 
+            v.literal("videos"),
+            v.literal("audio"),
+            v.literal("documents")
+        )),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        if (!args.searchQuery.trim()) {
+            return [];
+        }
+
+        // Get all channels for this workspace
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const allFiles: any[] = [];
+
+        // Search through messages with attachments
+        for (const channelId of channelIds) {
+            const messages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .order("desc")
+                .collect();
+
+            // Filter messages that have attachments
+            const messagesWithMedia = messages.filter(message => 
+                message.richContent && 
+                message.richContent.attachments && 
+                message.richContent.attachments.length > 0
+            );
+
+            // Extract files that match the search query
+            messagesWithMedia.forEach(message => {
+                if (message.richContent && message.richContent.attachments) {
+                    message.richContent.attachments.forEach((attachment: any) => {
+                        // Check if file name matches search query
+                        if (attachment.name.toLowerCase().includes(args.searchQuery.toLowerCase())) {
+                            // Determine file category
+                            let category = "documents";
+                            if (attachment.type.startsWith("image/")) {
+                                category = "images";
+                            } else if (attachment.type.startsWith("video/")) {
+                                category = "videos";
+                            } else if (attachment.type.startsWith("audio/")) {
+                                category = "audio";
+                            }
+
+                            // Filter by file type if specified
+                            if (args.fileType && args.fileType !== "all" && category !== args.fileType) {
+                                return;
+                            }
+
+                            const channel = channels.find(c => c._id === channelId);
+                            allFiles.push({
+                                id: `${message._id}_${attachment.name}`,
+                                name: attachment.name,
+                                url: attachment.url,
+                                type: attachment.type,
+                                size: attachment.size,
+                                category: category,
+                                messageId: message._id,
+                                channelId: message.channelId,
+                                channelName: channel?.name || "Unknown",
+                                uploadedBy: message.userName,
+                                uploadedAt: message.createdAt,
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Sort by upload time (newest first) and apply limit
+        allFiles.sort((a, b) => b.uploadedAt - a.uploadedAt);
+        return allFiles.slice(0, args.limit || 50);
     },
 });

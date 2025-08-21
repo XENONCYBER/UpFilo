@@ -26,46 +26,97 @@ export const uploadFiles = async (
   }));
 
   const uploadPromises = files.map(async (file, index) => {
-    try {
-      // Update status to uploading
-      uploadProgress[index].status = 'uploading';
-      onProgress?.(uploadProgress);
+    return new Promise<UploadedFile>((resolve, reject) => {
+      try {
+        // Update status to uploading
+        uploadProgress[index].status = 'uploading';
+        onProgress?.(uploadProgress);
 
-      const formData = new FormData();
-      formData.append('file', file);
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const response = await fetch('/api/uploadFile', {
-        method: 'POST',
-        body: formData,
-      });
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/uploadFile');
+        xhr.responseType = 'json';
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to upload ${file.name}`);
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            uploadProgress[index].progress = percent;
+            console.log(`Upload progress for ${file.name}: ${percent}%`);
+            onProgress?.(uploadProgress);
+          }
+        };
+
+        xhr.onloadstart = () => {
+          console.log(`Upload started for ${file.name}`);
+          uploadProgress[index].status = 'uploading';
+          uploadProgress[index].progress = 0;
+          onProgress?.(uploadProgress);
+        };
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            uploadProgress[index].progress = percent;
+            onProgress?.(uploadProgress);
+          }
+        };
+
+        xhr.onloadstart = () => {
+          uploadProgress[index].status = 'uploading';
+          uploadProgress[index].progress = 0;
+          onProgress?.(uploadProgress);
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const result = xhr.response ?? JSON.parse(xhr.responseText || '{}');
+            uploadProgress[index].status = 'completed';
+            uploadProgress[index].progress = 100;
+            onProgress?.(uploadProgress);
+            resolve({
+              id: result.id,
+              name: result.name,
+              size: result.size,
+              type: result.type,
+              url: result.url,
+            });
+          } else {
+            const errorMessage =
+              (xhr.response && (xhr.response.error as string)) ||
+              `Failed to upload ${file.name}`;
+            uploadProgress[index].status = 'error';
+            uploadProgress[index].error = errorMessage;
+            onProgress?.(uploadProgress);
+            reject(new Error(errorMessage));
+          }
+        };
+
+        xhr.onerror = () => {
+          const errorMessage = `Network error while uploading ${file.name}`;
+          uploadProgress[index].status = 'error';
+          uploadProgress[index].error = errorMessage;
+          onProgress?.(uploadProgress);
+          reject(new Error(errorMessage));
+        };
+
+        xhr.onabort = () => {
+          const errorMessage = `Upload aborted for ${file.name}`;
+          uploadProgress[index].status = 'error';
+          uploadProgress[index].error = errorMessage;
+          onProgress?.(uploadProgress);
+          reject(new Error(errorMessage));
+        };
+
+        xhr.send(formData);
+      } catch (error) {
+        uploadProgress[index].status = 'error';
+        uploadProgress[index].error = error instanceof Error ? error.message : 'Upload failed';
+        onProgress?.(uploadProgress);
+        reject(error as any);
       }
-
-      const result = await response.json();
-      
-      // Update status to completed
-      uploadProgress[index].status = 'completed';
-      uploadProgress[index].progress = 100;
-      onProgress?.(uploadProgress);
-
-      return {
-        id: result.id,
-        name: result.name,
-        size: result.size,
-        type: result.type,
-        url: result.url,
-      };
-    } catch (error) {
-      // Update status to error
-      uploadProgress[index].status = 'error';
-      uploadProgress[index].error = error instanceof Error ? error.message : 'Upload failed';
-      onProgress?.(uploadProgress);
-      
-      throw error;
-    }
+    });
   });
 
   return Promise.all(uploadPromises);

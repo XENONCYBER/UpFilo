@@ -55,9 +55,14 @@ const schema = defineSchema({
         createdAt: v.number(),
         updatedAt: v.optional(v.number()),
         isEdited: v.optional(v.boolean()),
+        // Reply functionality
+        replyToId: v.optional(v.id("messages")), // ID of the message being replied to
+        replyToContent: v.optional(v.string()), // Content of the original message for quick display
+        replyToUserName: v.optional(v.string()), // Username of the original message author
     })
     .index("by_channel_id", ["channelId"])
-    .index("by_user_id", ["userId"]),
+    .index("by_user_id", ["userId"])
+    .index("by_reply_to", ["replyToId"]),
     
     users: defineTable({
         name: v.string(),
@@ -69,6 +74,18 @@ const schema = defineSchema({
         updatedAt: v.number(),
     })
     .index("by_email", ["email"]),
+    
+    userPresence: defineTable({
+        userName: v.string(),
+        workspaceId: v.id("workspaces"),
+        status: v.union(v.literal("online"), v.literal("offline"), v.literal("away")),
+        lastSeen: v.number(),
+        joinedAt: v.number(),
+        currentChannel: v.optional(v.id("channels")),
+    })
+    .index("by_workspace_id", ["workspaceId"])
+    .index("by_user_workspace", ["userName", "workspaceId"])
+    .index("by_workspace_status", ["workspaceId", "status"]),
 });
 
 export default schema;

@@ -20,7 +20,14 @@ export const useSendMessage = ({ channelId }: UseSendMessageProps) => {
   const mutation = useMutation(api.messages.sendMessage);
 
   const mutate = useCallback(
-    async (values: { content: string; userName: string; richContent?: any }) => {
+    async (values: { 
+      content: string; 
+      userName: string; 
+      richContent?: any;
+      replyToId?: Id<"messages">;
+      replyToContent?: string;
+      replyToUserName?: string;
+    }) => {
       if (!channelId) {
         throw new Error("Channel ID is required to send a message");
       }
@@ -35,6 +42,9 @@ export const useSendMessage = ({ channelId }: UseSendMessageProps) => {
           content: values.content,
           userName: values.userName,
           richContent: values.richContent,
+          replyToId: values.replyToId,
+          replyToContent: values.replyToContent,
+          replyToUserName: values.replyToUserName,
         });
 
         setData(response);

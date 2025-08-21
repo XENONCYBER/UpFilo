@@ -157,6 +157,31 @@ body,
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Additional neomorphic shadow utilities */
+  .shadow-neomorphic {
+    box-shadow:
+      8px 8px 16px var(--neomorphic-shadow-dark),
+      -8px -8px 16px var(--neomorphic-shadow-light);
+  }
+
+  .shadow-neomorphic-inset {
+    box-shadow:
+      inset 4px 4px 8px var(--neomorphic-shadow-dark),
+      inset -4px -4px 8px var(--neomorphic-shadow-light);
+  }
+
+  .shadow-neomorphic-pressed {
+    box-shadow:
+      inset 6px 6px 12px var(--neomorphic-shadow-dark),
+      inset -6px -6px 12px var(--neomorphic-shadow-light);
+  }
+
+  .shadow-neomorphic-soft {
+    box-shadow:
+      4px 4px 8px var(--neomorphic-shadow-dark),
+      -4px -4px 8px var(--neomorphic-shadow-light);
+  }
+
   /* Glassmorphic Base Elements */
   .glass {
     background: var(--glass-bg);
@@ -669,46 +694,66 @@ body,
   .ql-custom .ql-editor::before {
     color: var(--neomorphic-text-secondary);
     font-style: normal;
-    opacity: 0.7;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+  
+  .dark .ql-custom .ql-editor::before {
+    color: var(--neomorphic-text);
+    opacity: 0.6;
   }
 
   .ql-custom .ql-toolbar {
     border: none;
     border-bottom: 1px solid var(--neomorphic-border);
-    padding: 4px 8px;
+    padding: 8px 12px;
     background: var(--neomorphic-surface);
+    border-radius: 12px 12px 0 0;
   }
 
   .ql-custom .ql-toolbar .ql-formats {
-    margin-right: 8px;
+    margin-right: 12px;
   }
 
   .ql-custom .ql-toolbar button {
     border: none;
-    border-radius: var(--border-radius-neomorphic);
-    padding: 4px;
-    margin: 1px;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 2px;
     background: var(--neomorphic-surface);
     color: var(--neomorphic-text);
-    box-shadow: var(--shadow-neomorphic);
+    box-shadow:
+      3px 3px 6px var(--neomorphic-shadow-dark),
+      -3px -3px 6px var(--neomorphic-shadow-light);
     transition: all 0.2s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .ql-custom .ql-toolbar button:hover {
-    background: var(--neomorphic-surface-hover);
-    box-shadow: var(--shadow-neomorphic-pressed);
+    background: var(--neomorphic-surface);
+    box-shadow:
+      inset 2px 2px 4px var(--neomorphic-shadow-dark),
+      inset -2px -2px 4px var(--neomorphic-shadow-light);
     transform: translateY(1px);
+    color: var(--electric-blue);
   }
 
   .ql-custom .ql-toolbar button.ql-active {
     background: var(--electric-blue);
     color: white;
-    box-shadow: var(--shadow-neomorphic-pressed);
+    box-shadow:
+      inset 2px 2px 4px rgba(0, 0, 0, 0.2),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.1);
     transform: translateY(1px);
   }
 
   .ql-custom .ql-stroke {
     stroke: currentColor;
+    stroke-width: 1.5;
   }
 
   .ql-custom .ql-fill {
@@ -717,18 +762,113 @@ body,
 
   .ql-custom .ql-picker {
     color: var(--neomorphic-text);
+    border-radius: 8px;
+    padding: 4px 8px;
+    background: var(--neomorphic-surface);
+    box-shadow:
+      3px 3px 6px var(--neomorphic-shadow-dark),
+      -3px -3px 6px var(--neomorphic-shadow-light);
+    transition: all 0.2s ease;
+  }
+
+  .ql-custom .ql-picker:hover {
+    box-shadow:
+      inset 2px 2px 4px var(--neomorphic-shadow-dark),
+      inset -2px -2px 4px var(--neomorphic-shadow-light);
+    color: var(--electric-blue);
   }
 
   .ql-custom .ql-picker-options {
-    background: var(--card-glass-bg);
-    backdrop-filter: var(--glass-backdrop);
+    background: var(--neomorphic-surface);
+    backdrop-filter: blur(12px);
     border: 1px solid var(--neomorphic-border);
-    border-radius: var(--border-radius-neomorphic);
-    box-shadow: var(--shadow-glass);
+    border-radius: 12px;
+    box-shadow:
+      8px 8px 16px var(--neomorphic-shadow-dark),
+      -8px -8px 16px var(--neomorphic-shadow-light);
+    margin-top: 4px;
+    z-index: 1000;
+  }
+
+  .ql-custom .ql-picker-item {
+    color: var(--neomorphic-text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 4px;
+    transition: all 0.2s ease;
   }
 
   .ql-custom .ql-picker-item:hover {
-    background: var(--neomorphic-surface-hover);
+    background: var(--neomorphic-surface);
+    box-shadow:
+      inset 2px 2px 4px var(--neomorphic-shadow-dark),
+      inset -2px -2px 4px var(--neomorphic-shadow-light);
+    color: var(--electric-blue);
+  }
+
+  /* Dark mode specific enhancements for Quill */
+  .dark .ql-custom .ql-toolbar button {
+    background: var(--neomorphic-surface);
+    color: var(--neomorphic-text);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .ql-custom .ql-toolbar button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--electric-blue);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .dark .ql-custom .ql-toolbar button.ql-active {
+    background: var(--electric-blue);
+    color: white;
+    border-color: var(--electric-blue);
+  }
+
+  .dark .ql-custom .ql-stroke {
+    stroke: var(--neomorphic-text);
+  }
+
+  .dark .ql-custom .ql-fill {
+    fill: var(--neomorphic-text);
+  }
+
+  .dark .ql-custom .ql-picker {
+    color: var(--neomorphic-text);
+    background: var(--neomorphic-surface);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Enhanced dark mode button visibility */
+  .dark .btn-neomorphic {
+    background: var(--neomorphic-surface);
+    color: var(--neomorphic-text);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .btn-neomorphic:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--electric-blue);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .dark .btn-neomorphic svg {
+    color: var(--neomorphic-text);
+    opacity: 0.9;
+  }
+
+  .dark .btn-neomorphic:hover svg {
+    color: var(--electric-blue);
+    opacity: 1;
+  }
+
+  /* Ensure all icons in dark mode are visible */
+  .dark svg {
+    color: var(--neomorphic-text);
+  }
+
+  .dark .text-neomorphic-text-secondary svg {
+    color: var(--neomorphic-text-secondary);
   }
 
   /* Enhanced UI Refinements */
@@ -819,6 +959,53 @@ body,
     outline-offset: 2px;
     border-color: var(--electric-blue);
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Liquid display animations */
+  @keyframes liquidFloat {
+    0%, 100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    33% {
+      transform: translate(10px, -10px) rotate(120deg);
+    }
+    66% {
+      transform: translate(-5px, 5px) rotate(240deg);
+    }
+  }
+
+  @keyframes liquidPulse {
+    0%, 100% {
+      opacity: 0.2;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes liquidShimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .liquid-orb {
+    animation: liquidFloat 6s ease-in-out infinite;
+  }
+
+  .liquid-orb:nth-child(2) {
+    animation-delay: -2s;
+    animation-duration: 8s;
+  }
+
+  .liquid-orb:nth-child(3) {
+    animation-delay: -4s;
+    animation-duration: 7s;
   }
 
 }

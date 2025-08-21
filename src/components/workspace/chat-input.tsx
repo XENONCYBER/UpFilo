@@ -3,7 +3,10 @@ import dynamic from "next/dynamic";
 import Quill from "quill";
 import { toast } from "sonner";
 import { Id } from "../../../convex/_generated/dataModel";
-import { uploadFiles, UploadedFile } from "@/lib/upload";
+import { uploadFiles, UploadedFile, UploadProgress } from "@/lib/upload";
+import { useMentionParser } from "./mentions";
+import { useReply } from "../ReplyProvider";
+import { ReplyPreview } from "../ReplyPreview";
 
 const Editor = dynamic(() => import("@/components/workspace/editor"), {
   ssr: false,
@@ -11,7 +14,11 @@ const Editor = dynamic(() => import("@/components/workspace/editor"), {
 
 interface ChatInputProps {
   placeholder: string;
-  onSendMessage: (content: string, richContent?: any) => void;
+  onSendMessage: (content: string, richContent?: any, replyData?: {
+    replyToId: Id<"messages">;
+    replyToContent: string;
+    replyToUserName: string;
+  }) => void;
   disabled?: boolean;
 }
 
@@ -22,6 +29,9 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   const [editorKey, setEditorKey] = useState(0);
   const [isPending, setIsPending] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
+  const { parseMentions } = useMentionParser();
+  const { replyingTo, clearReply } = useReply();
 
   const editorRef = useRef<Quill | null>(null);
 
@@ -66,15 +76,31 @@ export const ChatInput = ({
       let uploadedFiles: UploadedFile[] = [];
       if (hasFileContent) {
         try {
-          uploadedFiles = await uploadFiles(images);
+          // Initialize progress state immediately to show pending files
+          const initialProgress = images.map(file => ({
+            file,
+            progress: 0,
+            status: 'pending' as const
+          }));
+          setUploadProgress(initialProgress);
+          
+          uploadedFiles = await uploadFiles(images, (progress) => {
+            setUploadProgress([...progress]); // Create new array to trigger re-render
+          });
           toast.success(
             `${uploadedFiles.length} file(s) uploaded successfully`
           );
+          // Clear progress after completion
+          setTimeout(() => {
+            setUploadProgress([]);
+          }, 2000);
         } catch (error) {
           console.error("File upload failed:", error);
           toast.error(
             "Failed to upload files. Message will be sent without attachments."
           );
+          // Clear progress on error too
+          setUploadProgress([]);
           // Continue without files rather than failing completely
         }
       }
@@ -84,6 +110,12 @@ export const ChatInput = ({
 
       if (parsedContent && hasTextContent) {
         richContent.delta = parsedContent;
+        
+        // Extract mentions from the content
+        const mentions = parseMentions(plainTextContent);
+        if (mentions.length > 0) {
+          richContent.mentions = mentions;
+        }
       }
 
       if (uploadedFiles.length > 0) {
@@ -102,13 +134,26 @@ export const ChatInput = ({
           ? `Shared ${uploadedFiles.length} file${uploadedFiles.length > 1 ? "s" : ""}`
           : "";
 
-      // Reset the editor immediately for better UX (optimistic UI)
-      setEditorKey((prevKey) => prevKey + 1);
+      // Prepare reply data if replying to a message
+      const replyData = replyingTo ? {
+        replyToId: replyingTo._id,
+        replyToContent: replyingTo.content,
+        replyToUserName: replyingTo.userName,
+      } : undefined;
 
       await onSendMessage(
         contentToSend,
-        Object.keys(richContent).length > 0 ? richContent : undefined
+        Object.keys(richContent).length > 0 ? richContent : undefined,
+        replyData
       );
+
+      // Clear reply state after sending
+      if (replyingTo) {
+        clearReply();
+      }
+
+      // Reset the editor AFTER everything is done for better UX
+      setEditorKey((prevKey) => prevKey + 1);
     } catch (error) {
       console.error("Failed to send message:", error);
       toast.error("Failed to send message");
@@ -119,12 +164,16 @@ export const ChatInput = ({
   };
 
   return (
-    <Editor
-      key={editorKey}
-      placeholder={placeholder}
-      onSubmit={handleSubmit}
-      disabled={disabled || isPending}
-      innerRef={editorRef}
-    />
+    <div className="flex flex-col gap-2">
+      <ReplyPreview />
+      <Editor
+        key={editorKey}
+        placeholder={placeholder}
+        onSubmit={handleSubmit}
+        disabled={disabled || isPending}
+        innerRef={editorRef}
+        uploadProgress={uploadProgress}
+      />
+    </div>
   );
 };

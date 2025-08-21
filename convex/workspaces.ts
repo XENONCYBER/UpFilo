@@ -211,3 +211,265 @@ export const getByName = query({
         return workspace;
     },
 });
+
+// Get active users in a workspace (users who have sent messages recently)
+export const getActiveUsers = query({
+    args: { 
+        workspaceId: v.id("workspaces"),
+        timeWindow: v.optional(v.number()), // Time window in milliseconds, default 24 hours
+    },
+    handler: async (ctx, args) => {
+        const timeWindow = args.timeWindow || 24 * 60 * 60 * 1000; // 24 hours
+        const cutoffTime = Date.now() - timeWindow;
+
+        // Get all channels in this workspace
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const activeUsers = new Map<string, {
+            userName: string;
+            lastActivity: number;
+            messageCount: number;
+        }>();
+
+        // Get recent messages from all channels
+        for (const channelId of channelIds) {
+            const recentMessages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .filter((q) => q.gte(q.field("createdAt"), cutoffTime))
+                .collect();
+
+            // Track user activity
+            recentMessages.forEach(message => {
+                const existing = activeUsers.get(message.userName);
+                if (!existing || message.createdAt > existing.lastActivity) {
+                    activeUsers.set(message.userName, {
+                        userName: message.userName,
+                        lastActivity: message.createdAt,
+                        messageCount: (existing?.messageCount || 0) + 1,
+                    });
+                }
+            });
+        }
+
+        // Convert to array and sort by last activity
+        const activeUsersList = Array.from(activeUsers.values())
+            .sort((a, b) => b.lastActivity - a.lastActivity);
+
+        return activeUsersList;
+    },
+});
+
+// Get all users who have ever interacted with a workspace (for mentions)
+export const getAllWorkspaceUsers = query({
+    args: { 
+        workspaceId: v.id("workspaces"),
+    },
+    handler: async (ctx, args) => {
+        // Get all channels in this workspace
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const allUsers = new Map<string, {
+            userName: string;
+            lastActivity: number;
+            messageCount: number;
+            isActive: boolean;
+        }>();
+
+        // Get all messages from all channels to find all users
+        for (const channelId of channelIds) {
+            const messages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .collect();
+
+            // Track all users who have sent messages
+            messages.forEach(message => {
+                const existing = allUsers.get(message.userName);
+                const now = Date.now();
+                const isActive = (now - message.createdAt) < (5 * 60 * 1000); // Active if message sent in last 5 minutes
+                
+                if (!existing || message.createdAt > existing.lastActivity) {
+                    allUsers.set(message.userName, {
+                        userName: message.userName,
+                        lastActivity: message.createdAt,
+                        messageCount: (existing?.messageCount || 0) + 1,
+                        isActive: isActive || (existing?.isActive || false),
+                    });
+                }
+            });
+        }
+
+        // Add some default users for demo purposes if no users found
+        if (allUsers.size === 0) {
+            const defaultUsers = [
+                { userName: "john_doe", lastActivity: Date.now() - 10000, messageCount: 0, isActive: false },
+                { userName: "jane_smith", lastActivity: Date.now() - 30000, messageCount: 0, isActive: false },
+                { userName: "alex_chen", lastActivity: Date.now() - 60000, messageCount: 0, isActive: false },
+                { userName: "sarah_wilson", lastActivity: Date.now() - 120000, messageCount: 0, isActive: false },
+                { userName: "mike_brown", lastActivity: Date.now() - 300000, messageCount: 0, isActive: false },
+            ];
+
+            defaultUsers.forEach(user => {
+                allUsers.set(user.userName, user);
+            });
+        }
+
+        // Convert to array and sort by activity (active users first, then by last activity)
+        const allUsersList = Array.from(allUsers.values())
+            .sort((a, b) => {
+                // Active users first
+                if (a.isActive && !b.isActive) return -1;
+                if (!a.isActive && b.isActive) return 1;
+                // Then by last activity
+                return b.lastActivity - a.lastActivity;
+            });
+
+        return allUsersList;
+    },
+});
+
+// Update user presence when they join/leave a workspace
+export const updateUserPresence = mutation({
+    args: {
+        userName: v.string(),
+        workspaceId: v.id("workspaces"),
+        status: v.union(v.literal("online"), v.literal("offline"), v.literal("away")),
+        currentChannel: v.optional(v.id("channels")),
+    },
+    handler: async (ctx, args) => {
+        const now = Date.now();
+        
+        // Check if user presence already exists
+        const existingPresence = await ctx.db
+            .query("userPresence")
+            .withIndex("by_user_workspace", (q) => 
+                q.eq("userName", args.userName).eq("workspaceId", args.workspaceId)
+            )
+            .first();
+
+        if (existingPresence) {
+            // Update existing presence
+            await ctx.db.patch(existingPresence._id, {
+                status: args.status,
+                lastSeen: now,
+                currentChannel: args.currentChannel,
+            });
+            return existingPresence._id;
+        } else {
+            // Create new presence record
+            const presenceId = await ctx.db.insert("userPresence", {
+                userName: args.userName,
+                workspaceId: args.workspaceId,
+                status: args.status,
+                lastSeen: now,
+                joinedAt: now,
+                currentChannel: args.currentChannel,
+            });
+            return presenceId;
+        }
+    },
+});
+
+// Get active users based on presence data instead of just messages
+export const getActiveUsersWithPresence = query({
+    args: { 
+        workspaceId: v.id("workspaces"),
+        timeWindow: v.optional(v.number()), // Time window in milliseconds, default 5 minutes
+    },
+    handler: async (ctx, args) => {
+        const timeWindow = args.timeWindow || 5 * 60 * 1000; // 5 minutes
+        const cutoffTime = Date.now() - timeWindow;
+
+        // Get users with recent presence updates who are not offline
+        const activePresences = await ctx.db
+            .query("userPresence")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .filter((q) => 
+                q.and(
+                    q.gte(q.field("lastSeen"), cutoffTime), // Active within timeWindow
+                    q.neq(q.field("status"), "offline")      // Not offline
+                )
+            )
+            .collect();
+
+        // Also get message activity for message count
+        const channels = await ctx.db
+            .query("channels")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .collect();
+
+        const channelIds = channels.map(channel => channel._id);
+        const messageActivity = new Map<string, number>();
+
+        // Count messages for each user
+        for (const channelId of channelIds) {
+            const recentMessages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channelId))
+                .filter((q) => q.gte(q.field("createdAt"), cutoffTime))
+                .collect();
+
+            recentMessages.forEach(message => {
+                const count = messageActivity.get(message.userName) || 0;
+                messageActivity.set(message.userName, count + 1);
+            });
+        }
+
+        // Combine presence data with message activity
+        const activeUsers = activePresences.map(presence => ({
+            userName: presence.userName,
+            lastActivity: presence.lastSeen,
+            messageCount: messageActivity.get(presence.userName) || 0,
+            status: presence.status,
+            joinedAt: presence.joinedAt,
+        }));
+
+        // Sort by last activity (most recent first)
+        return activeUsers.sort((a, b) => b.lastActivity - a.lastActivity);
+    },
+});
+
+// Cleanup inactive users (set to offline if inactive for more than 5 minutes)
+export const cleanupInactiveUsers = mutation({
+    args: {
+        workspaceId: v.id("workspaces"),
+        inactivityThreshold: v.optional(v.number()), // milliseconds, default 5 minutes
+    },
+    handler: async (ctx, args) => {
+        const threshold = args.inactivityThreshold || 5 * 60 * 1000; // 5 minutes
+        const cutoffTime = Date.now() - threshold;
+
+        // Find users who are marked as online/away but haven't been seen recently
+        const stalePresences = await ctx.db
+            .query("userPresence")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.workspaceId))
+            .filter((q) => 
+                q.and(
+                    q.lt(q.field("lastSeen"), cutoffTime), // Haven't been seen recently
+                    q.neq(q.field("status"), "offline")    // Currently not offline
+                )
+            )
+            .collect();
+
+        // Update them to offline
+        const updatePromises = stalePresences.map(presence => 
+            ctx.db.patch(presence._id, { status: "offline" })
+        );
+
+        await Promise.all(updatePromises);
+        
+        return {
+            updatedCount: stalePresences.length,
+            updatedUsers: stalePresences.map(p => p.userName)
+        };
+    },
+});
