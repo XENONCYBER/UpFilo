@@ -1,12 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { useCreateWorkspace } from "@/features/workspaces/api/use-create-workspaces";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ArrowRight, Layers, Moon, Sun } from "lucide-react";
+import {
+  Sparkles,
+  ArrowRight,
+  Layers,
+  Moon,
+  Sun,
+  Plus,
+  LayoutGrid,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 
 export default function ModernLandingPage() {
@@ -16,6 +27,8 @@ export default function ModernLandingPage() {
   const [workspaceName, setWorkspaceName] = useState("");
   const [joinWorkspaceId, setJoinWorkspaceId] = useState("");
   const [mounted, setMounted] = useState(false);
+
+  const workspaces = useQuery(api.workspaces.get);
 
   // Prevent hydration errors
   useEffect(() => {
@@ -53,7 +66,7 @@ export default function ModernLandingPage() {
         name: workspaceName,
       },
       {
-        onSuccess: (workspaceId) => {
+        onSuccess: (data) => {
           toast.success("Workspace created successfully!");
           router.push(`/${customId}`);
         },
@@ -71,8 +84,8 @@ export default function ModernLandingPage() {
       <nav className="relative z-10 p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="neomorphic-raised p-3 rounded-neomorphic">
-              <Layers className="w-8 h-8 text-electric-blue" />
+            <div className="neomorphic-raised p-3 rounded-neomorphic bg-electric-blue">
+              <Layers className="w-8 h-8 text-white" />
             </div>
             <span className="text-2xl font-bold text-neomorphic-text">
               UpFilo
@@ -100,7 +113,7 @@ export default function ModernLandingPage() {
       <section className="relative z-10 px-6 py-24">
         <div className="max-w-6xl mx-auto">
           {/* Hero Content */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-24">
             {/* Left Content */}
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-electric-blue/10 to-electric-purple/10 border border-electric-blue/20">
@@ -194,14 +207,69 @@ export default function ModernLandingPage() {
             </div>
           </div>
 
+          {/* Your Workspaces */}
+          <div className="max-w-5xl mx-auto mb-16">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-neomorphic-text mb-2">
+                Your Workspaces
+              </h2>
+              <p className="text-base text-neomorphic-text-secondary">
+                Jump back into your recent projects
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {workspaces === undefined &&
+                // Skeleton loaders
+                [...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square h-32 rounded-[28px] bg-neomorphic-surface/60 animate-pulse"
+                  ></div>
+                ))}
+
+              {workspaces && workspaces.length === 0 && (
+                <div className="col-span-full text-center p-6 rounded-lg bg-neomorphic-surface/60">
+                  <h3 className="text-base font-semibold text-neomorphic-text">
+                    No workspaces yet
+                  </h3>
+                  <p className="text-neomorphic-text-secondary text-sm">
+                    Get started by creating your first one below.
+                  </p>
+                </div>
+              )}
+
+              {workspaces?.map(
+                (workspace: {
+                  _id: string;
+                  customId: string;
+                  name: string;
+                }) => (
+                  <Link
+                    href={`/${workspace.customId}`}
+                    key={workspace._id}
+                    className="group card-glass aspect-square h-32 rounded-[28px] morph-hover border-2 border-transparent hover:border-electric-blue/40 transition-all duration-150 flex flex-col items-center justify-center text-center shadow hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-electric-blue/40"
+                  >
+                    <div className="w-12 h-12 mb-2 rounded-[18px] bg-gradient-to-br from-electric-blue to-electric-purple flex items-center justify-center group-hover:shadow-lg transition-all duration-150">
+                      <LayoutGrid className="w-7 h-7 text-white drop-shadow" />
+                    </div>
+                    <h3 className="font-semibold text-neomorphic-text truncate w-full text-base">
+                      {workspace.name}
+                    </h3>
+                  </Link>
+                )
+              )}
+            </div>
+          </div>
+
           {/* Workspace Actions */}
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-neomorphic-text mb-4">
-                Ready to Get Started?
+                Or Create a New Space
               </h2>
               <p className="text-lg text-neomorphic-text-secondary">
-                Create your workspace in seconds or join an existing team
+                Start fresh or join an existing team
               </p>
             </div>
 
