@@ -8,6 +8,7 @@ type RequestType = {
     workspaceId: Id<"workspaces">;
     name: string;
     type: "group" | "user";
+    password?: string;
     isExpanded?: boolean;
 };
 

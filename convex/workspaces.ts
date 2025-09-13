@@ -71,16 +71,6 @@ export const create = mutation({
             updatedAt: now,
         });
 
-        const teamGroupId = await ctx.db.insert("channelGroups", {
-            name: "Team",
-            workspaceId,
-            type: "user",
-            isExpanded: true,
-            order: 0,
-            createdAt: now,
-            updatedAt: now,
-        });
-
         // Create default general channel
         await ctx.db.insert("channels", {
             name: "general",

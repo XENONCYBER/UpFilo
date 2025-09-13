@@ -3,6 +3,17 @@
 import { useState } from "react";
 import { ChevronDown, Plus, MoreHorizontal, Trash, Edit } from "lucide-react";
 import { ChannelItem } from "./channel-item";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useVerifyUserGroupPassword } from "@/features/channels/api/use-verify-user-group-password";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -57,6 +68,11 @@ export const ChannelGroup = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [pendingChannel, setPendingChannel] = useState<Channel | null>(null);
+  const verifyPassword = useVerifyUserGroupPassword();
   const workspaceId = useConvexWorkspaceId();
   const { mutate: deleteGroup } = useDeleteChannelGroup();
   const { mutate: createChannel } = useCreateChannel();
@@ -111,6 +127,42 @@ export const ChannelGroup = ({
 
   const confirmDelete = () => {
     setIsDeleteConfirmOpen(true);
+  };
+
+  // Helper: session key for this group
+  const sessionKey = `userGroupPassword:${id}`;
+
+  // Handler for channel click
+  const handleChannelClick = async (channel: Channel) => {
+    if (type === "user") {
+      // Check if password already verified in this session
+      if (sessionStorage.getItem(sessionKey) === "verified") {
+        onChannelSelect?.(channel);
+        return;
+      }
+      setPendingChannel(channel);
+      setShowPasswordDialog(true);
+    } else {
+      onChannelSelect?.(channel);
+    }
+  };
+
+  // Handler for password submit
+  const handlePasswordSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!pendingChannel) return;
+    setPasswordError("");
+    try {
+      await verifyPassword(id, passwordInput);
+      sessionStorage.setItem(sessionKey, "verified");
+      setShowPasswordDialog(false);
+      setPasswordInput("");
+      setPasswordError("");
+      onChannelSelect?.(pendingChannel);
+      setPendingChannel(null);
+    } catch (err: any) {
+      setPasswordError("Incorrect password. Please try again.");
+    }
   };
 
   return (
@@ -180,7 +232,7 @@ export const ChannelGroup = ({
                 isActive: channel.isActive,
                 description: channel.description,
               }}
-              onClick={() => onChannelSelect?.(channel)}
+              onClick={() => handleChannelClick(channel)}
             />
           ))}
         </div>
@@ -206,6 +258,56 @@ export const ChannelGroup = ({
         buttonText="Rename Group"
         description="Enter a new name for this channel group"
       />
+
+      {/* Password Dialog for user-type groups */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent
+          onClose={() => {
+            setShowPasswordDialog(false);
+            setPasswordInput("");
+            setPasswordError("");
+            setPendingChannel(null);
+          }}
+        >
+          <form onSubmit={handlePasswordSubmit}>
+            <DialogHeader>
+              <DialogTitle>Enter Group Password</DialogTitle>
+              <DialogDescription>
+                This channel group is protected. Please enter the password to
+                continue.
+              </DialogDescription>
+            </DialogHeader>
+            <Input
+              type="password"
+              placeholder="Password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              autoFocus
+              className="mt-4"
+            />
+            {passwordError && (
+              <div className="text-red-500 text-sm mt-2">{passwordError}</div>
+            )}
+            <DialogFooter className="mt-4">
+              <Button type="submit" variant="default">
+                Submit
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setShowPasswordDialog(false);
+                  setPasswordInput("");
+                  setPasswordError("");
+                  setPendingChannel(null);
+                }}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog
