@@ -33,6 +33,7 @@ export const CreateChannelGroupModal = ({
   const { mutate, isPending } = useCreateChannelGroup();
 
   const [name, setName] = useState("");
+  const [password, setPass] = useState("");
 
   const handleClose = () => {
     setName("");
@@ -56,6 +57,7 @@ export const CreateChannelGroupModal = ({
         workspaceId: workspaceId as any,
         name,
         type,
+        password: password.trim(),
         isExpanded: true,
       },
       {
@@ -96,6 +98,19 @@ export const CreateChannelGroupModal = ({
               placeholder={`Enter ${type === "group" ? "group" : "user"} folder name...`}
               className="glass-input"
             />
+            {type === "user" && (
+              <Input
+                id="user-folder-password"
+                value={password}
+                onChange={(e) => setPass(e.target.value)}
+                disabled={isPending}
+                required
+                autoFocus
+                minLength={1}
+                placeholder="Enter user folder password..."
+                className="glass-input"
+              />
+            )}
           </div>
 
           <div className="flex justify-end space-x-3">

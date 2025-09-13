@@ -16,6 +16,7 @@ const schema = defineSchema({
         name: v.string(),
         workspaceId: v.id("workspaces"),
         type: v.union(v.literal("group"), v.literal("user")),
+        password: v.optional(v.string()), // Only for type: "user"
         isExpanded: v.optional(v.boolean()),
         order: v.number(),
         createdAt: v.number(),
