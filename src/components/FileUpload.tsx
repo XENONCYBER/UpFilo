@@ -142,13 +142,13 @@ export function FileUpload({
   const getStatusColor = (status: UploadProgress["status"]) => {
     switch (status) {
       case "completed":
-        return "text-green-500";
+        return "text-green-500 dark:text-[#3fb950]";
       case "error":
-        return "text-red-500";
+        return "text-red-500 dark:text-[#f85149]";
       case "uploading":
-        return "text-blue-500";
+        return "text-blue-500 dark:text-[#58a6ff]";
       default:
-        return "text-gray-500";
+        return "text-slate-500 dark:text-[#8d96a0]";
     }
   };
 
@@ -158,8 +158,8 @@ export function FileUpload({
       <Card
         className={`relative border-2 border-dashed transition-colors ${
           isDragging
-            ? "border-blue-400 bg-blue-50 dark:bg-blue-950/20"
-            : "border-gray-300 dark:border-gray-600"
+            ? "border-blue-400 bg-blue-50 dark:bg-[#58a6ff]/10"
+            : "border-slate-300 dark:border-[#30363d]"
         } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -168,13 +168,13 @@ export function FileUpload({
       >
         <CardContent className="flex flex-col items-center justify-center py-8 px-4">
           <Upload
-            className={`h-8 w-8 mb-2 ${isDragging ? "text-blue-500" : "text-gray-400"}`}
+            className={`h-8 w-8 mb-2 ${isDragging ? "text-blue-500 dark:text-[#58a6ff]" : "text-slate-400 dark:text-[#8d96a0]"}`}
           />
-          <p className="text-sm text-center text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-center text-slate-600 dark:text-[#8d96a0]">
             <span className="font-medium">Click to upload</span> or drag and
             drop
           </p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-slate-500 dark:text-[#6e7681] mt-1">
             Max {maxFiles} files, {maxSizeMB}MB each
           </p>
         </CardContent>
@@ -196,7 +196,7 @@ export function FileUpload({
           {uploadProgress.map((progress, index) => (
             <div
               key={index}
-              className="p-3 border rounded-lg bg-gray-50 dark:bg-gray-900"
+              className="p-3 border rounded-lg bg-slate-50 dark:bg-[#161b22] border-slate-200 dark:border-[#30363d]"
             >
               <div className="flex items-center space-x-3">
                 <div className={getStatusColor(progress.status)}>
@@ -211,7 +211,7 @@ export function FileUpload({
                   <p className="text-sm font-medium truncate">
                     {progress.file.name}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500 dark:text-[#8d96a0]">
                     {formatFileSize(progress.file.size)}
                   </p>
 

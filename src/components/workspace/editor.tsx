@@ -152,6 +152,7 @@ const Editor = ({
   const quillRef = useRef<Quill | null>(null);
   const disabledRef = useRef(disabled);
   const mentionModuleRef = useRef<MentionModule | null>(null);
+  const imagesRef = useRef<File[]>([]);
 
   const imageElementRef = useRef<HTMLInputElement>(null);
 
@@ -167,6 +168,7 @@ const Editor = ({
     placeholderRef.current = placeholder;
     defaultValueRef.current = defaultValue;
     disabledRef.current = disabled;
+    imagesRef.current = images;
   });
 
   useEffect(() => {
@@ -183,7 +185,7 @@ const Editor = ({
       modules: {
         toolbar: [
           ["bold", "italic", "underline", "strike"],
-          ["link"],
+          ["link", "code-block"],
           [{ list: "ordered" }, { list: "bullet" }],
         ],
         mention: {
@@ -198,15 +200,16 @@ const Editor = ({
               key: "Enter",
               handler: () => {
                 const text = quill.getText();
+                const currentImages = imagesRef.current;
 
                 const isEmpty =
-                  images.length === 0 &&
+                  currentImages.length === 0 &&
                   text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
 
                 if (isEmpty) return;
 
                 const body = JSON.stringify(quill.getContents());
-                submitRef.current?.({ body, images });
+                submitRef.current?.({ body, images: currentImages });
               },
             },
             shift_enter: {

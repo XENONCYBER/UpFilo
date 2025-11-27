@@ -100,24 +100,24 @@ export function SearchModal({
   const getFileIcon = (type: string) => {
     if (type.startsWith("image/")) {
       return (
-        <div className="w-8 h-8 bg-green-500 rounded flex items-center justify-center text-white text-xs font-bold">
+        <div className="w-8 h-8 bg-green-500 dark:bg-[#3fb950] rounded flex items-center justify-center text-white text-xs font-bold">
           IMG
         </div>
       );
     } else if (type.startsWith("video/")) {
       return (
-        <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center text-white text-xs font-bold">
+        <div className="w-8 h-8 bg-purple-500 dark:bg-[#a371f7] rounded flex items-center justify-center text-white text-xs font-bold">
           VID
         </div>
       );
     } else if (type.startsWith("audio/")) {
       return (
-        <div className="w-8 h-8 bg-pink-500 rounded flex items-center justify-center text-white text-xs font-bold">
+        <div className="w-8 h-8 bg-pink-500 dark:bg-[#db61a2] rounded flex items-center justify-center text-white text-xs font-bold">
           AUD
         </div>
       );
     } else {
-      return <File className="w-8 h-8 text-blue-500" />;
+      return <File className="w-8 h-8 text-blue-500 dark:text-[#58a6ff]" />;
     }
   };
 
@@ -136,7 +136,7 @@ export function SearchModal({
         {/* Header */}
         <div className="p-4 border-b border-neomorphic-border/50">
           <div className="flex items-center gap-3 bg-neomorphic-surface/50 rounded-xl px-3 py-2 border border-neomorphic-border/30 focus-within:border-electric-blue/50 focus-within:ring-2 focus-within:ring-electric-blue/10 transition-all duration-300">
-            <Search className="h-5 w-5 text-neomorphic-text-secondary" />
+            <Search className="h-5 w-5 text-slate-500 dark:text-[#8d96a0] stroke-current" />
             <Input
               placeholder="Search messages and files..."
               value={searchQuery}
@@ -148,7 +148,7 @@ export function SearchModal({
               onClick={onClose}
               className="p-1 hover:bg-neomorphic-surface rounded-lg transition-colors"
             >
-              <X className="h-5 w-5 text-neomorphic-text-secondary" />
+              <X className="h-5 w-5 text-neomorphic-text" />
             </button>
           </div>
         </div>
@@ -194,7 +194,7 @@ export function SearchModal({
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <MessageSquare className="h-12 w-12 text-neomorphic-text-secondary mb-3" />
+                    <MessageSquare className="h-12 w-12 text-neomorphic-text stroke-current mb-3" />
                     <p className="text-neomorphic-text-secondary">
                       {searchQuery.trim()
                         ? "No messages found"
@@ -213,7 +213,10 @@ export function SearchModal({
                       >
                         <div className="flex items-start gap-3">
                           <div
-                            className={`w-8 h-8 rounded-full ${getUserColor(message.userName)} flex items-center justify-center flex-shrink-0`}
+                            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                            style={{
+                              backgroundColor: getUserColor(message.userName),
+                            }}
                           >
                             <span className="text-xs font-bold text-white">
                               {getUserInitials(message.userName)}
@@ -256,7 +259,7 @@ export function SearchModal({
                   </div>
                 ) : files.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <File className="h-12 w-12 text-neomorphic-text-secondary mb-3" />
+                    <File className="h-12 w-12 text-neomorphic-text stroke-current mb-3" />
                     <p className="text-neomorphic-text-secondary">
                       {searchQuery.trim()
                         ? "No files found"

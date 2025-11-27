@@ -90,10 +90,8 @@ export function ActiveUsers({
                 <div className="relative flex-shrink-0">
                   <Avatar className="h-8 w-8 shadow-sm ring-2 ring-transparent group-hover:ring-neomorphic-border/50 transition-all duration-300">
                     <AvatarFallback
-                      className={cn(
-                        "text-white font-bold text-xs",
-                        getUserColor(user.userName)
-                      )}
+                      className="text-white font-bold text-xs"
+                      style={{ backgroundColor: getUserColor(user.userName) }}
                     >
                       {getUserInitials(user.userName)}
                     </AvatarFallback>
@@ -148,10 +146,8 @@ export function ActiveUsers({
             >
               <Avatar className="h-7 w-7">
                 <AvatarFallback
-                  className={cn(
-                    "text-white font-semibold text-[10px]",
-                    getUserColor(user.userName)
-                  )}
+                  className="text-white font-semibold text-[10px]"
+                  style={{ backgroundColor: getUserColor(user.userName) }}
                 >
                   {getUserInitials(user.userName)}
                 </AvatarFallback>

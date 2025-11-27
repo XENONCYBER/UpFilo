@@ -60,7 +60,7 @@ const TabsList = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "glass-surface inline-flex h-9 items-center justify-center rounded-lg bg-white/40 dark:bg-black/30 backdrop-blur-xl border border-white/20 dark:border-white/10 p-1 text-muted-foreground shadow-glass",
+      "glass-surface inline-flex h-9 items-center justify-center rounded-lg bg-white/40 dark:bg-[#161b22]/80 backdrop-blur-xl border border-white/20 dark:border-[#30363d] p-1 text-muted-foreground shadow-glass",
       className
     )}
     {...props}
@@ -88,8 +88,8 @@ const TabsTrigger = React.forwardRef<
       className={cn(
         "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         isSelected
-          ? "bg-white/60 dark:bg-black/40 text-foreground shadow-glass backdrop-blur-xl"
-          : "hover:bg-white/30 dark:hover:bg-white/10",
+          ? "bg-white/60 dark:bg-[#21262d] text-foreground shadow-glass backdrop-blur-xl"
+          : "hover:bg-white/30 dark:hover:bg-[#21262d]/50",
         className
       )}
       onClick={handleClick}

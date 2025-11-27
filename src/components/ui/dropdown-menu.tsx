@@ -352,7 +352,7 @@ export function DropdownMenuCheckboxItem({
   return (
     <div
       className={cn(
-        "relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-white/50 dark:hover:bg-white/10",
+        "relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-slate-100 dark:hover:bg-[#21262d]",
         className
       )}
       onClick={handleClick}

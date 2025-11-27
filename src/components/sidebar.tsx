@@ -17,7 +17,7 @@ import { useUserSession } from "./user-session-provider";
 import { useRouter } from "next/navigation";
 import { useUpdateUserPresence } from "@/features/workspaces/api/use-update-user-presence";
 
-interface ModernSidebarProps {
+interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   activeSection: string;
@@ -29,7 +29,7 @@ interface ModernSidebarProps {
   className?: string;
 }
 
-export function ModernSidebar({
+export function Sidebar({
   isOpen,
   onToggle,
   activeSection,
@@ -39,7 +39,7 @@ export function ModernSidebar({
   selectedChannelId,
   onCollapseChange,
   className,
-}: ModernSidebarProps) {
+}: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
   const [createUserModalOpen, setCreateUserModalOpen] = useState(false);
@@ -142,19 +142,19 @@ export function ModernSidebar({
     <>
       <aside
         className={cn(
-          "w-60 h-full flex flex-col bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-slate-200/50 dark:border-slate-700/50",
+          "w-60 h-full flex flex-col bg-white/70 dark:bg-[#0d1117]/95 backdrop-blur-xl border-r border-slate-200/50 dark:border-[#30363d]",
           className
         )}
       >
         {/* Search */}
-        <div className="p-2.5 border-b border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50">
+        <div className="p-2.5 border-b border-slate-200/50 dark:border-[#30363d] bg-white/50 dark:bg-[#010409]/50">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 dark:text-[#8d96a0] stroke-current" />
             <Input
               placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 text-sm bg-slate-100/80 dark:bg-slate-800/80 border-slate-200/50 dark:border-slate-700/50 rounded-lg focus:ring-1 focus:ring-blue-500/30 placeholder:text-slate-400"
+              className="pl-8 h-8 text-sm bg-slate-100/80 dark:bg-[#21262d] border-slate-200/50 dark:border-[#30363d] rounded-lg focus:ring-1 focus:ring-blue-500/30 dark:focus:ring-[#58a6ff]/30 placeholder:text-slate-400 dark:placeholder:text-[#8d96a0] text-slate-800 dark:text-[#e6edf3]"
             />
           </div>
         </div>
@@ -167,8 +167,8 @@ export function ModernSidebar({
             className={cn(
               "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm transition-all",
               activeSection === "mediaGallery"
-                ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200"
+                ? "bg-blue-500/10 dark:bg-[#58a6ff]/10 text-blue-600 dark:text-[#58a6ff] font-medium"
+                : "text-slate-600 dark:text-[#8d96a0] hover:bg-slate-100 dark:hover:bg-[#21262d] hover:text-slate-800 dark:hover:text-[#e6edf3]"
             )}
           >
             <Image className="h-4 w-4 flex-shrink-0" />
@@ -181,7 +181,7 @@ export function ModernSidebar({
               onClick={() => setChannelsExpanded(!channelsExpanded)}
               className="w-full flex items-center justify-between px-2.5 py-1 group"
             >
-              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8d96a0] uppercase tracking-wider">
                 Channels
               </span>
               <div className="flex items-center gap-0.5">
@@ -190,14 +190,14 @@ export function ModernSidebar({
                     e.stopPropagation();
                     setCreateGroupModalOpen(true);
                   }}
-                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-blue-500 transition-all"
+                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-[#21262d] text-slate-400 dark:text-[#8d96a0] hover:text-blue-500 dark:hover:text-[#58a6ff] transition-all"
                   title="Add Channel"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
                 <ChevronDown
                   className={cn(
-                    "h-3 w-3 text-slate-400 dark:text-slate-500 transition-transform",
+                    "h-3 w-3 text-slate-400 dark:text-[#8d96a0] transition-transform",
                     !channelsExpanded && "-rotate-90"
                   )}
                 />
@@ -242,7 +242,7 @@ export function ModernSidebar({
               onClick={() => setDmsExpanded(!dmsExpanded)}
               className="w-full flex items-center justify-between px-2.5 py-1 group"
             >
-              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8d96a0] uppercase tracking-wider">
                 User Channels
               </span>
               <div className="flex items-center gap-0.5">
@@ -251,14 +251,14 @@ export function ModernSidebar({
                     e.stopPropagation();
                     setCreateUserModalOpen(true);
                   }}
-                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-500 transition-all"
+                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-[#21262d] text-slate-400 dark:text-[#8d96a0] hover:text-indigo-500 dark:hover:text-[#a371f7] transition-all"
                   title="Add Direct Message"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
                 <ChevronDown
                   className={cn(
-                    "h-3 w-3 text-slate-400 dark:text-slate-500 transition-transform",
+                    "h-3 w-3 text-slate-400 dark:text-[#8d96a0] transition-transform",
                     !dmsExpanded && "-rotate-90"
                   )}
                 />
@@ -301,7 +301,7 @@ export function ModernSidebar({
           {!activeUsersLoading && activeUsers && activeUsers.length > 0 && (
             <div className="pt-4">
               <div className="px-2.5 py-1">
-                <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8d96a0] uppercase tracking-wider">
                   Online — {activeUsers.length}
                 </span>
               </div>
@@ -313,7 +313,7 @@ export function ModernSidebar({
         </div>
 
         {/* User Section */}
-        <div className="p-2 border-t border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50">
+        <div className="p-2 border-t border-slate-200/50 dark:border-[#30363d] bg-white/50 dark:bg-[#010409]/50">
           <WorkspaceUserSection
             userName={userName || "Guest"}
             isCollapsed={false}

@@ -55,7 +55,7 @@ export function ChannelSearch({
       {/* Search Header */}
       <div className="p-3 border-b border-neomorphic-border">
         <div className="flex items-center gap-3">
-          <Search className="h-5 w-5 text-neomorphic-text-secondary flex-shrink-0" />
+          <Search className="h-5 w-5 text-slate-500 dark:text-[#8d96a0] stroke-current flex-shrink-0" />
           <Input
             placeholder="Search in this channel..."
             value={searchQuery}
@@ -67,7 +67,7 @@ export function ChannelSearch({
             onClick={onClose}
             className="p-1 hover:bg-neomorphic-surface rounded-lg transition-colors flex-shrink-0"
           >
-            <X className="h-5 w-5 text-neomorphic-text-secondary" />
+            <X className="h-5 w-5 text-neomorphic-text" />
           </button>
         </div>
       </div>
@@ -85,7 +85,7 @@ export function ChannelSearch({
                 </div>
               ) : messages.length === 0 ? (
                 <div className="text-center py-8">
-                  <Search className="h-12 w-12 text-neomorphic-text-secondary mx-auto mb-3" />
+                  <Search className="h-12 w-12 text-neomorphic-text stroke-current mx-auto mb-3" />
                   <p className="text-neomorphic-text-secondary">
                     No messages found
                   </p>

@@ -20,11 +20,11 @@ import {
 import { useConvexWorkspaceId } from "@/hooks/use-convex-workspace-id";
 import { formatFileSize } from "@/lib/upload";
 
-interface ModernMediaGalleryProps {
+interface MediaGalleryProps {
   className?: string;
 }
 
-export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
+export function MediaGallery({ className }: MediaGalleryProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filter, setFilter] = useState<
     "all" | "images" | "videos" | "audio" | "documents"
@@ -79,18 +79,22 @@ export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
   const getFileIcon = (type: string, category: string) => {
     switch (category) {
       case "images":
-        return <Image className="h-4 w-4 text-blue-500" />;
+        return <Image className="h-4 w-4 text-blue-500 dark:text-[#58a6ff]" />;
       case "videos":
-        return <Video className="h-4 w-4 text-green-500" />;
+        return <Video className="h-4 w-4 text-green-500 dark:text-[#3fb950]" />;
       case "audio":
-        return <Music className="h-4 w-4 text-purple-500" />;
+        return (
+          <Music className="h-4 w-4 text-purple-500 dark:text-[#a371f7]" />
+        );
       case "documents":
         if (type === "application/pdf") {
-          return <FileText className="h-4 w-4 text-red-500" />;
+          return (
+            <FileText className="h-4 w-4 text-red-500 dark:text-[#f85149]" />
+          );
         }
-        return <File className="h-4 w-4 text-gray-500" />;
+        return <File className="h-4 w-4 text-slate-500 dark:text-[#8d96a0]" />;
       default:
-        return <File className="h-4 w-4 text-gray-500" />;
+        return <File className="h-4 w-4 text-slate-500 dark:text-[#8d96a0]" />;
     }
   };
 
@@ -167,7 +171,7 @@ export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
 
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-[#8d96a0] stroke-current" />
             <input
               placeholder="Search media files..."
               value={searchQuery}

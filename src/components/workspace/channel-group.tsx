@@ -63,7 +63,8 @@ export const ChannelGroup = ({
   type,
   onChannelSelect,
 }: ChannelGroupProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  // User channel groups are collapsed by default, group channels are expanded
+  const [isExpanded, setIsExpanded] = useState(type === "group");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);

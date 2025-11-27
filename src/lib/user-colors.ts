@@ -1,21 +1,26 @@
 // Color palette for user avatars and identification
+// Using hex colors directly for reliability
 export const USER_COLORS = [
-  "bg-blue-500",
-  "bg-purple-500", 
-  "bg-green-500",
-  "bg-orange-500",
-  "bg-red-500",
-  "bg-teal-500",
-  "bg-indigo-500",
-  "bg-yellow-500",
-  "bg-pink-500",
-  "bg-cyan-500",
-  "bg-emerald-500",
-  "bg-violet-500",
-  "bg-rose-500",
-  "bg-amber-500",
-  "bg-lime-500",
-  "bg-fuchsia-500",
+  "#2563eb", // blue-600
+  "#9333ea", // purple-600
+  "#16a34a", // green-600
+  "#ea580c", // orange-600
+  "#dc2626", // red-600
+  "#0d9488", // teal-600
+  "#4f46e5", // indigo-600
+  "#d97706", // amber-600
+  "#db2777", // pink-600
+  "#0891b2", // cyan-600
+  "#059669", // emerald-600
+  "#7c3aed", // violet-600
+  "#e11d48", // rose-600
+  "#0284c7", // sky-600
+  "#c026d3", // fuchsia-600
+  "#1d4ed8", // blue-700
+  "#7e22ce", // purple-700
+  "#15803d", // green-700
+  "#c2410c", // orange-700
+  "#b91c1c", // red-700
 ];
 
 // Color variants for mentions and highlights
@@ -28,7 +33,7 @@ export const USER_COLOR_VARIANTS = {
     "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200",
     "bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-200",
     "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-200",
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200",
+    "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200",
     "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-200",
     "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200",
     "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200",
@@ -42,7 +47,7 @@ export const USER_COLOR_VARIANTS = {
     "border-red-300 dark:border-red-600",
     "border-teal-300 dark:border-teal-600",
     "border-indigo-300 dark:border-indigo-600",
-    "border-yellow-300 dark:border-yellow-600",
+    "border-amber-300 dark:border-amber-600",
     "border-pink-300 dark:border-pink-600",
     "border-cyan-300 dark:border-cyan-600",
     "border-emerald-300 dark:border-emerald-600",
@@ -53,7 +58,7 @@ export const USER_COLOR_VARIANTS = {
 /**
  * Generate a consistent color for a user based on their username
  * @param userName - The username to generate a color for
- * @returns A CSS class string for the user's color
+ * @returns A hex color string for the user's color
  */
 export const getUserColor = (userName: string): string => {
   // Normalize username to lowercase for consistent colors

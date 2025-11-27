@@ -45,18 +45,22 @@ export function RecentMediaWidget({
   const getFileIcon = (type: string, category: string) => {
     switch (category) {
       case "images":
-        return <Image className="h-3 w-3 text-blue-500" />;
+        return <Image className="h-3 w-3 text-blue-500 dark:text-[#58a6ff]" />;
       case "videos":
-        return <Video className="h-3 w-3 text-green-500" />;
+        return <Video className="h-3 w-3 text-green-500 dark:text-[#3fb950]" />;
       case "audio":
-        return <Music className="h-3 w-3 text-purple-500" />;
+        return (
+          <Music className="h-3 w-3 text-purple-500 dark:text-[#a371f7]" />
+        );
       case "documents":
         if (type === "application/pdf") {
-          return <FileText className="h-3 w-3 text-red-500" />;
+          return (
+            <FileText className="h-3 w-3 text-red-500 dark:text-[#f85149]" />
+          );
         }
-        return <File className="h-3 w-3 text-gray-500" />;
+        return <File className="h-3 w-3 text-slate-500 dark:text-[#8d96a0]" />;
       default:
-        return <File className="h-3 w-3 text-gray-500" />;
+        return <File className="h-3 w-3 text-slate-500 dark:text-[#8d96a0]" />;
     }
   };
 

@@ -34,10 +34,8 @@ export function WorkspaceUserSection({
           )}
         >
           <AvatarFallback
-            className={cn(
-              "text-white font-bold text-sm shadow-inner",
-              getUserColor(userName)
-            )}
+            className="text-white font-bold text-sm shadow-inner"
+            style={{ backgroundColor: getUserColor(userName) }}
           >
             {getUserInitials(userName)}
           </AvatarFallback>

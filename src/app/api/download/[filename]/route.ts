@@ -3,11 +3,13 @@ import B2 from 'backblaze-b2';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> }
 ) {
+  // Extract and decode filename first (await params in Next.js 15)
+  const { filename: rawFilename } = await params;
+  const filename = decodeURIComponent(rawFilename);
+  
   try {
-    const filename = decodeURIComponent(params.filename);
-    
     if (!filename) {
       return NextResponse.json(
         { error: 'Filename is required' },
@@ -64,7 +66,7 @@ export async function GET(
       { 
         error: 'File not found or access denied',
         details: error instanceof Error ? error.message : 'Unknown error',
-        filename: params.filename
+        filename: filename
       },
       { status: 404 }
     );

@@ -60,14 +60,14 @@ export function PDFViewer({ url, fileName, className = "" }: PDFViewerProps) {
 
   return (
     <div
-      className={`border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-900 ${className}`}
+      className={`border border-slate-200/50 dark:border-[#30363d] rounded-lg overflow-hidden bg-white dark:bg-[#0d1117] ${className}`}
     >
       {/* PDF Header */}
-      <div className="p-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-3 bg-slate-50 dark:bg-[#161b22] border-b border-slate-200/50 dark:border-[#30363d]">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center space-x-2 min-w-0 flex-1">
             <FileText className="h-4 w-4 text-red-500 flex-shrink-0" />
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            <span className="text-sm font-medium text-slate-800 dark:text-[#e6edf3] truncate">
               {fileName}
             </span>
           </div>
@@ -141,12 +141,12 @@ export function PDFViewer({ url, fileName, className = "" }: PDFViewerProps) {
               sandbox="allow-same-origin allow-scripts"
             />
           ) : (
-            <div className="h-64 flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800">
-              <FileText className="h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600 dark:text-gray-400 text-center mb-4">
+            <div className="h-64 flex flex-col items-center justify-center bg-slate-100 dark:bg-[#21262d]">
+              <FileText className="h-12 w-12 text-slate-400 dark:text-[#8d96a0] mb-4" />
+              <p className="text-slate-600 dark:text-[#8d96a0] text-center mb-4">
                 PDF preview not available in this browser
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 text-center mb-4">
+              <p className="text-xs text-slate-500 dark:text-[#6e7681] text-center mb-4">
                 The PDF cannot be previewed inline. You can open it in a new tab
                 or download it.
               </p>
@@ -168,12 +168,12 @@ export function PDFViewer({ url, fileName, className = "" }: PDFViewerProps) {
       {/* PDF Preview Thumbnail (when collapsed) */}
       {!isExpanded && (
         <div
-          className="h-32 bg-gray-100 dark:bg-gray-800 flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          className="h-32 bg-slate-100 dark:bg-[#21262d] flex items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-[#30363d] transition-colors"
           onClick={() => setIsExpanded(true)}
         >
           <div className="text-center">
             <FileText className="h-8 w-8 text-red-500 mx-auto mb-2" />
-            <p className="text-xs text-gray-600 dark:text-gray-400">
+            <p className="text-xs text-slate-600 dark:text-[#8d96a0]">
               Click to preview PDF
             </p>
           </div>

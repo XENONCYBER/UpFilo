@@ -116,11 +116,21 @@ export const update = mutation({
 export const remove = mutation({
     args: { id: v.id("workspaces") },
     handler: async (ctx, args) => {
-        // Delete all channels in this workspace
+        const workspace = await ctx.db.get(args.id);
+        if (!workspace) {
+            throw new Error("Workspace not found");
+        }
+
+        // Collect all file URLs for external cleanup (Backblaze)
+        const fileUrls: string[] = [];
+
+        // Get all channels in this workspace
         const channels = await ctx.db
             .query("channels")
             .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
             .collect();
+
+        console.log(`Deleting workspace "${workspace.name}" with ${channels.length} channels`);
 
         for (const channel of channels) {
             // Delete all messages in each channel
@@ -129,7 +139,17 @@ export const remove = mutation({
                 .withIndex("by_channel_id", (q) => q.eq("channelId", channel._id))
                 .collect();
 
+            console.log(`Deleting ${messages.length} messages from channel "${channel.name}"`);
+
             for (const message of messages) {
+                // Extract file URLs from richContent attachments
+                if (message.richContent?.attachments && Array.isArray(message.richContent.attachments)) {
+                    for (const attachment of message.richContent.attachments) {
+                        if (attachment.url) {
+                            fileUrls.push(attachment.url);
+                        }
+                    }
+                }
                 await ctx.db.delete(message._id);
             }
 
@@ -142,13 +162,37 @@ export const remove = mutation({
             .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
             .collect();
 
+        console.log(`Deleting ${channelGroups.length} channel groups`);
+
         for (const group of channelGroups) {
             await ctx.db.delete(group._id);
         }
 
-        // Finally delete the workspace
+        // Delete all user presence records for this workspace
+        const userPresences = await ctx.db
+            .query("userPresence")
+            .withIndex("by_workspace_id", (q) => q.eq("workspaceId", args.id))
+            .collect();
+
+        console.log(`Deleting ${userPresences.length} user presence records`);
+
+        for (const presence of userPresences) {
+            await ctx.db.delete(presence._id);
+        }
+
+        // Delete the workspace itself
         await ctx.db.delete(args.id);
-        return args.id;
+        
+        console.log(`Workspace "${workspace.name}" deleted. ${fileUrls.length} files need external cleanup.`);
+        
+        // Return workspace ID and file URLs for external cleanup
+        return {
+            workspaceId: args.id,
+            workspaceName: workspace.name,
+            fileUrls,
+            deletedChannels: channels.length,
+            deletedGroups: channelGroups.length,
+        };
     }
 });
 

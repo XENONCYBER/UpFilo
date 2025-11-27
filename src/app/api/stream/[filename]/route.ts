@@ -15,11 +15,13 @@ function getOriginalFilename(filename: string): string {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> }
 ) {
+  // Extract and decode filename first
+  const { filename: rawFilename } = await params;
+  const filename = decodeURIComponent(rawFilename);
+  
   try {
-    const filename = decodeURIComponent(params.filename);
-    
     if (!filename) {
       return NextResponse.json(
         { error: 'Filename is required' },
@@ -113,8 +115,6 @@ export async function GET(
 
   } catch (error) {
     console.error('Stream download error:', error);
-    
-    const filename = decodeURIComponent(params.filename);
     
     // Final fallback - try direct URL without auth
     try {

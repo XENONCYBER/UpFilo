@@ -1,5 +1,5 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { cn } from "@/lib/utils";
 
 interface CircularProgressProps {
   value: number; // 0-100
@@ -14,7 +14,7 @@ export function CircularProgress({
   size = 40,
   strokeWidth = 3,
   className,
-  showPercentage = false
+  showPercentage = false,
 }: CircularProgressProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -22,12 +22,13 @@ export function CircularProgress({
   const strokeDashoffset = circumference - (value / 100) * circumference;
 
   return (
-    <div className={cn("relative inline-flex items-center justify-center", className)}>
-      <svg
-        width={size}
-        height={size}
-        className="transform -rotate-90"
-      >
+    <div
+      className={cn(
+        "relative inline-flex items-center justify-center",
+        className
+      )}
+    >
+      <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle
           cx={size / 2}
@@ -36,7 +37,7 @@ export function CircularProgress({
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
-          className="text-gray-200 dark:text-gray-700"
+          className="text-slate-200 dark:text-[#30363d]"
         />
         {/* Progress circle */}
         <circle
