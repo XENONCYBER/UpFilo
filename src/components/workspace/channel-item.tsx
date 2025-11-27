@@ -33,7 +33,6 @@ import { useDeleteChannel } from "@/features/channels/api/use-delete-channel";
 import { useUpdateChannel } from "@/features/channels/api/use-update-channel";
 import { NameInputDialog } from "@/components/name-input-dialog";
 import { Id } from "../../../convex/_generated/dataModel";
-import { Hint } from "./hint";
 
 interface Channel {
   id: string;
@@ -108,31 +107,24 @@ export function ChannelItem({
     <button
       onClick={() => onClick?.(channel)}
       className={cn(
-        "w-full text-left px-3 py-2.5 transition-all duration-300 group relative rounded-xl flex items-center gap-3 min-h-[40px] focus:outline-none focus:ring-2 focus:ring-electric-blue/20",
+        "w-full text-left px-2.5 py-1.5 transition-colors group relative rounded-md flex items-center gap-2.5 min-h-[32px] focus:outline-none",
         channel.isActive
-          ? "bg-gradient-to-r from-electric-blue/15 to-electric-purple/10 text-electric-blue font-semibold shadow-sm border border-electric-blue/20 scale-[1.01]"
-          : "text-neomorphic-text-secondary hover:text-neomorphic-text hover:bg-neomorphic-surface/60 hover:shadow-sm hover:scale-[1.01] border border-transparent hover:border-neomorphic-border/30",
+          ? "bg-electric-blue/10 text-electric-blue font-medium border-l-2 border-electric-blue"
+          : "text-neomorphic-text-secondary hover:text-neomorphic-text hover:bg-neomorphic-surface/50",
         className
       )}
     >
-      {/* Subtle glow on hover */}
-      {!channel.isActive && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-neomorphic-surface/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-      )}
-
       <Icon
         className={cn(
-          "h-4 w-4 flex-shrink-0 transition-all duration-300 z-10",
-          channel.isActive
-            ? "text-electric-blue drop-shadow-sm scale-110"
-            : iconStyle
+          "h-3.5 w-3.5 flex-shrink-0 transition-colors",
+          channel.isActive ? "text-electric-blue" : iconStyle
         )}
       />
 
       <span
         className={cn(
-          "text-sm transition-all duration-300 flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap z-10",
-          channel.isActive && "font-semibold tracking-wide"
+          "text-sm transition-colors flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap",
+          channel.isActive && "font-medium"
         )}
       >
         {channel.name}
@@ -141,12 +133,12 @@ export function ChannelItem({
       {/* 3-dot menu */}
       {showMenu && (
         <div
-          className="opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0 z-10"
+          className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 flex-shrink-0 z-10"
           onClick={handleMenuClick}
         >
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-1.5 rounded-lg hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text hover:scale-110 focus:outline-none focus:ring-2 focus:ring-electric-blue/20">
+              <button className="p-1.5 rounded-lg hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text hover:scale-110 focus:outline-none focus:opacity-100">
                 <MoreHorizontal className="h-3.5 w-3.5" />
               </button>
             </DropdownMenuTrigger>
@@ -180,23 +172,12 @@ export function ChannelItem({
           </DropdownMenu>
         </div>
       )}
-
-      {/* Active indicator */}
-      {channel.isActive && (
-        <div className="absolute left-0 top-2 bottom-2 w-1 bg-electric-blue rounded-r-full shadow-sm" />
-      )}
     </button>
   );
 
   return (
     <>
-      {channel.description ? (
-        <Hint label={channel.description} side="right" align="start">
-          {channelButton}
-        </Hint>
-      ) : (
-        channelButton
-      )}
+      {channelButton}
 
       {/* Rename Modal */}
       <NameInputDialog

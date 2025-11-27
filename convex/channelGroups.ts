@@ -119,27 +119,51 @@ export const verifyUserGroupPassword = mutation({
     },
 });
 
-// Delete a channel group
+// Delete a channel group and ALL its related data (channels, messages, media, etc.)
 export const deleteChannelGroup = mutation({
     args: {
         groupId: v.id("channelGroups"),
     },
     handler: async (ctx, args) => {
-        // First, update all channels in this group to have no group
+        const group = await ctx.db.get(args.groupId);
+        if (!group) {
+            throw new Error("Channel group not found");
+        }
+
+        // Get all channels in this group
         const channels = await ctx.db
             .query("channels")
             .withIndex("by_group_id", (q) => q.eq("groupId", args.groupId))
             .collect();
 
+        console.log(`Deleting group "${group.name}" with ${channels.length} channels`);
+
+        // Delete all channels and their messages
         for (const channel of channels) {
-            await ctx.db.patch(channel._id, {
-                groupId: undefined,
-                updatedAt: Date.now(),
-            });
+            // Get all messages in this channel
+            const messages = await ctx.db
+                .query("messages")
+                .withIndex("by_channel_id", (q) => q.eq("channelId", channel._id))
+                .collect();
+
+            console.log(`  - Deleting channel "${channel.name}" with ${messages.length} messages`);
+
+            // Delete all messages (including their richContent with file references)
+            for (const message of messages) {
+                // Note: Files stored in external storage (like Backblaze) need separate cleanup
+                // The richContent.attachments contain URLs to files that should be cleaned up
+                await ctx.db.delete(message._id);
+            }
+
+            // Delete the channel
+            await ctx.db.delete(channel._id);
         }
 
-        // Then delete the group
+        // Delete the group itself
         await ctx.db.delete(args.groupId);
+        
+        console.log(`Group "${group.name}" and all related data deleted successfully`);
+        return args.groupId;
     },
 });
 

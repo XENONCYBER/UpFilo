@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
-import { Hint } from "./hint";
 
 interface WorkspaceNavItemProps {
   icon: LucideIcon;
@@ -65,11 +64,7 @@ export function WorkspaceNavItem({
   );
 
   if (isCollapsed) {
-    return (
-      <Hint label={label} side="right" align="center">
-        {content}
-      </Hint>
-    );
+    return content;
   }
 
   return content;

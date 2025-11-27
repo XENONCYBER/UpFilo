@@ -1,87 +1,95 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Menu, Search, Hash } from "lucide-react";
+import { Search, Bell, Menu, PanelLeftClose, PanelLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./theme-toggle";
 
 interface WorkspaceHeaderProps {
   workspaceName?: string;
-  currentChannel?: string;
   onMenuToggle?: () => void;
   onSearch?: (query: string) => void;
+  onSidebarCollapse?: () => void;
+  isSidebarCollapsed?: boolean;
   className?: string;
 }
 
 export function WorkspaceHeader({
-  workspaceName = "UpFilo Workspace",
-  currentChannel = "general",
+  workspaceName = "UpFilo",
   onMenuToggle,
   onSearch,
+  onSidebarCollapse,
+  isSidebarCollapsed = false,
   className,
 }: WorkspaceHeaderProps) {
   return (
     <header
       className={cn(
-        "flex-shrink-0 card-glass backdrop-blur-xl flex items-center justify-between px-4 py-3 border-b border-neomorphic-border/40 shadow-sm",
+        "h-14 flex-shrink-0 bg-neomorphic-bg border-b border-neomorphic-border/40 flex items-center justify-between px-4 z-40",
         className
       )}
     >
-      {/* Left Section */}
+      {/* Left Section: Logo & Workspace Name */}
       <div className="flex items-center gap-3">
+        {/* Mobile menu toggle */}
         <button
-          className="btn-neomorphic p-2 md:hidden hover:scale-105 transition-transform duration-200"
+          className="p-2 rounded-lg hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-neomorphic-text md:hidden transition-colors"
           onClick={onMenuToggle}
           aria-label="Toggle sidebar"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-electric-blue to-electric-purple flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-            {workspaceName?.charAt(0).toUpperCase() || "W"}
+        {/* Sidebar collapse button - desktop only */}
+        <button
+          className="p-2 rounded-lg hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-neomorphic-text hidden md:flex transition-colors"
+          onClick={onSidebarCollapse}
+          title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isSidebarCollapsed ? (
+            <PanelLeft className="h-5 w-5" />
+          ) : (
+            <PanelLeftClose className="h-5 w-5" />
+          )}
+        </button>
+
+        <div className="h-5 w-px bg-neomorphic-border/50 hidden md:block" />
+
+        <div className="flex items-center gap-2.5 cursor-pointer group">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-electric-blue to-electric-purple flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg transition-shadow">
+            {workspaceName.charAt(0).toUpperCase()}
           </div>
-          <div className="flex flex-col leading-tight">
-            <span className="heading-md text-sm">{workspaceName}</span>
-            {currentChannel && (
-              <span className="text-xs text-neomorphic-text-secondary flex items-center gap-1">
-                <Hash className="w-3.5 h-3.5 text-electric-blue" />
-                {currentChannel}
-              </span>
-            )}
-          </div>
+          <span className="font-semibold text-neomorphic-text hidden sm:block group-hover:text-electric-blue transition-colors">
+            {workspaceName}
+          </span>
         </div>
       </div>
 
-      {/* Center Section - Search */}
-      <div className="flex-1 px-4 hidden sm:flex items-center justify-center">
-        <div className="relative w-full max-w-xl">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary" />
+      {/* Center Section: Global Search */}
+      <div className="flex-1 max-w-xl mx-4 hidden md:block">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text/50" />
           <Input
-            placeholder="Search messages and files... (Ctrl+K)"
-            className="pl-10 h-10 rounded-xl bg-neomorphic-surface/40 border border-neomorphic-border/40 focus:border-electric-blue/50 focus:ring-1 focus:ring-electric-blue/20"
+            placeholder="Search... ⌘K"
+            className="pl-9 h-9 text-sm bg-neomorphic-surface/40 border-neomorphic-border/30 rounded-lg focus:bg-neomorphic-surface/60 focus:border-electric-blue/40 transition-all w-full placeholder:text-neomorphic-text-secondary/60"
             onFocus={() => onSearch?.("")}
             readOnly
           />
         </div>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-3">
-        <button
-          className="btn-neomorphic p-2 hidden md:inline-flex hover:scale-105 transition-transform duration-200"
-          onClick={() => onSearch?.("")}
-          aria-label="Search"
-        >
-          <Search className="h-4 w-4" />
-        </button>
+      {/* Right Section: Actions */}
+      <div className="flex items-center gap-1.5">
+        {/* Theme Toggle */}
+        <ThemeToggle />
 
-        <div className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full bg-neomorphic-surface/20 border border-neomorphic-border/30">
-          <div className="w-2.5 h-2.5 bg-soft-green rounded-full animate-pulse" />
-          <span className="text-xs font-medium text-neomorphic-text-secondary">
-            Online
-          </span>
-        </div>
+        <button
+          className="p-2 rounded-lg hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-neomorphic-text relative transition-colors"
+          title="Notifications"
+        >
+          <Bell className="h-5 w-5" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-coral-red rounded-full"></span>
+        </button>
       </div>
     </header>
   );

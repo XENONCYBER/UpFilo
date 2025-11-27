@@ -22,7 +22,6 @@ import {
   Check,
 } from "lucide-react";
 import { MdSend } from "react-icons/md";
-import { Hint } from "./hint";
 import { Delta, Op } from "quill/core";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -290,7 +289,7 @@ const Editor = ({
     <div className="flex flex-col">
       <input
         type="file"
-        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt"
+        accept="*/*"
         multiple
         ref={imageElementRef}
         onChange={(event) => {
@@ -301,11 +300,11 @@ const Editor = ({
         }}
         className="hidden"
       />
-      <div className="flex flex-col border border-neomorphic-border/50 rounded-2xl overflow-hidden focus-within:border-electric-blue/50 focus-within:shadow-lg focus-within:shadow-electric-blue/5 transition-all duration-300 bg-neomorphic-surface/30 backdrop-blur-sm">
-        <div ref={containerRef} className="h-full ql-custom min-h-[80px]" />
+      <div className="flex flex-col border border-neomorphic-border/40 rounded-xl overflow-hidden focus-within:border-electric-blue/40 transition-all duration-200 bg-neomorphic-bg">
+        <div ref={containerRef} className="h-full ql-custom min-h-[60px]" />
         {images.length > 0 && (
-          <div className="p-3 bg-neomorphic-surface/50 border-t border-neomorphic-border/30 backdrop-blur-sm">
-            <div className="flex flex-wrap gap-3">
+          <div className="p-2 bg-neomorphic-surface/30 border-t border-neomorphic-border/30">
+            <div className="flex flex-wrap gap-2">
               {images.map((file, index) => {
                 const fileProgress = getFileProgress(file);
                 const isUploading = fileProgress?.status === "uploading";
@@ -314,7 +313,7 @@ const Editor = ({
 
                 return (
                   <div key={index} className="relative group">
-                    <div className="relative size-20 flex items-center justify-center border border-neomorphic-border rounded-xl overflow-hidden shadow-sm bg-neomorphic-bg transition-transform duration-200 hover:scale-105">
+                    <div className="relative size-14 flex items-center justify-center border border-neomorphic-border/40 rounded-lg overflow-hidden bg-neomorphic-bg transition-transform duration-200 hover:scale-105">
                       {/* Media Content */}
                       <div className="absolute inset-0 group-hover:opacity-0 transition-opacity duration-200">
                         {file.type.startsWith("image/") ? (
@@ -395,8 +394,8 @@ const Editor = ({
                         </div>
                       )}
                     </div>
-                    <div className="mt-1 max-w-[80px]">
-                      <p className="text-[10px] text-neomorphic-text-secondary truncate text-center font-medium">
+                    <div className="mt-0.5 max-w-[56px]">
+                      <p className="text-[9px] text-neomorphic-text-secondary truncate text-center">
                         {file.name}
                       </p>
                     </div>
@@ -406,44 +405,36 @@ const Editor = ({
             </div>
           </div>
         )}
-        <div className="flex px-3 py-2.5 z-[5] gap-x-2 items-center border-t border-neomorphic-border/30 bg-neomorphic-surface/20">
-          <Hint
-            label={isToolbarVisible ? "Hide Formatting" : "Show Formatting"}
+        <div className="flex px-2 py-2 z-[5] gap-x-1 items-center border-t border-neomorphic-border/30 bg-neomorphic-surface/20">
+          <button
+            disabled={disabled}
+            onClick={toogleToolbar}
+            className="p-1.5 rounded-md hover:bg-neomorphic-surface/60 hover:text-electric-blue transition-colors text-neomorphic-text-secondary"
+            title={
+              isToolbarVisible
+                ? "Hide formatting toolbar"
+                : "Show formatting toolbar"
+            }
           >
-            <button
-              disabled={disabled}
-              onClick={toogleToolbar}
-              className="p-2 rounded-lg hover:bg-neomorphic-surface hover:text-electric-blue transition-all duration-200 text-neomorphic-text-secondary"
-              title={
-                isToolbarVisible
-                  ? "Hide formatting toolbar"
-                  : "Show formatting toolbar"
-              }
-            >
-              <PiTextAa className="size-5" />
-            </button>
-          </Hint>
-          <Hint label="Mention User">
-            <button
-              disabled={disabled}
-              onClick={triggerMention}
-              className="p-2 rounded-lg hover:bg-neomorphic-surface hover:text-electric-purple transition-all duration-200 text-neomorphic-text-secondary"
-              title="Mention a user (@)"
-            >
-              <AtSignIcon className="size-5" />
-            </button>
-          </Hint>
+            <PiTextAa className="size-4" />
+          </button>
+          <button
+            disabled={disabled}
+            onClick={triggerMention}
+            className="p-1.5 rounded-md hover:bg-neomorphic-surface/60 hover:text-electric-purple transition-colors text-neomorphic-text-secondary"
+            title="Mention a user (@)"
+          >
+            <AtSignIcon className="size-4" />
+          </button>
           {variant === "create" && (
-            <Hint label="Add Media">
-              <button
-                disabled={disabled}
-                onClick={() => imageElementRef.current?.click()}
-                className="p-2 rounded-lg hover:bg-neomorphic-surface hover:text-soft-green transition-all duration-200 text-neomorphic-text-secondary"
-                title="Attach files (images, videos, documents)"
-              >
-                <ImageIcon className="size-5" />
-              </button>
-            </Hint>
+            <button
+              disabled={disabled}
+              onClick={() => imageElementRef.current?.click()}
+              className="p-1.5 rounded-md hover:bg-neomorphic-surface/60 hover:text-soft-green transition-colors text-neomorphic-text-secondary"
+              title="Attach files (images, videos, documents)"
+            >
+              <ImageIcon className="size-4" />
+            </button>
           )}
           {variant === "update" && (
             <div className="ml-auto flex items-center gap-x-2">
@@ -478,16 +469,16 @@ const Editor = ({
                 });
               }}
               className={cn(
-                "ml-auto p-2.5 rounded-xl transition-all duration-300 min-w-[42px] min-h-[42px] flex items-center justify-center",
+                "ml-auto p-2 rounded-lg transition-all duration-200 min-w-[36px] min-h-[36px] flex items-center justify-center",
                 isEmpty || disabled
-                  ? "bg-neomorphic-surface text-neomorphic-text-secondary/40 cursor-not-allowed"
-                  : "bg-gradient-to-br from-electric-blue to-electric-purple text-white shadow-lg shadow-electric-blue/30 hover:shadow-electric-blue/50 hover:scale-105 active:scale-95"
+                  ? "bg-neomorphic-surface/50 text-neomorphic-text-secondary/40 cursor-not-allowed"
+                  : "bg-electric-blue text-white hover:bg-electric-blue/90"
               )}
               title={
                 isEmpty ? "Type a message to send" : "Send message (Enter)"
               }
             >
-              <MdSend className="size-5" />
+              <MdSend className="size-4" />
             </button>
           )}
         </div>

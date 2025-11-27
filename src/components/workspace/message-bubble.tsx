@@ -1,5 +1,7 @@
 "use client";
 
+// Updated MessageBubble with Neumorphic Design
+
 import {
   Check,
   Clock,
@@ -110,21 +112,21 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
     if (!message.richContent) return null;
 
     return (
-      <div className="mt-3">
+      <div className="mt-2">
         {/* Render attachments */}
         {message.richContent.attachments &&
           message.richContent.attachments.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex flex-wrap gap-2">
               {message.richContent.attachments.map((attachment, index) => (
                 <div
                   key={index}
-                  className="group/attachment relative flex flex-col overflow-hidden rounded-xl border border-neomorphic-border/50 bg-neomorphic-surface/30 backdrop-blur-sm transition-all duration-300 hover:bg-neomorphic-surface/50 hover:shadow-lg hover:border-electric-blue/30"
+                  className="group/attachment relative flex flex-col overflow-hidden rounded-lg border border-neomorphic-border/40 bg-neomorphic-surface/20 transition-colors hover:bg-neomorphic-surface/40 hover:border-electric-blue/30 max-w-[200px]"
                 >
                   {/* Preview Section */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-black/5 dark:bg-white/5">
+                  <div className="relative aspect-video w-full overflow-hidden bg-black/5 dark:bg-white/5 max-h-[120px]">
                     {attachment.type.startsWith("image/") ? (
                       <div
-                        className="h-full w-full cursor-pointer transition-transform duration-500 group-hover/attachment:scale-105"
+                        className="h-full w-full cursor-pointer transition-transform duration-300 group-hover/attachment:scale-105"
                         onClick={() => window.open(attachment.url, "_blank")}
                       >
                         <img
@@ -146,38 +148,38 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
                       />
                     ) : attachment.type.startsWith("audio/") ? (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-500/10 to-pink-500/10">
-                        <Music className="h-12 w-12 text-purple-500 opacity-80" />
+                        <Music className="h-8 w-8 text-purple-500 opacity-80" />
                         <audio
                           src={attachment.url}
                           controls
-                          className="absolute bottom-2 left-2 right-2 w-[calc(100%-16px)]"
+                          className="absolute bottom-1 left-1 right-1 w-[calc(100%-8px)] h-8"
                         />
                       </div>
                     ) : attachment.type === "application/pdf" ||
                       attachment.name.toLowerCase().endsWith(".pdf") ? (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-red-500/10 to-orange-500/10">
-                        <FileText className="h-12 w-12 text-red-500 opacity-80" />
+                        <FileText className="h-8 w-8 text-red-500 opacity-80" />
                       </div>
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
-                        <File className="h-12 w-12 text-blue-500 opacity-80" />
+                        <File className="h-8 w-8 text-blue-500 opacity-80" />
                       </div>
                     )}
 
                     {/* Overlay Actions */}
-                    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover/attachment:opacity-100 pointer-events-none group-hover/attachment:pointer-events-auto">
+                    <div className="absolute inset-0 flex items-center justify-center gap-1.5 bg-black/40 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover/attachment:opacity-100 pointer-events-none group-hover/attachment:pointer-events-auto">
                       <a
                         href={attachment.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         download={attachment.name}
-                        className="rounded-full bg-white/10 p-2 text-white backdrop-blur-md transition-colors hover:bg-white/20 hover:scale-110"
+                        className="rounded-full bg-white/10 p-1.5 text-white backdrop-blur-md transition-colors hover:bg-white/20"
                         title="Download"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
+                          width="16"
+                          height="16"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -193,13 +195,13 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
                       {attachment.type.startsWith("image/") && (
                         <button
                           onClick={() => window.open(attachment.url, "_blank")}
-                          className="rounded-full bg-white/10 p-2 text-white backdrop-blur-md transition-colors hover:bg-white/20 hover:scale-110"
+                          className="rounded-full bg-white/10 p-1.5 text-white backdrop-blur-md transition-colors hover:bg-white/20"
                           title="View Fullscreen"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
+                            width="16"
+                            height="16"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -217,30 +219,30 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
                   </div>
 
                   {/* File Info */}
-                  <div className="flex items-center gap-3 p-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neomorphic-surface shadow-inner">
+                  <div className="flex items-center gap-2 p-2">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-neomorphic-surface">
                       {attachment.type.startsWith("image/") ? (
-                        <Image className="h-5 w-5 text-blue-500" />
+                        <Image className="h-3.5 w-3.5 text-blue-500" />
                       ) : attachment.type.startsWith("video/") ? (
-                        <Video className="h-5 w-5 text-green-500" />
+                        <Video className="h-3.5 w-3.5 text-green-500" />
                       ) : attachment.type.startsWith("audio/") ? (
-                        <Music className="h-5 w-5 text-purple-500" />
+                        <Music className="h-3.5 w-3.5 text-purple-500" />
                       ) : attachment.type === "application/pdf" ||
                         attachment.name.toLowerCase().endsWith(".pdf") ? (
-                        <FileText className="h-5 w-5 text-red-500" />
+                        <FileText className="h-3.5 w-3.5 text-red-500" />
                       ) : (
-                        <File className="h-5 w-5 text-gray-500" />
+                        <File className="h-3.5 w-3.5 text-gray-500" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p
-                        className="truncate text-sm font-medium text-neomorphic-text"
+                        className="truncate text-xs font-medium text-neomorphic-text"
                         title={attachment.name}
                       >
                         {attachment.name}
                       </p>
                       {attachment.size && (
-                        <p className="text-xs text-neomorphic-text-secondary">
+                        <p className="text-[10px] text-neomorphic-text-secondary">
                           {(attachment.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       )}
@@ -255,12 +257,12 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   };
 
   return (
-    <div className="group flex items-start space-x-4 py-4 px-6 hover:bg-neomorphic-surface/30 rounded-2xl transition-all duration-300 message-bubble relative border border-transparent hover:border-neomorphic-border/30 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <div className="group flex items-start space-x-3 py-1.5 px-4 hover:bg-neomorphic-surface/20 rounded-lg transition-colors message-bubble relative animate-in fade-in slide-in-from-bottom-1 duration-200">
       {/* Avatar */}
-      <div className="flex-shrink-0 pt-1">
+      <div className="flex-shrink-0 pt-0.5">
         <div
           className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md transform transition-transform duration-300 group-hover:scale-105",
+            "w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-xs",
             getUserColor(message.userName)
           )}
         >
@@ -271,21 +273,21 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
       {/* Message Content */}
       <div className="flex-1 min-w-0 relative">
         {/* Message Actions - Positioned as overlay */}
-        <div className="absolute -top-3 right-0 opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out z-10">
-          <div className="flex items-center gap-1 bg-neomorphic-surface/90 backdrop-blur-md rounded-xl shadow-lg border border-neomorphic-border/50 p-1.5">
+        <div className="absolute -top-2 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+          <div className="flex items-center gap-0.5 bg-neomorphic-surface/95 rounded-lg shadow-md border border-neomorphic-border/40 p-0.5">
             <button
               onClick={handleReply}
-              className="p-2 hover:bg-electric-blue/10 rounded-lg transition-all duration-200 text-neomorphic-text-secondary hover:text-electric-blue"
+              className="p-1.5 hover:bg-electric-blue/10 rounded-md transition-colors text-neomorphic-text-secondary hover:text-electric-blue"
               title="Reply"
             >
-              <Reply className="h-4 w-4" />
+              <Reply className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setShowActions(!showActions)}
-              className="p-2 hover:bg-neomorphic-surface-hover rounded-lg transition-all duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text"
+              className="p-1.5 hover:bg-neomorphic-surface-hover rounded-md transition-colors text-neomorphic-text-secondary hover:text-neomorphic-text"
               title="More actions"
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -318,62 +320,35 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
         {/* Bubble wrapper: gradient for own messages, surface for others */}
         <div
           className={cn(
-            "p-3 rounded-xl shadow-sm",
-            isMine
-              ? "bg-gradient-to-br from-electric-blue to-electric-purple text-white"
-              : "bg-neomorphic-surface/80 text-neomorphic-text"
+            "py-1",
+            isMine ? "text-neomorphic-text" : "text-neomorphic-text"
           )}
         >
           {/* Message Header */}
-          <div className="flex items-baseline space-x-2 mb-1.5">
+          <div className="flex items-baseline space-x-2 mb-0.5">
             <span
               className={cn(
-                "font-bold text-sm hover:underline cursor-pointer",
-                isMine ? "text-white" : "text-neomorphic-text"
+                "font-semibold text-sm hover:underline cursor-pointer",
+                isMine ? "text-electric-blue" : "text-neomorphic-text"
               )}
             >
               {message.userName}
             </span>
-            <span
-              className={cn(
-                "text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-                isMine ? "text-white/80" : "text-neomorphic-text-secondary"
-              )}
-            >
+            <span className="text-xs text-neomorphic-text-secondary/60">
               {timestamp}
             </span>
             {message.isEdited && (
-              <span
-                className={cn(
-                  "text-xs italic opacity-70",
-                  isMine ? "text-white/80" : "text-neomorphic-text-secondary"
-                )}
-              >
-                {" "}
+              <span className="text-xs italic text-neomorphic-text-secondary/50">
                 (edited)
               </span>
             )}
           </div>
 
           {/* Message Body */}
-          <div
-            className={cn(
-              "text-[15px] leading-relaxed tracking-wide",
-              isMine ? "text-white" : "text-neomorphic-text"
-            )}
-          >
+          <div className="text-sm leading-relaxed text-neomorphic-text">
             {renderMessageContent()}
             {renderRichContent()}
           </div>
-
-          {/* Message Status */}
-          {isMine && (
-            <div className="flex items-center space-x-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-muted-foreground">
-                <Check className="h-3 w-3 inline text-green-300" />
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </div>

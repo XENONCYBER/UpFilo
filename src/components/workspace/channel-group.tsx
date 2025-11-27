@@ -35,7 +35,6 @@ import { useCreateChannel } from "@/features/channels/api/use-create-channels";
 import { useDeleteChannelGroup } from "@/features/channels/api/use-delete-channel-group";
 import { useUpdateChannelGroup } from "@/features/channels/api/use-update-channel-group";
 import { useConvexWorkspaceId } from "@/hooks/use-convex-workspace-id";
-import { Hint } from "./hint";
 import { NameInputDialog } from "@/components/name-input-dialog";
 import { Id } from "../../../convex/_generated/dataModel";
 
@@ -170,8 +169,8 @@ export const ChannelGroup = ({
   };
 
   return (
-    <div className="space-y-1 mb-3">
-      <div className="group flex items-center justify-between px-2 py-2 rounded-lg hover:bg-neomorphic-surface/40 transition-all duration-200 min-h-[2.5rem] cursor-pointer">
+    <div className="space-y-0.5 mb-1">
+      <div className="group flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-neomorphic-surface/40 transition-colors min-h-[32px] cursor-pointer">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex items-center gap-x-2 text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wider flex-1 min-w-0 text-left hover:text-neomorphic-text transition-colors duration-200"
@@ -186,40 +185,39 @@ export const ChannelGroup = ({
             {name}
           </span>
         </button>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0 transform translate-x-2 group-hover:translate-x-0">
-          <Hint label="Create Channel" side="top">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsModalOpen(true);
-              }}
-              className="p-1.5 rounded-md hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-electric-blue hover:scale-110"
-            >
-              <Plus className="size-3.5" />
-            </button>
-          </Hint>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 flex-shrink-0 transform translate-x-2 group-hover:translate-x-0">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsModalOpen(true);
+            }}
+            className="p-1.5 rounded-md hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-electric-blue hover:scale-110 focus:outline-none focus:opacity-100"
+            title="Create Channel"
+          >
+            <Plus className="size-3.5" />
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 onClick={(e) => e.stopPropagation()}
-                className="p-1.5 rounded-md hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text hover:scale-110"
+                className="p-1.5 rounded-md hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text hover:scale-110 focus:outline-none focus:opacity-100"
               >
                 <MoreHorizontal className="size-3.5" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="card-glass border border-neomorphic-border/50 shadow-xl min-w-[180px] z-50 bg-neomorphic-bg/95 backdrop-blur-xl"
-              sideOffset={5}
+              className="border border-neomorphic-border/50 shadow-2xl min-w-[160px] z-[9999] bg-neomorphic-bg backdrop-blur-xl rounded-lg p-1"
+              sideOffset={8}
             >
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsRenameModalOpen(true);
                 }}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm text-neomorphic-text hover:bg-neomorphic-surface/60 focus:bg-neomorphic-surface/60 cursor-pointer rounded-lg transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-neomorphic-text hover:bg-neomorphic-surface/60 focus:bg-neomorphic-surface/60 cursor-pointer rounded-lg transition-colors whitespace-nowrap"
               >
-                <Edit className="size-4 text-electric-blue" />
+                <Edit className="h-4 w-4 flex-shrink-0 text-electric-blue" />
                 <span className="font-medium">Rename Group</span>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -227,9 +225,9 @@ export const ChannelGroup = ({
                   e.stopPropagation();
                   confirmDelete();
                 }}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950/30 dark:focus:bg-red-950/30 cursor-pointer rounded-lg transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 cursor-pointer rounded-lg transition-colors whitespace-nowrap"
               >
-                <Trash className="size-4" />
+                <Trash className="h-4 w-4 flex-shrink-0" />
                 <span className="font-medium">Delete Group</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

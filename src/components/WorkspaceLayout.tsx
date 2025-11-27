@@ -469,7 +469,7 @@ export function WorkspaceLayout({
   return (
     <div
       className={cn(
-        "flex h-screen bg-neomorphic-bg text-neomorphic-text overflow-hidden",
+        "flex flex-col h-screen bg-neomorphic-bg text-neomorphic-text overflow-hidden",
         className
       )}
     >
@@ -480,93 +480,56 @@ export function WorkspaceLayout({
         workspaceName={workspace?.name}
       />
 
-      {/* Mobile Backdrop */}
-      {isMobile && sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 transition-opacity duration-300"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <ModernSidebar
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
-        activeSection={activeSection}
-        onSectionChange={(section) => {
-          setActiveSection(section);
-          if (isMobile) setSidebarOpen(false);
+      {/* Top Header - Full Width */}
+      <WorkspaceHeader
+        workspaceName={workspace?.name}
+        onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+        onSearch={(query) => {
+          console.log("Search triggered, opening modal");
+          setIsSearchModalOpen(true);
         }}
-        onChannelSelect={(channelId, channelType) => {
-          handleChannelSelect(channelId, channelType);
-          if (isMobile) setSidebarOpen(false);
-        }}
-        workspaceId={workspace?._id!}
-        selectedChannelId={selectedChannel?.id}
-        onCollapseChange={setSidebarCollapsed}
-        className={cn(
-          sidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full md:translate-x-0 md:hidden",
-          isMobile ? "fixed inset-y-0 left-0 z-30 w-72 shadow-2xl" : "block"
-        )}
+        onSidebarCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        isSidebarCollapsed={sidebarCollapsed}
+        className="w-full z-40"
       />
 
-      <div
-        className={cn(
-          "flex-1 flex flex-col h-screen transition-all duration-300 w-full",
-          !isMobile && sidebarOpen && !sidebarCollapsed ? "ml-72" : "",
-          !isMobile && sidebarOpen && sidebarCollapsed ? "ml-16" : "",
-          !isMobile && !sidebarOpen ? "ml-0" : ""
+      {/* Main Layout Area */}
+      <div className="flex flex-1 overflow-hidden relative w-full">
+        {/* Mobile Backdrop */}
+        {isMobile && sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 transition-opacity duration-300"
+            onClick={() => setSidebarOpen(false)}
+          />
         )}
-      >
-        <WorkspaceHeader
-          workspaceName={workspace?.name}
-          currentChannel={getChannelName(selectedChannel?.id || "")}
-          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
-          onSearch={(query) => {
-            // Always open search modal when search is triggered
-            console.log("Search triggered, opening modal");
-            setIsSearchModalOpen(true);
+
+        <ModernSidebar
+          isOpen={sidebarOpen && !sidebarCollapsed}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          activeSection={activeSection}
+          onSectionChange={(section) => {
+            setActiveSection(section);
+            if (isMobile) setSidebarOpen(false);
           }}
-        />
-        <main className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
-          {activeSection === "channels" && selectedChannel ? (
-            <ModernChannelView
-              key={selectedChannel.id}
-              channelId={selectedChannel.id}
-              channelName={getChannelName(selectedChannel?.id || "")}
-              channelType={
-                channelsWithGroups?.groupedChannels
-                  .flatMap((g: any) => g.channels)
-                  .find((c: any) => c._id === selectedChannel.id)?.type ||
-                "public"
-              }
-              className="flex-1"
-            />
-          ) : activeSection === "mediaGallery" ? (
-            <ModernMediaGallery className="flex-1" />
-          ) : (
-            <div className="flex-1 flex items-center justify-center p-4">
-              <div className="text-center w-full max-w-md">
-                <h2 className="text-2xl font-semibold text-neomorphic-text">
-                  Welcome to {workspace?.name || "your workspace"}
-                </h2>
-                <p className="text-neomorphic-text-secondary mt-2">
-                  Select a channel to start chatting or explore the media
-                  gallery.
-                </p>
-                {isMobile && (
-                  <button
-                    onClick={() => setSidebarOpen(true)}
-                    className="mt-6 px-6 py-3 bg-electric-blue text-white rounded-xl shadow-lg shadow-electric-blue/30 font-medium active:scale-95 transition-transform"
-                  >
-                    Open Menu
-                  </button>
-                )}
-              </div>
-            </div>
+          onChannelSelect={(channelId, channelType) => {
+            handleChannelSelect(channelId, channelType);
+            if (isMobile) setSidebarOpen(false);
+          }}
+          workspaceId={workspace?._id!}
+          selectedChannelId={selectedChannel?.id}
+          onCollapseChange={setSidebarCollapsed}
+          className={cn(
+            sidebarOpen && !sidebarCollapsed
+              ? "translate-x-0"
+              : "-translate-x-full md:translate-x-0 md:hidden",
+            isMobile
+              ? "fixed inset-y-0 left-0 z-40 w-72 shadow-2xl top-14 h-[calc(100vh-3.5rem)]"
+              : "relative h-full"
           )}
-          {children}
+        />
+
+        <main className="flex-1 flex flex-col min-h-0 overflow-hidden relative transition-all duration-300">
+          {renderContent()}
         </main>
       </div>
 

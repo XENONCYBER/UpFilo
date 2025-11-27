@@ -5,7 +5,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./workspace/message-bubble";
 import { ChatInput } from "./workspace/chat-input";
 import { Button } from "@/components/ui/button";
-import { Hash, Users, Settings, Pin, Search, User } from "lucide-react";
+import {
+  Hash,
+  Users,
+  Settings,
+  Pin,
+  Search,
+  User,
+  MoreVertical,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ChannelSearch } from "./ChannelSearch";
 import { ReplyProvider } from "./ReplyProvider";
@@ -174,15 +182,15 @@ export function ModernChannelView({
   const getChannelIcon = () => {
     switch (channelType) {
       case "voice":
-        return <Users className="h-5 w-5 text-green-500" />;
+        return <Users className="h-4 w-4" />;
       case "announcement":
-        return <Pin className="h-5 w-5 text-blue-500" />;
+        return <Pin className="h-4 w-4" />;
       case "private":
-        return <Users className="h-5 w-5 text-yellow-500" />;
+        return <Users className="h-4 w-4" />;
       case "user":
-        return <User className="h-5 w-5 text-blue-400" />;
+        return <User className="h-4 w-4" />;
       default:
-        return <Hash className="h-5 w-5 text-muted-foreground" />;
+        return <Hash className="h-4 w-4" />;
     }
   };
 
@@ -209,42 +217,53 @@ export function ModernChannelView({
   return (
     <ReplyProvider>
       <div className={`flex flex-col h-full ${className}`}>
-        {/* Channel Header */}
-        <div className="card-glass px-4 py-3 border-b border-neomorphic-border/40 relative z-20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="neomorphic-raised p-2 rounded-xl text-electric-blue">
-                {getChannelIcon()}
-              </div>
-              <div>
-                <h2 className="heading-md text-lg">#{channelName}</h2>
-                <p className="text-xs font-medium text-neomorphic-text-secondary tracking-wide uppercase opacity-80">
-                  {channelType === "private"
-                    ? "Private channel"
-                    : "Public channel"}
-                </p>
-              </div>
+        {/* Channel Header - Redesigned */}
+        <div className="h-14 flex-shrink-0 flex items-center justify-between px-6 border-b border-neomorphic-border/30 bg-neomorphic-surface/10 backdrop-blur-md z-20">
+          <div className="flex items-center gap-3">
+            <div className="text-electric-blue p-1.5 rounded-lg bg-electric-blue/10">
+              {getChannelIcon()}
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="text-neomorphic-text-secondary hover:text-electric-blue hover:bg-neomorphic-surface/80 transition-all duration-200"
-                title="Search in channel"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
+            <div className="flex flex-col">
+              <h2 className="font-bold text-neomorphic-text text-base leading-tight">
+                {channelType === "user" ? channelName : `#${channelName}`}
+              </h2>
+              <span className="text-[10px] font-medium text-neomorphic-text-secondary uppercase tracking-wider">
+                {channelType === "private"
+                  ? "Private"
+                  : channelType === "user"
+                    ? "Direct Message"
+                    : "Channel"}
+              </span>
             </div>
           </div>
 
-          {/* Search Component - positioned relative to header */}
+          <div className="flex items-center gap-1">
+            {/* Channel Actions */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="h-8 w-8 rounded-lg text-neomorphic-text-secondary hover:text-electric-blue hover:bg-neomorphic-surface/50 transition-all"
+              title="Search in channel"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-neomorphic-text-secondary hover:text-electric-blue hover:bg-neomorphic-surface/50 transition-all"
+              title="Channel Details"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Search Component */}
           <ChannelSearch
             channelId={convexChannelId}
             isOpen={isSearchOpen}
             onClose={() => setIsSearchOpen(false)}
             onMessageSelect={(messageId) => {
-              // TODO: Scroll to specific message
               console.log("Selected message:", messageId);
             }}
           />
@@ -259,7 +278,7 @@ export function ModernChannelView({
             <div className="space-y-2">
               {/* Channel Welcome Message */}
               <div className="text-center py-10 border-b border-neomorphic-border/30 mb-6">
-                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-5 bg-gradient-to-br from-electric-blue/10 to-electric-purple/8">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-electric-blue/10 to-electric-purple/8">
                   <div className="text-electric-blue transform scale-125">
                     {getChannelIcon()}
                   </div>
@@ -308,8 +327,8 @@ export function ModernChannelView({
                       currentUserId={userName || undefined}
                     />
                   ))}
-                  {/* Extra spacing before scroll target to prevent overlap with chat input */}
-                  <div className="h-[160px]" />
+                  {/* Extra spacing before scroll target */}
+                  <div className="h-4" />
                   {/* Invisible element to scroll to */}
                   <div ref={messagesEndRef} />
                 </>
@@ -319,7 +338,7 @@ export function ModernChannelView({
         </div>
 
         {/* Message Input */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 px-4">
           <ChatInput
             placeholder={`Message ${channelName.length > 15 ? channelName.substring(0, 15) + "..." : "#" + channelName}`}
             onSendMessage={handleSendMessage}
