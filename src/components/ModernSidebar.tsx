@@ -77,16 +77,17 @@ export function ModernSidebar({
         console.error("Failed to update presence on logout:", error);
       }
     }
-    
+
     clearUserName();
     router.push("/"); // Navigate to home page
   };
 
   // Get active users in workspace
-  const { data: activeUsers, isLoading: activeUsersLoading } = useGetActiveUsersWithPresence({
-    workspaceId,
-    timeWindow: 5 * 60 * 1000, // 5 minutes
-  });
+  const { data: activeUsers, isLoading: activeUsersLoading } =
+    useGetActiveUsersWithPresence({
+      workspaceId,
+      timeWindow: 5 * 60 * 1000, // 5 minutes
+    });
 
   // Get channels data
   const { data: channelsWithGroups } = useGetChannelsWithGroups({
@@ -192,14 +193,14 @@ export function ModernSidebar({
           >
             {!isCollapsed && (
               <div className="flex items-center space-x-3">
-                <div className="neomorphic-raised w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-r from-electric-blue to-electric-purple">
+                <div className="neomorphic-raised w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-electric-blue to-electric-purple shadow-lg shadow-electric-blue/20">
                   <Layers className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-neomorphic-text text-lg">
+                  <span className="heading-md text-lg leading-none bg-clip-text text-transparent bg-gradient-to-r from-neomorphic-text to-neomorphic-text-secondary">
                     UpFilo
                   </span>
-                  <span className="text-xs text-neomorphic-text-secondary">
+                  <span className="text-xs font-medium text-neomorphic-text-secondary tracking-wide">
                     Workspace
                   </span>
                 </div>
@@ -214,7 +215,8 @@ export function ModernSidebar({
               {!isCollapsed && <ThemeToggle />}
               <button
                 onClick={handleCollapseToggle}
-                className="btn-neomorphic p-2 hover:scale-105 transition-all duration-200"
+                className="btn-neomorphic p-2 hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-0"
+                title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
                 {isCollapsed ? (
                   <ChevronRight className="h-4 w-4" />
@@ -231,13 +233,13 @@ export function ModernSidebar({
               <>
                 {/* Search */}
                 <div className="px-4 py-3 flex-shrink-0">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary" />
+                  <div className="relative group">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary group-hover:text-electric-blue transition-colors duration-200" />
                     <Input
                       placeholder="Search channels..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="input-neomorphic pl-9 h-9 bg-neomorphic-surface/30 border-neomorphic-border/50 focus:border-electric-blue/50"
+                      className="input-neomorphic pl-9 h-10 bg-neomorphic-surface/50 border-neomorphic-border/50 focus:border-electric-blue/50 focus:ring-2 focus:ring-electric-blue/10 transition-all duration-300"
                     />
                   </div>
                 </div>
@@ -259,105 +261,125 @@ export function ModernSidebar({
 
                   <Separator className="my-3 bg-neomorphic-border/30" />
 
-                  {/* Group Channels */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between px-3 py-1.5">
-                      <span className="text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wide">
-                        Channels
-                      </span>
-                      <button
-                        onClick={handleCreateGroupChannel}
-                        title="Create new channel group"
-                        className="p-1.5 rounded-lg hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-blue transition-all duration-200 hover:scale-110"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </button>
+                  {!channelsWithGroups ? (
+                    // Loading Skeleton
+                    <div className="space-y-4 animate-pulse">
+                      <div className="space-y-2">
+                        <div className="h-4 w-20 bg-neomorphic-surface/50 rounded ml-2" />
+                        <div className="h-8 w-full bg-neomorphic-surface/30 rounded-lg" />
+                        <div className="h-8 w-full bg-neomorphic-surface/30 rounded-lg" />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 w-24 bg-neomorphic-surface/50 rounded ml-2" />
+                        <div className="h-8 w-full bg-neomorphic-surface/30 rounded-lg" />
+                        <div className="h-8 w-full bg-neomorphic-surface/30 rounded-lg" />
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      {groupChannels.map((group) => (
-                        <ChannelGroup
-                          key={group.id}
-                          id={group.id}
-                          name={group.name}
-                          channels={group.channels}
-                          type={group.type}
-                          isExpanded={group.isExpanded}
-                          onChannelSelect={handleChannelSelect}
-                        />
-                      ))}
-                      {ungroupedChannels
-                        .filter((channel) => channel.type === "group")
-                        .map((channel) => (
-                          <div key={channel.id} className="px-2">
-                            <ChannelItem
-                              channel={{
-                                id: channel.id,
-                                name: channel.name,
-                                type: channel.subType as any,
-                                isActive: channel.isActive,
-                                description: channel.description,
-                              }}
-                              onClick={() => handleChannelSelect(channel)}
-                            />
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-
-                  <Separator className="my-4 bg-neomorphic-border/30" />
-
-                  {/* User Channels */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between px-3 py-1.5">
-                      <span className="text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wide">
-                        User Channels
-                      </span>
-                      <button
-                        onClick={handleCreateUserChannel}
-                        title="Create new user channel group"
-                        className="p-1.5 rounded-lg hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-purple transition-all duration-200 hover:scale-110"
-                      >
-                        <Plus className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                    <div className="space-y-1">
-                      {userChannels.map((group) => (
-                        <ChannelGroup
-                          key={group.id}
-                          id={group.id}
-                          name={group.name}
-                          channels={group.channels}
-                          type={group.type}
-                          isExpanded={group.isExpanded}
-                          onChannelSelect={handleChannelSelect}
-                        />
-                      ))}
-                      {ungroupedChannels
-                        .filter((channel) => channel.type === "user")
-                        .map((channel) => (
-                          <div key={channel.id} className="px-2">
-                            <ChannelItem
-                              channel={{
-                                id: channel.id,
-                                name: channel.name,
-                                type: channel.subType as any,
-                                isActive: channel.isActive,
-                                description: channel.description,
-                              }}
-                              onClick={() => handleChannelSelect(channel)}
-                            />
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-
-                  {/* Active Users Section */}
-                  {!activeUsersLoading && activeUsers && activeUsers.length > 0 && (
+                  ) : (
                     <>
+                      {/* Group Channels */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between px-3 py-2">
+                          <span className="text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wider opacity-80">
+                            Channels
+                          </span>
+                          <button
+                            onClick={handleCreateGroupChannel}
+                            title="Create new channel group"
+                            className="p-1.5 rounded-lg hover:bg-electric-blue/10 text-neomorphic-text-secondary hover:text-electric-blue transition-all duration-200 hover:scale-110 active:scale-95"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                        <div className="space-y-1">
+                          {groupChannels.map((group) => (
+                            <ChannelGroup
+                              key={group.id}
+                              id={group.id}
+                              name={group.name}
+                              channels={group.channels}
+                              type={group.type}
+                              isExpanded={group.isExpanded}
+                              onChannelSelect={handleChannelSelect}
+                            />
+                          ))}
+                          {ungroupedChannels
+                            .filter((channel) => channel.type === "group")
+                            .map((channel) => (
+                              <div key={channel.id} className="px-2">
+                                <ChannelItem
+                                  channel={{
+                                    id: channel.id,
+                                    name: channel.name,
+                                    type: channel.subType as any,
+                                    isActive: channel.isActive,
+                                    description: channel.description,
+                                  }}
+                                  onClick={() => handleChannelSelect(channel)}
+                                />
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+
                       <Separator className="my-4 bg-neomorphic-border/30" />
-                      <ActiveUsers users={activeUsers} />
+
+                      {/* User Channels */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between px-3 py-2">
+                          <span className="text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wider opacity-80">
+                            User Channels
+                          </span>
+                          <button
+                            onClick={handleCreateUserChannel}
+                            title="Create new user channel group"
+                            className="p-1.5 rounded-lg hover:bg-electric-purple/10 text-neomorphic-text-secondary hover:text-electric-purple transition-all duration-200 hover:scale-110 active:scale-95"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                        <div className="space-y-1">
+                          {userChannels.map((group) => (
+                            <ChannelGroup
+                              key={group.id}
+                              id={group.id}
+                              name={group.name}
+                              channels={group.channels}
+                              type={group.type}
+                              isExpanded={group.isExpanded}
+                              onChannelSelect={handleChannelSelect}
+                            />
+                          ))}
+                          {ungroupedChannels
+                            .filter((channel) => channel.type === "user")
+                            .map((channel) => (
+                              <div key={channel.id} className="px-2">
+                                <ChannelItem
+                                  channel={{
+                                    id: channel.id,
+                                    name: channel.name,
+                                    type: channel.subType as any,
+                                    isActive: channel.isActive,
+                                    description: channel.description,
+                                  }}
+                                  onClick={() => handleChannelSelect(channel)}
+                                />
+                              </div>
+                            ))}
+                        </div>
+                      </div>
                     </>
                   )}
+
+                  {/* Active Users Section */}
+                  {!activeUsersLoading &&
+                    activeUsers &&
+                    activeUsers.length > 0 && (
+                      <>
+                        <Separator className="my-4 bg-neomorphic-border/30" />
+                        <ActiveUsers users={activeUsers} />
+                      </>
+                    )}
                 </div>
               </>
             )}
@@ -409,10 +431,10 @@ export function ModernSidebar({
                           handleChannelSelect(group.channels[0]);
                         }
                       }}
-                      className="w-8 h-8 transition-all duration-200 hover:scale-110 flex-shrink-0 hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-blue"
+                      className="w-9 h-9 transition-all duration-200 hover:scale-110 flex-shrink-0 hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-blue flex items-center justify-center"
                       title={`${group.name} (${group.channels.length} channels)`}
                     >
-                      <span className="text-xs font-bold">
+                      <span className="text-xs font-bold leading-none">
                         {group.name.charAt(0).toUpperCase()}
                       </span>
                     </Button>
@@ -429,14 +451,14 @@ export function ModernSidebar({
                         size="icon"
                         onClick={() => handleChannelSelect(channel)}
                         className={cn(
-                          "w-8 h-8 transition-all duration-200 hover:scale-110 flex-shrink-0",
+                          "w-9 h-9 transition-all duration-200 hover:scale-110 flex-shrink-0 flex items-center justify-center",
                           channel.isActive
                             ? "bg-electric-blue text-white shadow-sm"
                             : "hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-blue"
                         )}
                         title={channel.name}
                       >
-                        <span className="text-xs font-bold">
+                        <span className="text-xs font-bold leading-none">
                           {channel.name.charAt(0).toUpperCase()}
                         </span>
                       </Button>
@@ -468,10 +490,10 @@ export function ModernSidebar({
                           handleChannelSelect(group.channels[0]);
                         }
                       }}
-                      className="w-8 h-8 transition-all duration-200 hover:scale-110 flex-shrink-0 hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-purple"
+                      className="w-9 h-9 transition-all duration-200 hover:scale-110 flex-shrink-0 hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-purple flex items-center justify-center"
                       title={`${group.name} (${group.channels.length} channels)`}
                     >
-                      <span className="text-xs font-bold">
+                      <span className="text-xs font-bold leading-none">
                         {group.name.charAt(0).toUpperCase()}
                       </span>
                     </Button>
@@ -488,14 +510,14 @@ export function ModernSidebar({
                         size="icon"
                         onClick={() => handleChannelSelect(channel)}
                         className={cn(
-                          "w-8 h-8 transition-all duration-200 hover:scale-110 flex-shrink-0",
+                          "w-9 h-9 transition-all duration-200 hover:scale-110 flex-shrink-0 flex items-center justify-center",
                           channel.isActive
                             ? "bg-electric-purple text-white shadow-sm"
                             : "hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary hover:text-electric-purple"
                         )}
                         title={channel.name}
                       >
-                        <span className="text-xs font-bold">
+                        <span className="text-xs font-bold leading-none">
                           {channel.name.charAt(0).toUpperCase()}
                         </span>
                       </Button>
@@ -503,12 +525,14 @@ export function ModernSidebar({
                 </div>
 
                 {/* Active Users - Collapsed */}
-                {!activeUsersLoading && activeUsers && activeUsers.length > 0 && (
-                  <>
-                    <div className="w-8 h-px bg-neomorphic-border/30 my-2 flex-shrink-0" />
-                    <ActiveUsers users={activeUsers} isCollapsed={true} />
-                  </>
-                )}
+                {!activeUsersLoading &&
+                  activeUsers &&
+                  activeUsers.length > 0 && (
+                    <>
+                      <div className="w-8 h-px bg-neomorphic-border/30 my-2 flex-shrink-0" />
+                      <ActiveUsers users={activeUsers} isCollapsed={true} />
+                    </>
+                  )}
               </div>
             )}
           </div>

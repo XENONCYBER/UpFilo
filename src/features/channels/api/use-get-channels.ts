@@ -15,8 +15,11 @@ export const useGetChannels = ({ workspaceId, type, groupId }: UseGetChannelsPro
     return { data, isLoading };
 };
 
-export const useGetChannelsWithGroups = ({ workspaceId }: { workspaceId: Id<"workspaces"> }) => {
-    const data = useQuery(api.channels.getChannelsWithGroups, { workspaceId });
+export const useGetChannelsWithGroups = ({ workspaceId }: { workspaceId?: Id<"workspaces"> }) => {
+    const data = useQuery(
+        api.channels.getChannelsWithGroups,
+        workspaceId ? { workspaceId } : "skip"
+    );
     const isLoading = data === undefined;
 
     return { data, isLoading };

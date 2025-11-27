@@ -153,68 +153,84 @@ export const ChannelGroup = ({
     if (!pendingChannel) return;
     setPasswordError("");
     try {
-      await verifyPassword(id, passwordInput);
-      sessionStorage.setItem(sessionKey, "verified");
-      setShowPasswordDialog(false);
-      setPasswordInput("");
-      setPasswordError("");
-      onChannelSelect?.(pendingChannel);
-      setPendingChannel(null);
+      const isPasswordCorrect = await verifyPassword(id, passwordInput);
+      if (isPasswordCorrect) {
+        sessionStorage.setItem(sessionKey, "verified");
+        setShowPasswordDialog(false);
+        setPasswordInput("");
+        setPasswordError("");
+        onChannelSelect?.(pendingChannel);
+        setPendingChannel(null);
+      } else {
+        setPasswordError("Incorrect password. Please try again.");
+      }
     } catch (err: any) {
-      setPasswordError("Incorrect password. Please try again.");
+      setPasswordError("An error occurred. Please try again.");
     }
   };
 
   return (
     <div className="space-y-1 mb-3">
-      <div className="group flex items-center justify-between px-2 py-2 rounded-lg hover:bg-neomorphic-surface/30 transition-all duration-200 min-h-[2.5rem]">
+      <div className="group flex items-center justify-between px-2 py-2 rounded-lg hover:bg-neomorphic-surface/40 transition-all duration-200 min-h-[2.5rem] cursor-pointer">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-x-2 text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wide flex-1 min-w-0 text-left hover:text-neomorphic-text transition-colors duration-200"
+          className="flex items-center gap-x-2 text-xs font-bold text-neomorphic-text-secondary uppercase tracking-wider flex-1 min-w-0 text-left hover:text-neomorphic-text transition-colors duration-200"
         >
           <ChevronDown
             className={cn(
-              "size-3 transition-transform duration-200 flex-shrink-0",
+              "size-3 transition-transform duration-300 ease-in-out flex-shrink-0 text-neomorphic-text-secondary/70",
               !isExpanded && "-rotate-90"
             )}
           />
-          <span className="select-none font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
+          <span className="select-none font-bold overflow-hidden text-ellipsis whitespace-nowrap opacity-90 group-hover:opacity-100 transition-opacity">
             {name}
           </span>
         </button>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 flex-shrink-0 transform translate-x-2 group-hover:translate-x-0">
           <Hint label="Create Channel" side="top">
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="p-1.5 rounded-md hover:bg-neomorphic-surface/50 transition-colors duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsModalOpen(true);
+              }}
+              className="p-1.5 rounded-md hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-electric-blue hover:scale-110"
             >
               <Plus className="size-3.5" />
             </button>
           </Hint>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-1.5 rounded-md hover:bg-neomorphic-surface/50 transition-colors duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text">
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="p-1.5 rounded-md hover:bg-neomorphic-surface/80 transition-all duration-200 text-neomorphic-text-secondary hover:text-neomorphic-text hover:scale-110"
+              >
                 <MoreHorizontal className="size-3.5" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="card-glass border border-neomorphic-border shadow-lg min-w-[160px] z-50 bg-neomorphic-bg"
+              className="card-glass border border-neomorphic-border/50 shadow-xl min-w-[180px] z-50 bg-neomorphic-bg/95 backdrop-blur-xl"
               sideOffset={5}
             >
               <DropdownMenuItem
-                onClick={() => setIsRenameModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-neomorphic-text hover:bg-neomorphic-surface-hover focus:bg-neomorphic-surface-hover cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsRenameModalOpen(true);
+                }}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-neomorphic-text hover:bg-neomorphic-surface/60 focus:bg-neomorphic-surface/60 cursor-pointer rounded-lg transition-colors"
               >
-                <Edit className="size-4" />
-                Rename Group
+                <Edit className="size-4 text-electric-blue" />
+                <span className="font-medium">Rename Group</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={confirmDelete}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950 dark:focus:bg-red-950 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  confirmDelete();
+                }}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950/30 dark:focus:bg-red-950/30 cursor-pointer rounded-lg transition-colors"
               >
                 <Trash className="size-4" />
-                Delete Group
+                <span className="font-medium">Delete Group</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

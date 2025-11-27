@@ -102,17 +102,17 @@ export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
     return (
       <div
         className={cn(
-          "flex flex-col h-full bg-neomorphic-surface text-neomorphic-text p-4",
+          "flex flex-col h-full bg-neomorphic-bg text-neomorphic-text p-6",
           className
         )}
       >
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin w-8 h-8 border-2 border-neomorphic-text-secondary border-t-electric-blue rounded-full mx-auto mb-4"></div>
-            <p className="text-neomorphic-text-secondary">
-              Loading media files...
-            </p>
-          </div>
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="rounded-2xl bg-neomorphic-surface/50 h-48"
+            />
+          ))}
         </div>
       </div>
     );
@@ -121,138 +121,118 @@ export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-neomorphic-surface text-neomorphic-text p-4",
+        "flex flex-col h-full bg-neomorphic-bg text-neomorphic-text p-6",
         className
       )}
     >
       {/* Header */}
-      <div className="flex-shrink-0 mb-4">
-        <div className="flex items-center justify-between mb-4">
+      <div className="flex-shrink-0 mb-6 space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-neomorphic-text">
-              Media Gallery
-            </h2>
+            <h2 className="heading-md text-2xl">Media Gallery</h2>
             {mediaStats && (
-              <p className="text-sm text-neomorphic-text-secondary mt-1">
+              <p className="text-sm text-neomorphic-text-secondary mt-1 font-medium">
                 {mediaStats.total} files •{" "}
                 {formatFileSize(mediaStats.totalSize)}
               </p>
             )}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 bg-neomorphic-surface/50 p-1 rounded-xl border border-neomorphic-border/50">
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
-                "btn-neomorphic p-2",
-                viewMode === "grid" && "btn-primary"
+                "p-2 rounded-lg transition-all duration-200",
+                viewMode === "grid"
+                  ? "bg-neomorphic-bg shadow-sm text-electric-blue"
+                  : "text-neomorphic-text-secondary hover:text-neomorphic-text"
               )}
+              title="Grid View"
             >
               <Grid3x3 className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
               className={cn(
-                "btn-neomorphic p-2",
-                viewMode === "list" && "btn-primary"
+                "p-2 rounded-lg transition-all duration-200",
+                viewMode === "list"
+                  ? "bg-neomorphic-bg shadow-sm text-electric-blue"
+                  : "text-neomorphic-text-secondary hover:text-neomorphic-text"
               )}
+              title="List View"
             >
               <List className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neomorphic-text-secondary" />
             <input
-              placeholder="Search media..."
+              placeholder="Search media files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-neomorphic-surface border border-neomorphic-border rounded-neomorphic text-neomorphic-text placeholder:text-neomorphic-text-secondary focus:border-electric-blue focus:outline-none transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 bg-neomorphic-surface/50 border border-neomorphic-border/50 rounded-xl text-neomorphic-text placeholder:text-neomorphic-text-secondary focus:border-electric-blue/50 focus:ring-2 focus:ring-electric-blue/10 transition-all duration-200 outline-none"
             />
           </div>
-        </div>
 
-        {/* Filter Tabs */}
-        <div className="flex space-x-1 p-1 bg-neomorphic-surface rounded-neomorphic border border-neomorphic-border">
-          <button
-            onClick={() => setFilter("all")}
-            className={cn(
-              "px-3 py-1.5 text-sm rounded-lg transition-all",
-              filter === "all" ? "btn-primary" : "btn-neomorphic"
-            )}
-          >
-            All Media {mediaStats && `(${mediaStats.total})`}
-          </button>
-          <button
-            onClick={() => setFilter("images")}
-            className={cn(
-              "px-3 py-1.5 text-sm rounded-lg transition-all",
-              filter === "images" ? "btn-primary" : "btn-neomorphic"
-            )}
-          >
-            Images {mediaStats && `(${mediaStats.images})`}
-          </button>
-          <button
-            onClick={() => setFilter("videos")}
-            className={cn(
-              "px-3 py-1.5 text-sm rounded-lg transition-all",
-              filter === "videos" ? "btn-primary" : "btn-neomorphic"
-            )}
-          >
-            Videos {mediaStats && `(${mediaStats.videos})`}
-          </button>
-          <button
-            onClick={() => setFilter("audio")}
-            className={cn(
-              "px-3 py-1.5 text-sm rounded-lg transition-all",
-              filter === "audio" ? "btn-primary" : "btn-neomorphic"
-            )}
-          >
-            Audio {mediaStats && `(${mediaStats.audio})`}
-          </button>
-          <button
-            onClick={() => setFilter("documents")}
-            className={cn(
-              "px-3 py-1.5 text-sm rounded-lg transition-all",
-              filter === "documents" ? "btn-primary" : "btn-neomorphic"
-            )}
-          >
-            Documents {mediaStats && `(${mediaStats.documents})`}
-          </button>
+          {/* Filter Tabs */}
+          <div className="flex space-x-1 p-1 bg-neomorphic-surface/50 rounded-xl border border-neomorphic-border/50 overflow-x-auto custom-scrollbar">
+            {[
+              { id: "all", label: "All", count: mediaStats?.total },
+              { id: "images", label: "Images", count: mediaStats?.images },
+              { id: "videos", label: "Videos", count: mediaStats?.videos },
+              { id: "audio", label: "Audio", count: mediaStats?.audio },
+              { id: "documents", label: "Docs", count: mediaStats?.documents },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setFilter(tab.id as any)}
+                className={cn(
+                  "px-3 py-1.5 text-sm font-medium rounded-lg transition-all whitespace-nowrap",
+                  filter === tab.id
+                    ? "bg-neomorphic-bg shadow-sm text-electric-blue"
+                    : "text-neomorphic-text-secondary hover:text-neomorphic-text hover:bg-neomorphic-surface/50"
+                )}
+              >
+                {tab.label}{" "}
+                <span className="opacity-70 text-xs ml-1">
+                  {tab.count || 0}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
         {filteredMedia.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="neomorphic-raised w-16 h-16 rounded-neomorphic flex items-center justify-center mx-auto mb-4">
-              <File className="h-8 w-8 text-neomorphic-text-secondary" />
+          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <div className="neomorphic-raised w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-float">
+              <File className="h-10 w-10 text-neomorphic-text-secondary" />
             </div>
-            <h3 className="text-lg font-semibold text-neomorphic-text mb-2">
-              No media files found
-            </h3>
-            <p className="text-neomorphic-text-secondary max-w-md">
+            <h3 className="heading-md mb-2">No media files found</h3>
+            <p className="subtitle-md max-w-md mx-auto">
               {searchQuery
                 ? "No files match your search criteria."
                 : "Start uploading images, videos, audio, or documents in your channels to see them here."}
             </p>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-4">
             {filteredMedia.map((item: any) => (
               <div
                 key={item.id}
-                className="card-neomorphic p-3 hover:shadow-neomorphic-pressed transition-all duration-200 cursor-pointer"
+                className="group bg-neomorphic-surface/30 border border-neomorphic-border/50 rounded-2xl p-3 hover:bg-neomorphic-surface/60 hover:shadow-lg hover:border-electric-blue/30 transition-all duration-300 cursor-pointer"
                 onClick={() => openFile(item.url)}
               >
-                <div className="aspect-video bg-neomorphic-surface rounded-neomorphic mb-3 flex items-center justify-center border border-neomorphic-border relative overflow-hidden">
+                <div className="aspect-video bg-black/5 dark:bg-white/5 rounded-xl mb-3 flex items-center justify-center relative overflow-hidden">
                   {item.category === "images" ? (
                     <img
                       src={item.url}
                       alt={item.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = "none";
@@ -260,32 +240,35 @@ export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
                       }}
                     />
                   ) : (
-                    <div className="flex flex-col items-center space-y-2">
+                    <div className="flex flex-col items-center space-y-2 transform transition-transform duration-300 group-hover:scale-110">
                       {getFileIcon(item.type, item.category)}
-                      <span className="text-neomorphic-text-secondary text-xs font-medium text-center">
+                      <span className="text-neomorphic-text-secondary text-xs font-bold tracking-wider">
                         {item.category.toUpperCase()}
                       </span>
                     </div>
                   )}
+                  {/* Fallback icon if image fails */}
                   <div className="hidden flex-col items-center space-y-2">
                     {getFileIcon(item.type, item.category)}
-                    <span className="text-neomorphic-text-secondary text-xs font-medium">
-                      {item.category.toUpperCase()}
-                    </span>
                   </div>
-                  <div className="absolute top-2 right-2">
-                    <ExternalLink className="h-3 w-3 text-neomorphic-text-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                    <ExternalLink className="h-6 w-6 text-white" />
                   </div>
                 </div>
-                <h3 className="font-medium text-neomorphic-text mb-1 truncate text-sm">
-                  {item.name}
-                </h3>
-                <p className="text-xs text-neomorphic-text-secondary">
-                  {formatFileSize(item.size || 0)} • {item.uploadedBy}
-                </p>
-                <p className="text-xs text-neomorphic-text-secondary opacity-70">
-                  {formatDate(item.uploadedAt)}
-                </p>
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-neomorphic-text truncate text-sm group-hover:text-electric-blue transition-colors">
+                    {item.name}
+                  </h3>
+                  <div className="flex items-center justify-between text-xs text-neomorphic-text-secondary">
+                    <span>{formatFileSize(item.size || 0)}</span>
+                    <span>{formatDate(item.uploadedAt)}</span>
+                  </div>
+                  <p className="text-xs text-neomorphic-text-secondary opacity-70 truncate">
+                    by {item.uploadedBy}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -294,10 +277,10 @@ export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
             {filteredMedia.map((item: any) => (
               <div
                 key={item.id}
-                className="card-neomorphic flex items-center space-x-3 p-3 hover:shadow-neomorphic-pressed cursor-pointer transition-all duration-200 group"
+                className="group flex items-center space-x-4 p-3 bg-neomorphic-surface/30 border border-neomorphic-border/50 rounded-xl hover:bg-neomorphic-surface/60 hover:shadow-md hover:border-electric-blue/30 cursor-pointer transition-all duration-200"
                 onClick={() => openFile(item.url)}
               >
-                <div className="w-12 h-12 bg-neomorphic-surface rounded-neomorphic flex items-center justify-center flex-shrink-0 border border-neomorphic-border overflow-hidden">
+                <div className="w-12 h-12 bg-black/5 dark:bg-white/5 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden relative">
                   {item.category === "images" ? (
                     <img
                       src={item.url}
@@ -317,15 +300,20 @@ export function ModernMediaGallery({ className }: ModernMediaGalleryProps) {
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-neomorphic-text truncate text-sm">
+                  <h3 className="font-medium text-neomorphic-text truncate text-sm group-hover:text-electric-blue transition-colors">
                     {item.name}
                   </h3>
-                  <p className="text-xs text-neomorphic-text-secondary">
-                    {formatFileSize(item.size || 0)} • {item.uploadedBy} •{" "}
-                    {formatDate(item.uploadedAt)}
-                  </p>
+                  <div className="flex items-center gap-2 text-xs text-neomorphic-text-secondary mt-0.5">
+                    <span>{formatFileSize(item.size || 0)}</span>
+                    <span>•</span>
+                    <span>{item.uploadedBy}</span>
+                    <span>•</span>
+                    <span>{formatDate(item.uploadedAt)}</span>
+                  </div>
                 </div>
-                <ExternalLink className="h-4 w-4 text-neomorphic-text-secondary opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                <div className="p-2 rounded-full hover:bg-neomorphic-surface text-neomorphic-text-secondary hover:text-electric-blue transition-colors opacity-0 group-hover:opacity-100">
+                  <ExternalLink className="h-4 w-4" />
+                </div>
               </div>
             ))}
           </div>

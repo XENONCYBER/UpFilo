@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { Edit2, Layers, Users } from "lucide-react";
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,18 +71,33 @@ export const RenameChannelGroupModal = ({
 
   if (!group) return null;
 
+  const Icon = group.type === "group" ? Layers : Users;
+  const iconColor = group.type === "group" ? "from-electric-blue to-electric-purple" : "from-electric-purple to-coral-red";
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="glass-surface border-white/20">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">
-            Rename {group.type === "group" ? "Group" : "User"} Folder
-          </DialogTitle>
+      <DialogContent className="card-glass border-neomorphic-border/50 backdrop-blur-xl shadow-2xl max-w-md">
+        <DialogHeader className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className={`neomorphic-raised w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${iconColor} shadow-lg`}>
+              <Edit2 className="w-6 h-6 text-white drop-shadow-sm" />
+            </div>
+            <div className="flex-1">
+              <DialogTitle className="text-xl font-bold text-neomorphic-text">
+                Rename {group.type === "group" ? "Group" : "User"} Folder
+              </DialogTitle>
+              <DialogDescription className="text-neomorphic-text-secondary text-sm mt-1">
+                Update the name of your folder
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Folder Name</Label>
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          <div className="space-y-3">
+            <Label htmlFor="name" className="text-sm font-semibold text-neomorphic-text">
+              Folder Name
+            </Label>
             <Input
               id="name"
               value={name}
@@ -89,27 +106,38 @@ export const RenameChannelGroupModal = ({
               required
               autoFocus
               minLength={1}
+              maxLength={50}
               placeholder="Enter folder name..."
-              className="glass-input"
+              className="input-glass h-11 text-base border-neomorphic-border/50 focus:border-electric-blue/50 focus:ring-2 focus:ring-electric-blue/20 transition-all"
             />
           </div>
 
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end gap-3 pt-4 border-t border-neomorphic-border/30">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={handleClose}
               disabled={isPending}
-              className="glass-button"
+              className="btn-glass hover:bg-neomorphic-surface/60"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isPending}
-              className="glass-button-primary"
+              className="btn-primary shadow-lg hover:shadow-xl transition-all"
             >
-              {isPending ? "Renaming..." : "Rename Folder"}
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Renaming...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Edit2 className="w-4 h-4" />
+                  Rename Folder
+                </span>
+              )}
             </Button>
           </div>
         </form>

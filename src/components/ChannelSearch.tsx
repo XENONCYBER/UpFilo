@@ -17,12 +17,12 @@ interface ChannelSearchProps {
   className?: string;
 }
 
-export function ChannelSearch({ 
-  channelId, 
-  isOpen, 
-  onClose, 
+export function ChannelSearch({
+  channelId,
+  isOpen,
+  onClose,
   onMessageSelect,
-  className 
+  className,
 }: ChannelSearchProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -43,13 +43,17 @@ export function ChannelSearch({
   if (!isOpen) return null;
 
   return (
-    <div className={cn(
-      "absolute top-0 left-0 right-0 bg-neomorphic-bg border-b border-neomorphic-border z-10 transition-all duration-200",
-      isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none",
-      className
-    )}>
+    <div
+      className={cn(
+        "absolute top-full left-0 right-0 bg-neomorphic-bg border-b border-neomorphic-border shadow-lg z-20 transition-all duration-200",
+        isOpen
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 -translate-y-2 pointer-events-none",
+        className
+      )}
+    >
       {/* Search Header */}
-      <div className="p-4 border-b border-neomorphic-border">
+      <div className="p-3 border-b border-neomorphic-border">
         <div className="flex items-center gap-3">
           <Search className="h-5 w-5 text-neomorphic-text-secondary flex-shrink-0" />
           <Input
@@ -75,12 +79,16 @@ export function ChannelSearch({
             <div className="p-4">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="text-neomorphic-text-secondary">Searching...</div>
+                  <div className="text-neomorphic-text-secondary">
+                    Searching...
+                  </div>
                 </div>
               ) : messages.length === 0 ? (
                 <div className="text-center py-8">
                   <Search className="h-12 w-12 text-neomorphic-text-secondary mx-auto mb-3" />
-                  <p className="text-neomorphic-text-secondary">No messages found</p>
+                  <p className="text-neomorphic-text-secondary">
+                    No messages found
+                  </p>
                   <p className="text-neomorphic-text-secondary text-sm mt-1">
                     Try different keywords or check spelling
                   </p>
@@ -88,7 +96,8 @@ export function ChannelSearch({
               ) : (
                 <div className="space-y-2">
                   <div className="text-sm text-neomorphic-text-secondary mb-3">
-                    Found {messages.length} message{messages.length !== 1 ? 's' : ''}
+                    Found {messages.length} message
+                    {messages.length !== 1 ? "s" : ""}
                   </div>
                   {messages.map((message: any) => (
                     <div

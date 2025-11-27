@@ -141,10 +141,10 @@ export function DialogContent({
       <div
         className={cn(
           "relative z-[10000] w-full max-w-lg",
-          "card-glass",
-          "rounded-neomorphic p-6",
+          "bg-neomorphic-bg/95 backdrop-blur-xl border border-neomorphic-border/50",
+          "rounded-2xl p-6",
           "animate-in zoom-in-95 slide-in-from-bottom-4 duration-300",
-          "shadow-neomorphic",
+          "shadow-2xl shadow-black/20",
           className
         )}
         style={{ zIndex: 10000 }}
@@ -157,7 +157,7 @@ export function DialogContent({
             context.onOpenChange(false);
             onClose?.();
           }}
-          className="btn-neomorphic absolute right-4 top-4 p-2 opacity-70 hover:opacity-100 transition-opacity"
+          className="absolute right-4 top-4 p-2 rounded-lg hover:bg-neomorphic-surface text-neomorphic-text-secondary hover:text-neomorphic-text transition-all duration-200"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
@@ -179,7 +179,7 @@ export function DialogHeader({
   return (
     <div
       className={cn(
-        "flex flex-col space-y-1.5 text-center sm:text-left",
+        "flex flex-col space-y-2 text-center sm:text-left mb-6",
         className
       )}
       {...props}
@@ -196,13 +196,7 @@ export function DialogTitle({
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h2
-      className={cn(
-        "text-lg font-semibold leading-none tracking-tight text-gray-900 dark:text-white",
-        className
-      )}
-      {...props}
-    >
+    <h2 className={cn("heading-md text-xl", className)} {...props}>
       {children}
     </h2>
   );
@@ -215,10 +209,7 @@ export function DialogDescription({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p
-      className={cn("text-sm text-gray-600 dark:text-gray-300", className)}
-      {...props}
-    >
+    <p className={cn("subtitle-md text-sm", className)} {...props}>
       {children}
     </p>
   );
@@ -233,7 +224,7 @@ export function DialogFooter({
   return (
     <div
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 mt-6",
         className
       )}
       {...props}

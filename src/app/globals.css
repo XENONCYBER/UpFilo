@@ -13,30 +13,52 @@ body,
 @layer base {
   :root {
     /* Neumorphic Light Theme Colors */
-    --neomorphic-bg: #e6e7ee;
-    --neomorphic-surface: #e6e7ee;
-    --neomorphic-text: #4a5568;
-    --neomorphic-text-secondary: #718096;
-    --neomorphic-border: #d0d5dd;
+    --neomorphic-bg: 231 14% 92%;
+    /* #e6e7ee */
+    --neomorphic-surface: 231 14% 92%;
+    /* #e6e7ee */
+    --neomorphic-text: 218 17% 35%;
+    /* #4a5568 */
+    --neomorphic-text-secondary: 216 14% 52%;
+    /* #718096 */
+    --neomorphic-border: 216 10% 84%;
+    /* #d0d5dd */
 
     /* Neumorphic Shadow System */
-    --neomorphic-shadow-light: #ffffff;
-    --neomorphic-shadow-dark: #a3a6b0;
-    --neomorphic-shadow-inset-light: #ffffff;
-    --neomorphic-shadow-inset-dark: #a3a6b0;
+    --neomorphic-shadow-light: 0 0% 100%;
+    /* #ffffff */
+    --neomorphic-shadow-dark: 226 6% 66%;
+    /* #a3a6b0 */
+    --neomorphic-shadow-inset-light: 0 0% 100%;
+    /* #ffffff */
+    --neomorphic-shadow-inset-dark: 226 6% 66%;
+    /* #a3a6b0 */
 
     /* Glassmorphic Variables */
-    --glass-bg: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.25);
+    --glass-bg-channels: 0 0% 100%;
+    --glass-bg-alpha: 0.15;
+    --glass-border-channels: 0 0% 100%;
+    --glass-border-alpha: 0.25;
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     --glass-blur: blur(12px);
 
     /* Accent Colors */
-    --electric-blue: #3b82f6;
-    --electric-purple: #8b5cf6;
-    --soft-green: #10b981;
-    --warm-orange: #f59e0b;
-    --coral-red: #ef4444;
+    --electric-blue: 217 91% 60%;
+    /* #3b82f6 */
+    --electric-purple: 258 90% 66%;
+    /* #8b5cf6 */
+    --soft-green: 151 84% 39%;
+    /* #10b981 */
+    --warm-orange: 38 92% 50%;
+    /* #f59e0b */
+    --coral-red: 0 84% 60%;
+    /* #ef4444 */
+    --cyan-glow: 190 90% 50%;
+    /* #06b6d4 */
+
+    /* Typography Scale */
+    --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-body: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
     /* Legacy shadcn variables for compatibility */
     --background: 0 0% 100%;
@@ -68,21 +90,32 @@ body,
 
   .dark {
     /* Dark Neumorphic Theme */
-    --neomorphic-bg: #1a1d23;
-    --neomorphic-surface: #1a1d23;
-    --neomorphic-text: #e2e8f0;
-    --neomorphic-text-secondary: #94a3b8;
-    --neomorphic-border: #334155;
+    --neomorphic-bg: 220 15% 12%;
+    /* #1a1d23 */
+    --neomorphic-surface: 220 15% 12%;
+    /* #1a1d23 */
+    --neomorphic-text: 215 20% 92%;
+    /* #e2e8f0 */
+    --neomorphic-text-secondary: 215 16% 65%;
+    /* #94a3b8 */
+    --neomorphic-border: 215 25% 27%;
+    /* #334155 */
 
     /* Dark Neumorphic Shadows */
-    --neomorphic-shadow-light: #272c35;
-    --neomorphic-shadow-dark: #0d0f11;
-    --neomorphic-shadow-inset-light: #272c35;
-    --neomorphic-shadow-inset-dark: #0d0f11;
+    --neomorphic-shadow-light: 219 15% 18%;
+    /* #272c35 */
+    --neomorphic-shadow-dark: 210 11% 6%;
+    /* #0d0f11 */
+    --neomorphic-shadow-inset-light: 219 15% 18%;
+    /* #272c35 */
+    --neomorphic-shadow-inset-dark: 210 11% 6%;
+    /* #0d0f11 */
 
     /* Dark Glassmorphic Variables */
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-bg-channels: 0 0% 100%;
+    --glass-bg-alpha: 0.05;
+    --glass-border-channels: 0 0% 100%;
+    --glass-border-alpha: 0.1;
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     --glass-blur: blur(16px);
 
@@ -120,72 +153,132 @@ body,
   }
 
   body {
-    background: var(--neomorphic-bg);
-    color: var(--neomorphic-text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: hsl(var(--neomorphic-bg));
+    color: hsl(var(--neomorphic-text));
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 /* Neumorphic + Glassmorphic Design System */
 @layer components {
 
+  /* Typography Hierarchy */
+  .heading-xl {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    background: linear-gradient(135deg, hsl(var(--neomorphic-text)), hsl(var(--neomorphic-text-secondary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .heading-lg {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    color: hsl(var(--neomorphic-text));
+  }
+
+  .heading-md {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    color: hsl(var(--neomorphic-text));
+  }
+
+  .subtitle-lg {
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    color: hsl(var(--neomorphic-text-secondary));
+    line-height: 1.6;
+  }
+
+  .subtitle-md {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: hsl(var(--neomorphic-text-secondary));
+    line-height: 1.5;
+  }
+
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--electric-blue)), hsl(var(--electric-purple)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-accent {
+    background: linear-gradient(135deg, hsl(var(--warm-orange)), hsl(var(--coral-red)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   /* Neumorphic Base Elements */
   .neomorphic-raised {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     box-shadow:
-      8px 8px 16px var(--neomorphic-shadow-dark),
-      -8px -8px 16px var(--neomorphic-shadow-light);
-    border: 1px solid var(--neomorphic-border);
+      8px 8px 16px hsl(var(--neomorphic-shadow-dark)),
+      -8px -8px 16px hsl(var(--neomorphic-shadow-light));
+    border: 1px solid hsl(var(--neomorphic-border));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .neomorphic-pressed {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     box-shadow:
-      inset 4px 4px 8px var(--neomorphic-shadow-dark),
-      inset -4px -4px 8px var(--neomorphic-shadow-light);
-    border: 1px solid var(--neomorphic-border);
+      inset 4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      inset -4px -4px 8px hsl(var(--neomorphic-shadow-light));
+    border: 1px solid hsl(var(--neomorphic-border));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .neomorphic-flat {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     box-shadow:
-      4px 4px 8px var(--neomorphic-shadow-dark),
-      -4px -4px 8px var(--neomorphic-shadow-light);
-    border: 1px solid var(--neomorphic-border);
+      4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      -4px -4px 8px hsl(var(--neomorphic-shadow-light));
+    border: 1px solid hsl(var(--neomorphic-border));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Additional neomorphic shadow utilities */
   .shadow-neomorphic {
     box-shadow:
-      8px 8px 16px var(--neomorphic-shadow-dark),
-      -8px -8px 16px var(--neomorphic-shadow-light);
+      8px 8px 16px hsl(var(--neomorphic-shadow-dark)),
+      -8px -8px 16px hsl(var(--neomorphic-shadow-light));
   }
 
   .shadow-neomorphic-inset {
     box-shadow:
-      inset 4px 4px 8px var(--neomorphic-shadow-dark),
-      inset -4px -4px 8px var(--neomorphic-shadow-light);
+      inset 4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      inset -4px -4px 8px hsl(var(--neomorphic-shadow-light));
   }
 
   .shadow-neomorphic-pressed {
     box-shadow:
-      inset 6px 6px 12px var(--neomorphic-shadow-dark),
-      inset -6px -6px 12px var(--neomorphic-shadow-light);
+      inset 6px 6px 12px hsl(var(--neomorphic-shadow-dark)),
+      inset -6px -6px 12px hsl(var(--neomorphic-shadow-light));
   }
 
   .shadow-neomorphic-soft {
     box-shadow:
-      4px 4px 8px var(--neomorphic-shadow-dark),
-      -4px -4px 8px var(--neomorphic-shadow-light);
+      4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      -4px -4px 8px hsl(var(--neomorphic-shadow-light));
   }
 
   /* Glassmorphic Base Elements */
   .glass {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: hsl(var(--glass-bg-channels) / var(--glass-bg-alpha));
+    border: 1px solid hsl(var(--glass-border-channels) / var(--glass-border-alpha));
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     box-shadow: var(--glass-shadow);
@@ -205,39 +298,39 @@ body,
 
   /* Button Components */
   .btn-neomorphic {
-    background: var(--neomorphic-surface);
-    color: var(--neomorphic-text);
+    background: hsl(var(--neomorphic-surface));
+    color: hsl(var(--neomorphic-text));
     padding: 12px 24px;
     border-radius: 16px;
     border: none;
     font-weight: 500;
     cursor: pointer;
     box-shadow:
-      6px 6px 12px var(--neomorphic-shadow-dark),
-      -6px -6px 12px var(--neomorphic-shadow-light);
+      6px 6px 12px hsl(var(--neomorphic-shadow-dark)),
+      -6px -6px 12px hsl(var(--neomorphic-shadow-light));
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .btn-neomorphic:hover {
     transform: translateY(-2px);
     box-shadow:
-      8px 8px 16px var(--neomorphic-shadow-dark),
-      -8px -8px 16px var(--neomorphic-shadow-light);
+      8px 8px 16px hsl(var(--neomorphic-shadow-dark)),
+      -8px -8px 16px hsl(var(--neomorphic-shadow-light));
   }
 
   .btn-neomorphic:active {
     transform: translateY(0);
     box-shadow:
-      inset 4px 4px 8px var(--neomorphic-shadow-dark),
-      inset -4px -4px 8px var(--neomorphic-shadow-light);
+      inset 4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      inset -4px -4px 8px hsl(var(--neomorphic-shadow-light));
   }
 
   .btn-glass {
-    background: var(--glass-bg);
+    background: hsl(var(--glass-bg-channels) / var(--glass-bg-alpha));
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    color: var(--neomorphic-text);
+    border: 1px solid hsl(var(--glass-border-channels) / var(--glass-border-alpha));
+    color: hsl(var(--neomorphic-text));
     padding: 12px 24px;
     border-radius: 16px;
     font-weight: 500;
@@ -254,7 +347,7 @@ body,
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, var(--electric-blue), var(--electric-purple));
+    background: linear-gradient(135deg, hsl(var(--electric-blue)), hsl(var(--electric-purple)));
     color: white;
     padding: 12px 24px;
     border-radius: 16px;
@@ -262,42 +355,60 @@ body,
     font-weight: 600;
     cursor: pointer;
     box-shadow:
-      0 8px 32px rgba(59, 130, 246, 0.3),
+      0 8px 20px rgba(59, 130, 246, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 12px 40px rgba(59, 130, 246, 0.4),
+      0 12px 28px rgba(59, 130, 246, 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-primary:hover::before {
+    opacity: 1;
   }
 
   /* Card Components */
   .card-neomorphic {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     border-radius: 24px;
     padding: 24px;
     box-shadow:
-      12px 12px 24px var(--neomorphic-shadow-dark),
-      -12px -12px 24px var(--neomorphic-shadow-light);
-    border: 1px solid var(--neomorphic-border);
+      12px 12px 24px hsl(var(--neomorphic-shadow-dark)),
+      -12px -12px 24px hsl(var(--neomorphic-shadow-light));
+    border: 1px solid hsl(var(--neomorphic-border));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-neomorphic:hover {
     transform: translateY(-4px);
     box-shadow:
-      16px 16px 32px var(--neomorphic-shadow-dark),
-      -16px -16px 32px var(--neomorphic-shadow-light);
+      16px 16px 32px hsl(var(--neomorphic-shadow-dark)),
+      -16px -16px 32px hsl(var(--neomorphic-shadow-light));
   }
 
   .card-glass {
-    background: var(--glass-bg);
+    background: hsl(var(--glass-bg-channels) / var(--glass-bg-alpha));
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
+    border: 1px solid hsl(var(--glass-border-channels) / var(--glass-border-alpha));
     border-radius: 24px;
     padding: 24px;
     box-shadow: var(--glass-shadow);
@@ -313,34 +424,34 @@ body,
 
   /* Input Components */
   .input-neomorphic {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     border: none;
     border-radius: 16px;
     padding: 16px 20px;
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
     font-size: 14px;
     box-shadow:
-      inset 4px 4px 8px var(--neomorphic-shadow-dark),
-      inset -4px -4px 8px var(--neomorphic-shadow-light);
+      inset 4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      inset -4px -4px 8px hsl(var(--neomorphic-shadow-light));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .input-neomorphic:focus {
     outline: none;
     box-shadow:
-      inset 6px 6px 12px var(--neomorphic-shadow-dark),
-      inset -6px -6px 12px var(--neomorphic-shadow-light),
-      0 0 0 2px var(--electric-blue);
+      inset 6px 6px 12px hsl(var(--neomorphic-shadow-dark)),
+      inset -6px -6px 12px hsl(var(--neomorphic-shadow-light)),
+      0 0 0 2px hsl(var(--electric-blue));
   }
 
   .input-glass {
-    background: var(--glass-bg);
+    background: hsl(var(--glass-bg-channels) / var(--glass-bg-alpha));
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
+    border: 1px solid hsl(var(--glass-border-channels) / var(--glass-border-alpha));
     border-radius: 16px;
     padding: 16px 20px;
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
     font-size: 14px;
     box-shadow: var(--glass-shadow);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -349,30 +460,30 @@ body,
   .input-glass:focus {
     outline: none;
     background: rgba(255, 255, 255, 0.1);
-    border-color: var(--electric-blue);
+    border-color: hsl(var(--electric-blue));
     box-shadow:
       var(--glass-shadow),
       0 0 0 2px rgba(59, 130, 246, 0.2);
   }
 
   .input-glass::placeholder {
-    color: var(--neomorphic-text-secondary);
+    color: hsl(var(--neomorphic-text-secondary));
   }
 
   /* Navigation Components */
   .nav-item-neomorphic {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     border-radius: 12px;
     padding: 12px 16px;
     margin: 4px 0;
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 12px;
     box-shadow:
-      4px 4px 8px var(--neomorphic-shadow-dark),
-      -4px -4px 8px var(--neomorphic-shadow-light);
+      4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      -4px -4px 8px hsl(var(--neomorphic-shadow-light));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
   }
@@ -380,49 +491,49 @@ body,
   .nav-item-neomorphic:hover {
     transform: translateY(-1px);
     box-shadow:
-      6px 6px 12px var(--neomorphic-shadow-dark),
-      -6px -6px 12px var(--neomorphic-shadow-light);
+      6px 6px 12px hsl(var(--neomorphic-shadow-dark)),
+      -6px -6px 12px hsl(var(--neomorphic-shadow-light));
   }
 
   .nav-item-neomorphic.active {
     box-shadow:
-      inset 3px 3px 6px var(--neomorphic-shadow-dark),
-      inset -3px -3px 6px var(--neomorphic-shadow-light);
-    color: var(--electric-blue);
+      inset 3px 3px 6px hsl(var(--neomorphic-shadow-dark)),
+      inset -3px -3px 6px hsl(var(--neomorphic-shadow-light));
+    color: hsl(var(--electric-blue));
   }
 
   /* Sidebar Components */
   .sidebar-neomorphic {
-    background: var(--neomorphic-bg);
+    background: hsl(var(--neomorphic-bg));
     box-shadow:
-      inset -1px 0 0 var(--neomorphic-border),
+      inset -1px 0 0 hsl(var(--neomorphic-border)),
       4px 0 16px rgba(0, 0, 0, 0.05);
   }
 
   .sidebar-glass {
-    background: var(--glass-bg);
+    background: hsl(var(--glass-bg-channels) / var(--glass-bg-alpha));
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border-right: 1px solid var(--glass-border);
+    border-right: 1px solid hsl(var(--glass-border-channels) / var(--glass-border-alpha));
     box-shadow: var(--glass-shadow);
   }
 
   /* Message Bubble */
   .message-bubble-neomorphic {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     border-radius: 18px;
     padding: 12px 16px;
     margin: 8px 0;
     box-shadow:
-      3px 3px 6px var(--neomorphic-shadow-dark),
-      -3px -3px 6px var(--neomorphic-shadow-light);
+      3px 3px 6px hsl(var(--neomorphic-shadow-dark)),
+      -3px -3px 6px hsl(var(--neomorphic-shadow-light));
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .message-bubble-neomorphic:hover {
     box-shadow:
-      4px 4px 8px var(--neomorphic-shadow-dark),
-      -4px -4px 8px var(--neomorphic-shadow-light);
+      4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
+      -4px -4px 8px hsl(var(--neomorphic-shadow-light));
   }
 
   /* Neomorphic surface hover state */
@@ -436,11 +547,11 @@ body,
 
   /* Better text hierarchy */
   .text-neomorphic-text {
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
   }
 
   .text-neomorphic-text-secondary {
-    color: var(--neomorphic-text-secondary);
+    color: hsl(var(--neomorphic-text-secondary));
   }
 
   /* Channel-specific styles */
@@ -464,7 +575,7 @@ body,
 
   .channel-item.active {
     background: rgba(59, 130, 246, 0.15);
-    color: var(--electric-blue);
+    color: hsl(var(--electric-blue));
   }
 
   /* Better scrollbar for channel list */
@@ -477,13 +588,13 @@ body,
   }
 
   .channel-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--neomorphic-text-secondary);
+    background: hsl(var(--neomorphic-text-secondary));
     border-radius: 3px;
     opacity: 0.3;
   }
 
   .channel-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--electric-blue);
+    background: hsl(var(--electric-blue));
     opacity: 0.6;
   }
 
@@ -511,56 +622,60 @@ body,
 
     /* Color Utilities */
     .text-electric-blue {
-      color: var(--electric-blue);
+      color: hsl(var(--electric-blue));
     }
 
     .text-electric-purple {
-      color: var(--electric-purple);
+      color: hsl(var(--electric-purple));
     }
 
     .text-soft-green {
-      color: var(--soft-green);
+      color: hsl(var(--soft-green));
     }
 
     .text-warm-orange {
-      color: var(--warm-orange);
+      color: hsl(var(--warm-orange));
     }
 
     .text-coral-red {
-      color: var(--coral-red);
+      color: hsl(var(--coral-red));
     }
 
     .bg-electric-blue {
-      background: var(--electric-blue);
+      background: hsl(var(--electric-blue));
     }
 
     .bg-electric-purple {
-      background: var(--electric-purple);
+      background: hsl(var(--electric-purple));
     }
 
     .bg-soft-green {
-      background: var(--soft-green);
+      background: hsl(var(--soft-green));
     }
 
     .bg-warm-orange {
-      background: var(--warm-orange);
+      background: hsl(var(--warm-orange));
     }
 
     .bg-coral-red {
-      background: var(--coral-red);
+      background: hsl(var(--coral-red));
     }
 
     /* Gradient Utilities */
     .gradient-primary {
-      background: linear-gradient(135deg, var(--electric-blue), var(--electric-purple));
+      background: linear-gradient(135deg, hsl(var(--electric-blue)), hsl(var(--electric-purple)));
     }
 
     .gradient-secondary {
-      background: linear-gradient(135deg, var(--soft-green), var(--electric-blue));
+      background: linear-gradient(135deg, hsl(var(--soft-green)), hsl(var(--cyan-glow)));
     }
 
     .gradient-accent {
-      background: linear-gradient(135deg, var(--warm-orange), var(--coral-red));
+      background: linear-gradient(135deg, hsl(var(--warm-orange)), hsl(var(--coral-red)));
+    }
+
+    .gradient-surface {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
     }
 
     /* Interactive Utilities */
@@ -664,18 +779,18 @@ body,
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     border-radius: 4px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--neomorphic-shadow-dark);
+    background: hsl(var(--neomorphic-shadow-dark));
     border-radius: 4px;
-    border: 2px solid var(--neomorphic-surface);
+    border: 2px solid hsl(var(--neomorphic-surface));
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--electric-blue);
+    background: hsl(var(--electric-blue));
   }
 
   /* Quill Editor Custom Styles */
@@ -685,29 +800,29 @@ body,
     min-height: 60px;
     max-height: 120px;
     padding: 8px 12px;
-    background: var(--neomorphic-surface);
-    color: var(--neomorphic-text);
+    background: hsl(var(--neomorphic-surface));
+    color: hsl(var(--neomorphic-text));
     line-height: 1.3;
     overflow-y: auto;
   }
 
   .ql-custom .ql-editor::before {
-    color: var(--neomorphic-text-secondary);
+    color: hsl(var(--neomorphic-text-secondary));
     font-style: normal;
     opacity: 1;
     transition: opacity 0.2s ease;
   }
-  
+
   .dark .ql-custom .ql-editor::before {
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
     opacity: 0.6;
   }
 
   .ql-custom .ql-toolbar {
     border: none;
-    border-bottom: 1px solid var(--neomorphic-border);
+    border-bottom: 1px solid hsl(var(--neomorphic-border));
     padding: 8px 12px;
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     border-radius: 12px 12px 0 0;
   }
 
@@ -719,31 +834,31 @@ body,
     border: none;
     border-radius: 8px;
     padding: 8px;
-    margin: 2px;
-    background: var(--neomorphic-surface);
-    color: var(--neomorphic-text);
+    margin: 3px;
+    background: hsl(var(--neomorphic-surface));
+    color: hsl(var(--neomorphic-text));
     box-shadow:
-      3px 3px 6px var(--neomorphic-shadow-dark),
-      -3px -3px 6px var(--neomorphic-shadow-light);
+      3px 3px 6px hsl(var(--neomorphic-shadow-dark)),
+      -3px -3px 6px hsl(var(--neomorphic-shadow-light));
     transition: all 0.2s ease;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .ql-custom .ql-toolbar button:hover {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     box-shadow:
-      inset 2px 2px 4px var(--neomorphic-shadow-dark),
-      inset -2px -2px 4px var(--neomorphic-shadow-light);
+      inset 2px 2px 4px hsl(var(--neomorphic-shadow-dark)),
+      inset -2px -2px 4px hsl(var(--neomorphic-shadow-light));
     transform: translateY(1px);
-    color: var(--electric-blue);
+    color: hsl(var(--electric-blue));
   }
 
   .ql-custom .ql-toolbar button.ql-active {
-    background: var(--electric-blue);
+    background: hsl(var(--electric-blue));
     color: white;
     box-shadow:
       inset 2px 2px 4px rgba(0, 0, 0, 0.2),
@@ -761,37 +876,37 @@ body,
   }
 
   .ql-custom .ql-picker {
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
     border-radius: 8px;
     padding: 4px 8px;
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     box-shadow:
-      3px 3px 6px var(--neomorphic-shadow-dark),
-      -3px -3px 6px var(--neomorphic-shadow-light);
+      3px 3px 6px hsl(var(--neomorphic-shadow-dark)),
+      -3px -3px 6px hsl(var(--neomorphic-shadow-light));
     transition: all 0.2s ease;
   }
 
   .ql-custom .ql-picker:hover {
     box-shadow:
-      inset 2px 2px 4px var(--neomorphic-shadow-dark),
-      inset -2px -2px 4px var(--neomorphic-shadow-light);
-    color: var(--electric-blue);
+      inset 2px 2px 4px hsl(var(--neomorphic-shadow-dark)),
+      inset -2px -2px 4px hsl(var(--neomorphic-shadow-light));
+    color: hsl(var(--electric-blue));
   }
 
   .ql-custom .ql-picker-options {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     backdrop-filter: blur(12px);
-    border: 1px solid var(--neomorphic-border);
+    border: 1px solid hsl(var(--neomorphic-border));
     border-radius: 12px;
     box-shadow:
-      8px 8px 16px var(--neomorphic-shadow-dark),
-      -8px -8px 16px var(--neomorphic-shadow-light);
+      8px 8px 16px hsl(var(--neomorphic-shadow-dark)),
+      -8px -8px 16px hsl(var(--neomorphic-shadow-light));
     margin-top: 4px;
     z-index: 1000;
   }
 
   .ql-custom .ql-picker-item {
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
     padding: 8px 12px;
     border-radius: 8px;
     margin: 4px;
@@ -799,76 +914,76 @@ body,
   }
 
   .ql-custom .ql-picker-item:hover {
-    background: var(--neomorphic-surface);
+    background: hsl(var(--neomorphic-surface));
     box-shadow:
-      inset 2px 2px 4px var(--neomorphic-shadow-dark),
-      inset -2px -2px 4px var(--neomorphic-shadow-light);
-    color: var(--electric-blue);
+      inset 2px 2px 4px hsl(var(--neomorphic-shadow-dark)),
+      inset -2px -2px 4px hsl(var(--neomorphic-shadow-light));
+    color: hsl(var(--electric-blue));
   }
 
   /* Dark mode specific enhancements for Quill */
   .dark .ql-custom .ql-toolbar button {
-    background: var(--neomorphic-surface);
-    color: var(--neomorphic-text);
+    background: hsl(var(--neomorphic-surface));
+    color: hsl(var(--neomorphic-text));
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .dark .ql-custom .ql-toolbar button:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: var(--electric-blue);
+    color: hsl(var(--electric-blue));
     border-color: rgba(59, 130, 246, 0.3);
   }
 
   .dark .ql-custom .ql-toolbar button.ql-active {
-    background: var(--electric-blue);
+    background: hsl(var(--electric-blue));
     color: white;
-    border-color: var(--electric-blue);
+    border-color: hsl(var(--electric-blue));
   }
 
   .dark .ql-custom .ql-stroke {
-    stroke: var(--neomorphic-text);
+    stroke: hsl(var(--neomorphic-text));
   }
 
   .dark .ql-custom .ql-fill {
-    fill: var(--neomorphic-text);
+    fill: hsl(var(--neomorphic-text));
   }
 
   .dark .ql-custom .ql-picker {
-    color: var(--neomorphic-text);
-    background: var(--neomorphic-surface);
+    color: hsl(var(--neomorphic-text));
+    background: hsl(var(--neomorphic-surface));
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   /* Enhanced dark mode button visibility */
   .dark .btn-neomorphic {
-    background: var(--neomorphic-surface);
-    color: var(--neomorphic-text);
+    background: hsl(var(--neomorphic-surface));
+    color: hsl(var(--neomorphic-text));
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .dark .btn-neomorphic:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: var(--electric-blue);
+    color: hsl(var(--electric-blue));
     border-color: rgba(59, 130, 246, 0.3);
   }
 
   .dark .btn-neomorphic svg {
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
     opacity: 0.9;
   }
 
   .dark .btn-neomorphic:hover svg {
-    color: var(--electric-blue);
+    color: hsl(var(--electric-blue));
     opacity: 1;
   }
 
   /* Ensure all icons in dark mode are visible */
   .dark svg {
-    color: var(--neomorphic-text);
+    color: hsl(var(--neomorphic-text));
   }
 
   .dark .text-neomorphic-text-secondary svg {
-    color: var(--neomorphic-text-secondary);
+    color: hsl(var(--neomorphic-text-secondary));
   }
 
   /* Enhanced UI Refinements */
@@ -928,7 +1043,7 @@ body,
   /* Improved scrollbars */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: var(--neomorphic-border) transparent;
+    scrollbar-color: hsl(var(--neomorphic-border)) transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -940,13 +1055,13 @@ body,
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--neomorphic-border);
+    background-color: hsl(var(--neomorphic-border));
     border-radius: 3px;
     transition: background-color 0.2s ease;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: var(--electric-blue);
+    background-color: hsl(var(--electric-blue));
   }
 
   /* Enhanced focus styles */
@@ -955,30 +1070,37 @@ body,
   }
 
   .focus-ring:focus-visible {
-    outline: 2px solid var(--electric-blue);
+    outline: 2px solid hsl(var(--electric-blue));
     outline-offset: 2px;
-    border-color: var(--electric-blue);
+    border-color: hsl(var(--electric-blue));
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
   }
 
   /* Liquid display animations */
   @keyframes liquidFloat {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translate(0, 0) rotate(0deg);
     }
+
     33% {
       transform: translate(10px, -10px) rotate(120deg);
     }
+
     66% {
       transform: translate(-5px, 5px) rotate(240deg);
     }
   }
 
   @keyframes liquidPulse {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.2;
       transform: scale(1);
     }
+
     50% {
       opacity: 0.4;
       transform: scale(1.1);
@@ -989,6 +1111,7 @@ body,
     0% {
       background-position: -200% 0;
     }
+
     100% {
       background-position: 200% 0;
     }

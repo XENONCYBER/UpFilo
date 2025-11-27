@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { Layers, Folder, Users } from "lucide-react";
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +20,7 @@ interface CreateChannelGroupModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   type: "group" | "user";
-  workspaceId?: any; // Optional for backwards compatibility
+  workspaceId?: any;
 }
 
 export const CreateChannelGroupModal = ({
@@ -27,7 +29,6 @@ export const CreateChannelGroupModal = ({
   type,
   workspaceId: propWorkspaceId,
 }: CreateChannelGroupModalProps) => {
-  // Use prop workspaceId if provided, otherwise use hook for backwards compatibility
   const hookWorkspaceId = useConvexWorkspaceId();
   const workspaceId = propWorkspaceId || hookWorkspaceId;
   const { mutate, isPending } = useCreateChannelGroup();
@@ -37,6 +38,7 @@ export const CreateChannelGroupModal = ({
 
   const handleClose = () => {
     setName("");
+    setPass("");
     onOpenChange(false);
   };
 
@@ -75,18 +77,33 @@ export const CreateChannelGroupModal = ({
     );
   };
 
+  const Icon = type === "group" ? Layers : Users;
+  const iconColor = type === "group" ? "from-electric-blue to-electric-purple" : "from-electric-purple to-coral-red";
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="glass-surface border-white/20">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">
-            Create {type === "group" ? "Group" : "User"} Folder
-          </DialogTitle>
+      <DialogContent className="card-glass border-neomorphic-border/50 backdrop-blur-xl shadow-2xl max-w-md">
+        <DialogHeader className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className={`neomorphic-raised w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${iconColor} shadow-lg`}>
+              <Icon className="w-6 h-6 text-white drop-shadow-sm" />
+            </div>
+            <div className="flex-1">
+              <DialogTitle className="text-xl font-bold text-neomorphic-text">
+                Create {type === "group" ? "Group" : "User"} Folder
+              </DialogTitle>
+              <DialogDescription className="text-neomorphic-text-secondary text-sm mt-1">
+                Organize your {type === "group" ? "group channels" : "user channels"} into folders
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Folder Name</Label>
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          <div className="space-y-3">
+            <Label htmlFor="name" className="text-sm font-semibold text-neomorphic-text">
+              Folder Name
+            </Label>
             <Input
               id="name"
               value={name}
@@ -95,40 +112,57 @@ export const CreateChannelGroupModal = ({
               required
               autoFocus
               minLength={1}
+              maxLength={50}
               placeholder={`Enter ${type === "group" ? "group" : "user"} folder name...`}
-              className="glass-input"
+              className="input-glass h-11 text-base border-neomorphic-border/50 focus:border-electric-blue/50 focus:ring-2 focus:ring-electric-blue/20 transition-all"
             />
-            {type === "user" && (
+          </div>
+
+          {type === "user" && (
+            <div className="space-y-3">
+              <Label htmlFor="user-folder-password" className="text-sm font-semibold text-neomorphic-text">
+                Folder Password
+              </Label>
               <Input
                 id="user-folder-password"
+                type="password"
                 value={password}
                 onChange={(e) => setPass(e.target.value)}
                 disabled={isPending}
                 required
-                autoFocus
                 minLength={1}
                 placeholder="Enter user folder password..."
-                className="glass-input"
+                className="input-glass h-11 text-base border-neomorphic-border/50 focus:border-electric-purple/50 focus:ring-2 focus:ring-electric-purple/20 transition-all"
               />
-            )}
-          </div>
+            </div>
+          )}
 
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end gap-3 pt-4 border-t border-neomorphic-border/30">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={handleClose}
               disabled={isPending}
-              className="glass-button"
+              className="btn-glass hover:bg-neomorphic-surface/60"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isPending}
-              className="glass-button-primary"
+              className="btn-primary shadow-lg hover:shadow-xl transition-all"
             >
-              {isPending ? "Creating..." : "Create Folder"}
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Folder className="w-4 h-4" />
+                  Create Folder
+                </span>
+              )}
             </Button>
           </div>
         </form>

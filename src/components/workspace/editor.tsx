@@ -9,7 +9,18 @@ import {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, XIcon, AtSignIcon, FileText, Video, Music, FileIcon, Archive, Code } from "lucide-react";
+import {
+  ImageIcon,
+  XIcon,
+  AtSignIcon,
+  FileText,
+  Video,
+  Music,
+  FileIcon,
+  Archive,
+  Code,
+  Check,
+} from "lucide-react";
 import { MdSend } from "react-icons/md";
 import { Hint } from "./hint";
 import { Delta, Op } from "quill/core";
@@ -26,21 +37,36 @@ registerMentionModule();
 
 // Helper function to get file type icon
 const getFileTypeIcon = (type: string, fileName: string) => {
-  const extension = fileName.split('.').pop()?.toLowerCase();
-  
-  if (type.startsWith('video/')) {
+  const extension = fileName.split(".").pop()?.toLowerCase();
+
+  if (type.startsWith("video/")) {
     return <Video className="size-6 text-white" />;
-  } else if (type.startsWith('audio/')) {
+  } else if (type.startsWith("audio/")) {
     return <Music className="size-6 text-white" />;
-  } else if (type === 'application/pdf' || extension === 'pdf') {
+  } else if (type === "application/pdf" || extension === "pdf") {
     return <FileText className="size-6 text-white" />;
-  } else if (['doc', 'docx'].includes(extension || '')) {
+  } else if (["doc", "docx"].includes(extension || "")) {
     return <FileText className="size-6 text-white" />;
-  } else if (['txt', 'rtf'].includes(extension || '')) {
+  } else if (["txt", "rtf"].includes(extension || "")) {
     return <FileText className="size-6 text-white" />;
-  } else if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension || '')) {
+  } else if (["zip", "rar", "7z", "tar", "gz"].includes(extension || "")) {
     return <Archive className="size-6 text-white" />;
-  } else if (['js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'xml', 'py', 'java', 'cpp', 'c'].includes(extension || '')) {
+  } else if (
+    [
+      "js",
+      "ts",
+      "jsx",
+      "tsx",
+      "html",
+      "css",
+      "json",
+      "xml",
+      "py",
+      "java",
+      "cpp",
+      "c",
+    ].includes(extension || "")
+  ) {
     return <Code className="size-6 text-white" />;
   } else {
     return <FileIcon className="size-6 text-white" />;
@@ -49,24 +75,39 @@ const getFileTypeIcon = (type: string, fileName: string) => {
 
 // Helper function to get file type background color
 const getFileTypeStyles = (type: string, fileName: string) => {
-  const extension = fileName.split('.').pop()?.toLowerCase();
-  
-  if (type.startsWith('video/')) {
-    return { bgColor: 'bg-gradient-to-br from-purple-500 to-purple-600' };
-  } else if (type.startsWith('audio/')) {
-    return { bgColor: 'bg-gradient-to-br from-pink-500 to-pink-600' };
-  } else if (type === 'application/pdf' || extension === 'pdf') {
-    return { bgColor: 'bg-gradient-to-br from-red-500 to-red-600' };
-  } else if (['doc', 'docx'].includes(extension || '')) {
-    return { bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600' };
-  } else if (['txt', 'rtf'].includes(extension || '')) {
-    return { bgColor: 'bg-gradient-to-br from-gray-500 to-gray-600' };
-  } else if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension || '')) {
-    return { bgColor: 'bg-gradient-to-br from-yellow-500 to-yellow-600' };
-  } else if (['js', 'ts', 'jsx', 'tsx', 'html', 'css', 'json', 'xml', 'py', 'java', 'cpp', 'c'].includes(extension || '')) {
-    return { bgColor: 'bg-gradient-to-br from-green-500 to-green-600' };
+  const extension = fileName.split(".").pop()?.toLowerCase();
+
+  if (type.startsWith("video/")) {
+    return { bgColor: "bg-gradient-to-br from-purple-500 to-purple-600" };
+  } else if (type.startsWith("audio/")) {
+    return { bgColor: "bg-gradient-to-br from-pink-500 to-pink-600" };
+  } else if (type === "application/pdf" || extension === "pdf") {
+    return { bgColor: "bg-gradient-to-br from-red-500 to-red-600" };
+  } else if (["doc", "docx"].includes(extension || "")) {
+    return { bgColor: "bg-gradient-to-br from-blue-500 to-blue-600" };
+  } else if (["txt", "rtf"].includes(extension || "")) {
+    return { bgColor: "bg-gradient-to-br from-gray-500 to-gray-600" };
+  } else if (["zip", "rar", "7z", "tar", "gz"].includes(extension || "")) {
+    return { bgColor: "bg-gradient-to-br from-yellow-500 to-yellow-600" };
+  } else if (
+    [
+      "js",
+      "ts",
+      "jsx",
+      "tsx",
+      "html",
+      "css",
+      "json",
+      "xml",
+      "py",
+      "java",
+      "cpp",
+      "c",
+    ].includes(extension || "")
+  ) {
+    return { bgColor: "bg-gradient-to-br from-green-500 to-green-600" };
   } else {
-    return { bgColor: 'bg-gradient-to-br from-slate-500 to-slate-600' };
+    return { bgColor: "bg-gradient-to-br from-slate-500 to-slate-600" };
   }
 };
 
@@ -101,8 +142,8 @@ const Editor = ({
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   const workspaceId = useConvexWorkspaceId();
-  const { data: allUsers = [] } = useGetAllWorkspaceUsers({ 
-    workspaceId: workspaceId!
+  const { data: allUsers = [] } = useGetAllWorkspaceUsers({
+    workspaceId: workspaceId!,
   });
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -117,7 +158,9 @@ const Editor = ({
 
   // Helper function to get upload progress for a specific file
   const getFileProgress = (file: File) => {
-    return uploadProgress.find(p => p.file.name === file.name && p.file.size === file.size);
+    return uploadProgress.find(
+      (p) => p.file.name === file.name && p.file.size === file.size
+    );
   };
 
   useLayoutEffect(() => {
@@ -147,8 +190,8 @@ const Editor = ({
         mention: {
           users: allUsers,
           onMentionSelect: (userName: string) => {
-            console.log('Mentioned user:', userName);
-          }
+            console.log("Mentioned user:", userName);
+          },
         },
         keyboard: {
           bindings: {
@@ -183,7 +226,7 @@ const Editor = ({
     quillRef.current.focus();
 
     // Get the mention module instance
-    mentionModuleRef.current = quill.getModule('mention') as MentionModule;
+    mentionModuleRef.current = quill.getModule("mention") as MentionModule;
 
     if (innerRef) {
       innerRef.current = quill;
@@ -258,20 +301,20 @@ const Editor = ({
         }}
         className="hidden"
       />
-      <div className="flex flex-col border border-neomorphic-border rounded-neomorphic overflow-hidden focus-within:border-electric-blue focus-within:shadow-neomorphic transition card-neomorphic">
-        <div ref={containerRef} className="h-full ql-custom" />
+      <div className="flex flex-col border border-neomorphic-border/50 rounded-2xl overflow-hidden focus-within:border-electric-blue/50 focus-within:shadow-lg focus-within:shadow-electric-blue/5 transition-all duration-300 bg-neomorphic-surface/30 backdrop-blur-sm">
+        <div ref={containerRef} className="h-full ql-custom min-h-[80px]" />
         {images.length > 0 && (
-          <div className="p-2">
-            <div className="flex flex-wrap gap-2">
+          <div className="p-3 bg-neomorphic-surface/50 border-t border-neomorphic-border/30 backdrop-blur-sm">
+            <div className="flex flex-wrap gap-3">
               {images.map((file, index) => {
                 const fileProgress = getFileProgress(file);
-                const isUploading = fileProgress?.status === 'uploading';
-                const isCompleted = fileProgress?.status === 'completed';
-                const isError = fileProgress?.status === 'error';
-                
+                const isUploading = fileProgress?.status === "uploading";
+                const isCompleted = fileProgress?.status === "completed";
+                const isError = fileProgress?.status === "error";
+
                 return (
                   <div key={index} className="relative group">
-                    <div className="relative size-16 flex items-center justify-center border border-border rounded-lg overflow-hidden">
+                    <div className="relative size-20 flex items-center justify-center border border-neomorphic-border rounded-xl overflow-hidden shadow-sm bg-neomorphic-bg transition-transform duration-200 hover:scale-105">
                       {/* Media Content */}
                       <div className="absolute inset-0 group-hover:opacity-0 transition-opacity duration-200">
                         {file.type.startsWith("image/") ? (
@@ -285,73 +328,77 @@ const Editor = ({
                             )}
                           />
                         ) : (
-                          <div className={cn(
-                            "flex flex-col items-center justify-center h-full w-full relative rounded-lg",
-                            isUploading ? "opacity-50" : "opacity-100",
-                            getFileTypeStyles(file.type, file.name).bgColor
-                          )}>
+                          <div
+                            className={cn(
+                              "flex flex-col items-center justify-center h-full w-full relative rounded-lg",
+                              isUploading ? "opacity-50" : "opacity-100",
+                              getFileTypeStyles(file.type, file.name).bgColor
+                            )}
+                          >
                             {/* File size label - top right corner */}
-                            <div className="absolute top-1 right-1 bg-black/60 text-white text-[7px] font-semibold px-1 py-0.5 rounded text-center leading-none">
+                            <div className="absolute top-1 right-1 bg-black/60 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded-full text-center leading-none backdrop-blur-sm">
                               {(file.size / 1024 / 1024).toFixed(1)}MB
                             </div>
-                            
+
                             {/* File icon - centered and larger */}
-                            <div className="flex items-center justify-center mb-1">
+                            <div className="flex items-center justify-center mb-1 transform scale-110">
                               {getFileTypeIcon(file.type, file.name)}
                             </div>
-                            
+
                             {/* File extension only - no overlap */}
-                            <div className="text-[10px] font-bold text-white text-center leading-none">
-                              {file.name.split(".").pop()?.toUpperCase()}
+                            <div className="text-[10px] font-bold text-white text-center leading-none uppercase tracking-wider">
+                              {file.name.split(".").pop()}
                             </div>
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Hover overlay - covers entire container */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg" />
-                      
-                      {/* Remove button - centered in container */}
-                      <button
-                        onClick={() => {
-                          setImages((prev) =>
-                            prev.filter((_, i) => i !== index)
-                          );
-                        }}
-                        className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200 z-10"
-                      >
-                        <div className="rounded-full bg-neomorphic-bg text-coral-red hover:text-coral-red/80 size-8 flex items-center justify-center shadow-neomorphic hover:shadow-neomorphic-pressed border border-neomorphic-border transition-all duration-200">
-                          <XIcon className="size-4" />
-                        </div>
-                      </button>
-                      
+                      <div className="absolute inset-0 bg-neomorphic-bg/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                        <button
+                          onClick={() => {
+                            setImages((prev) =>
+                              prev.filter((_, i) => i !== index)
+                            );
+                          }}
+                          className="rounded-full bg-coral-red/10 text-coral-red hover:bg-coral-red hover:text-white p-2 transition-all duration-200"
+                          title="Remove file"
+                        >
+                          <XIcon className="size-5" />
+                        </button>
+                      </div>
+
                       {/* Upload Progress Overlay */}
-                      {fileProgress && (isUploading || fileProgress.status === 'pending') && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                          <CircularProgress
-                            value={fileProgress.progress}
-                            size={32}
-                            strokeWidth={3}
-                            className="text-white"
-                          />
-                        </div>
-                      )}
-                      
+                      {fileProgress &&
+                        (isUploading || fileProgress.status === "pending") && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20">
+                            <CircularProgress
+                              value={fileProgress.progress}
+                              size={32}
+                              strokeWidth={3}
+                              className="text-white"
+                            />
+                          </div>
+                        )}
+
                       {/* Completed Indicator */}
                       {isCompleted && (
-                        <div className="absolute top-1 left-1 bg-green-500 text-white rounded-full p-0.5">
-                          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
+                        <div className="absolute top-1 left-1 bg-soft-green text-white rounded-full p-0.5 shadow-md z-20">
+                          <Check className="w-3 h-3" />
                         </div>
                       )}
-                      
+
                       {/* Error Indicator */}
                       {isError && (
-                        <div className="absolute top-1 left-1 bg-red-500 text-white rounded-full p-0.5">
-                          <XIcon className="w-2.5 h-2.5" />
+                        <div className="absolute top-1 left-1 bg-coral-red text-white rounded-full p-0.5 shadow-md z-20">
+                          <XIcon className="w-3 h-3" />
                         </div>
                       )}
+                    </div>
+                    <div className="mt-1 max-w-[80px]">
+                      <p className="text-[10px] text-neomorphic-text-secondary truncate text-center font-medium">
+                        {file.name}
+                      </p>
                     </div>
                   </div>
                 );
@@ -359,25 +406,31 @@ const Editor = ({
             </div>
           </div>
         )}
-        <div className="flex px-1.5 py-1.5 mt-2 z-[5] gap-x-2">
+        <div className="flex px-3 py-2.5 z-[5] gap-x-2 items-center border-t border-neomorphic-border/30 bg-neomorphic-surface/20">
           <Hint
             label={isToolbarVisible ? "Hide Formatting" : "Show Formatting"}
           >
             <button
               disabled={disabled}
               onClick={toogleToolbar}
-              className="btn-neomorphic p-2"
+              className="p-2 rounded-lg hover:bg-neomorphic-surface hover:text-electric-blue transition-all duration-200 text-neomorphic-text-secondary"
+              title={
+                isToolbarVisible
+                  ? "Hide formatting toolbar"
+                  : "Show formatting toolbar"
+              }
             >
-              <PiTextAa className="size-4" />
+              <PiTextAa className="size-5" />
             </button>
           </Hint>
           <Hint label="Mention User">
             <button
               disabled={disabled}
               onClick={triggerMention}
-              className="btn-neomorphic p-2"
+              className="p-2 rounded-lg hover:bg-neomorphic-surface hover:text-electric-purple transition-all duration-200 text-neomorphic-text-secondary"
+              title="Mention a user (@)"
             >
-              <AtSignIcon className="size-4" />
+              <AtSignIcon className="size-5" />
             </button>
           </Hint>
           {variant === "create" && (
@@ -385,18 +438,19 @@ const Editor = ({
               <button
                 disabled={disabled}
                 onClick={() => imageElementRef.current?.click()}
-                className="btn-neomorphic p-2"
+                className="p-2 rounded-lg hover:bg-neomorphic-surface hover:text-soft-green transition-all duration-200 text-neomorphic-text-secondary"
+                title="Attach files (images, videos, documents)"
               >
-                <ImageIcon className="size-4" />
+                <ImageIcon className="size-5" />
               </button>
             </Hint>
           )}
           {variant === "update" && (
-            <div className="ml-auto flex items-center gap-x-1.5">
+            <div className="ml-auto flex items-center gap-x-2">
               <button
                 onClick={onCancel}
                 disabled={disabled}
-                className="btn-neomorphic px-2.5 py-0.5 text-xs"
+                className="px-4 py-1.5 text-sm font-medium text-neomorphic-text-secondary hover:text-neomorphic-text hover:bg-neomorphic-surface rounded-lg transition-colors"
               >
                 Cancel
               </button>
@@ -408,7 +462,7 @@ const Editor = ({
                     images,
                   });
                 }}
-                className="btn-primary px-2.5 py-0.5 text-xs"
+                className="px-4 py-1.5 text-sm font-medium bg-electric-blue text-white rounded-lg hover:bg-electric-blue/90 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save
               </button>
@@ -424,13 +478,16 @@ const Editor = ({
                 });
               }}
               className={cn(
-                "ml-auto p-2 rounded-full transition-all duration-200 interactive-lift min-w-[36px] min-h-[36px] flex items-center justify-center",
-                isEmpty
-                  ? "bg-neomorphic-surface text-neomorphic-text-secondary cursor-not-allowed opacity-50"
-                  : "btn-primary shadow-neomorphic hover:shadow-neomorphic-pressed hover:scale-105"
+                "ml-auto p-2.5 rounded-xl transition-all duration-300 min-w-[42px] min-h-[42px] flex items-center justify-center",
+                isEmpty || disabled
+                  ? "bg-neomorphic-surface text-neomorphic-text-secondary/40 cursor-not-allowed"
+                  : "bg-gradient-to-br from-electric-blue to-electric-purple text-white shadow-lg shadow-electric-blue/30 hover:shadow-electric-blue/50 hover:scale-105 active:scale-95"
               )}
+              title={
+                isEmpty ? "Type a message to send" : "Send message (Enter)"
+              }
             >
-              <MdSend className="size-4" />
+              <MdSend className="size-5" />
             </button>
           )}
         </div>

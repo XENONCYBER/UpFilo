@@ -8,17 +8,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "glass-button-primary text-foreground shadow-md hover:shadow-lg",
+        default: "btn-primary text-primary-foreground shadow hover:shadow-lg",
         destructive:
-          "glass-surface bg-red-500/20 text-red-600 border-red-500/30 hover:bg-red-500/30 hover:text-red-700",
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "glass-surface-secondary border-glass-border-medium text-foreground hover:bg-glass-hover",
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "glass-surface-secondary text-foreground hover:bg-glass-hover",
-        ghost:
-          "hover:bg-glass-hover text-foreground transition-all duration-150",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        glass: "btn-glass text-foreground shadow-md hover:shadow-lg",
+        neomorphic: "btn-neomorphic text-foreground shadow-neomorphic hover:shadow-neomorphic-pressed",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -62,11 +62,15 @@ export function ModernChannelView({
     channelId: convexChannelId,
   });
 
-  const handleSendMessage = async (content: string, richContent?: any, replyData?: {
-    replyToId: Id<"messages">;
-    replyToContent: string;
-    replyToUserName: string;
-  }) => {
+  const handleSendMessage = async (
+    content: string,
+    richContent?: any,
+    replyData?: {
+      replyToId: Id<"messages">;
+      replyToContent: string;
+      replyToUserName: string;
+    }
+  ) => {
     if (!userName || !content.trim()) return;
 
     try {
@@ -186,16 +190,15 @@ export function ModernChannelView({
   if (!isValidChannelId) {
     return (
       <div className={`flex flex-col h-full ${className}`}>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="neomorphic-raised w-16 h-16 rounded-neomorphic flex items-center justify-center mx-auto mb-4">
-              <Hash className="h-8 w-8 text-neomorphic-text-secondary" />
+        <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+          <div className="text-center p-8 max-w-md">
+            <div className="neomorphic-raised w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-float">
+              <Hash className="h-10 w-10 text-electric-blue" />
             </div>
-            <h3 className="text-xl font-semibold text-neomorphic-text mb-2">
-              Select a Channel
-            </h3>
-            <p className="text-neomorphic-text-secondary max-w-md mx-auto">
-              Choose a channel from the sidebar to start chatting.
+            <h3 className="heading-xl mb-4">Select a Channel</h3>
+            <p className="subtitle-lg">
+              Choose a channel from the sidebar to start chatting or create a
+              new one to collaborate with your team.
             </p>
           </div>
         </div>
@@ -207,103 +210,125 @@ export function ModernChannelView({
     <ReplyProvider>
       <div className={`flex flex-col h-full ${className}`}>
         {/* Channel Header */}
-        <div className="bg-neomorphic-bg border-b border-neomorphic-border px-6 py-4">
+        <div className="bg-neomorphic-bg/80 backdrop-blur-md border-b border-neomorphic-border/50 px-6 py-4 relative z-20 shadow-sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {getChannelIcon()}
-              <div>
-                <h2 className="text-lg font-semibold text-neomorphic-text">
-                  #{channelName}
-                </h2>
-                <p className="text-sm text-neomorphic-text-secondary">
-                  {channelType === "private" ? "Private channel" : "Public channel"}
-                </p>
-              </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="text-neomorphic-text-secondary hover:text-neomorphic-text hover:bg-neomorphic-surface"
-            >
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Search Component */}
-      <div className="relative">
-        <ChannelSearch
-          channelId={convexChannelId}
-          isOpen={isSearchOpen}
-          onClose={() => setIsSearchOpen(false)}
-          onMessageSelect={(messageId) => {
-            // TODO: Scroll to specific message
-            console.log("Selected message:", messageId);
-          }}
-        />
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea
-          ref={scrollAreaRef}
-          className="h-full px-6 py-4 custom-scrollbar"
-        >
-          <div className="space-y-2">
-            {/* Channel Welcome Message */}
-            <div className="text-center py-8 border-b border-neomorphic-border/50">
-              <div className="neomorphic-raised w-16 h-16 rounded-neomorphic flex items-center justify-center mx-auto mb-4">
+            <div className="flex items-center gap-4">
+              <div className="neomorphic-raised p-2 rounded-xl text-electric-blue">
                 {getChannelIcon()}
               </div>
-              <h3 className="text-xl font-semibold text-neomorphic-text mb-2">
-                Welcome to #{channelName}
-              </h3>
-              <p className="text-neomorphic-text-secondary max-w-md mx-auto">
-                This is the beginning of the #{channelName} channel.
-                {channelType === "private"
-                  ? " Private discussions."
-                  : " Start conversations with your team."}
-              </p>
-            </div>
-
-            {/* Messages */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="text-neomorphic-text-secondary">
-                  Loading messages...
-                </div>
+              <div>
+                <h2 className="heading-md text-lg">#{channelName}</h2>
+                <p className="text-xs font-medium text-neomorphic-text-secondary tracking-wide uppercase opacity-80">
+                  {channelType === "private"
+                    ? "Private channel"
+                    : "Public channel"}
+                </p>
               </div>
-            ) : (
-              <>
-                {transformedMessages.map((message) => (
-                  <MessageBubble
-                    key={message._id}
-                    message={message}
-                    currentUserId={userName || undefined}
-                  />
-                ))}
-                {/* Extra spacing before scroll target to prevent overlap with chat input */}
-                <div className="h-[160px]" />
-                {/* Invisible element to scroll to */}
-                <div ref={messagesEndRef} />
-              </>
-            )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="text-neomorphic-text-secondary hover:text-electric-blue hover:bg-neomorphic-surface/80 transition-all duration-200"
+                title="Search in channel"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
-        </ScrollArea>
-      </div>
 
-      {/* Message Input */}
-      <div className="flex-shrink-0">
-        <ChatInput
-          placeholder={`Message #${channelName}...`}
-          onSendMessage={handleSendMessage}
-          disabled={isSending}
-        />
+          {/* Search Component - positioned relative to header */}
+          <ChannelSearch
+            channelId={convexChannelId}
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onMessageSelect={(messageId) => {
+              // TODO: Scroll to specific message
+              console.log("Selected message:", messageId);
+            }}
+          />
+        </div>
+
+        {/* Messages Area */}
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea
+            ref={scrollAreaRef}
+            className="h-full px-6 py-4 custom-scrollbar"
+          >
+            <div className="space-y-2">
+              {/* Channel Welcome Message */}
+              <div className="text-center py-12 border-b border-neomorphic-border/30 mb-6">
+                <div className="neomorphic-raised w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-neomorphic-surface to-neomorphic-bg shadow-neomorphic-raised">
+                  <div className="text-electric-blue transform scale-150">
+                    {getChannelIcon()}
+                  </div>
+                </div>
+                <h3 className="heading-lg mb-3 bg-clip-text text-transparent bg-gradient-to-r from-neomorphic-text to-neomorphic-text-secondary">
+                  Welcome to #{channelName}
+                </h3>
+                <p className="subtitle-lg max-w-lg mx-auto opacity-90">
+                  This is the beginning of the{" "}
+                  <span className="font-semibold text-electric-blue">
+                    #{channelName}
+                  </span>{" "}
+                  channel.
+                  {channelType === "private"
+                    ? " Private discussions."
+                    : " Start conversations with your team."}
+                </p>
+              </div>
+
+              {/* Messages */}
+              {isLoading ? (
+                <div className="space-y-8 py-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-4 px-2 animate-pulse opacity-60"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-neomorphic-surface/50 shrink-0" />
+                      <div className="flex-1 space-y-2.5 py-1">
+                        <div className="flex items-center gap-3">
+                          <div className="h-4 w-24 bg-neomorphic-surface/50 rounded-md" />
+                          <div className="h-3 w-12 bg-neomorphic-surface/30 rounded-md" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-4 w-3/4 bg-neomorphic-surface/30 rounded-md" />
+                          <div className="h-4 w-1/2 bg-neomorphic-surface/30 rounded-md" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {transformedMessages.map((message) => (
+                    <MessageBubble
+                      key={message._id}
+                      message={message}
+                      currentUserId={userName || undefined}
+                    />
+                  ))}
+                  {/* Extra spacing before scroll target to prevent overlap with chat input */}
+                  <div className="h-[160px]" />
+                  {/* Invisible element to scroll to */}
+                  <div ref={messagesEndRef} />
+                </>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Message Input */}
+        <div className="flex-shrink-0">
+          <ChatInput
+            placeholder={`Message ${channelName.length > 15 ? channelName.substring(0, 15) + "..." : "#" + channelName}`}
+            onSendMessage={handleSendMessage}
+            disabled={isSending}
+          />
+        </div>
       </div>
-    </div>
     </ReplyProvider>
   );
 }

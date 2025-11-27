@@ -30,10 +30,29 @@ export function WorkspaceLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("channels");
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<{
     id: string;
     type: "group" | "user";
   } | null>(null);
+
+  // Check for mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+        setSidebarCollapsed(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // User session integration
   const { userName, setUserName, hasUserNameForWorkspace } = useUserSession();
@@ -42,7 +61,7 @@ export function WorkspaceLayout({
   const { data: channelsWithGroups } = useGetChannelsWithGroups({
     workspaceId: workspace?._id!,
   });
-  
+
   // User presence tracking
   const { updatePresence } = useUpdateUserPresence();
   const { cleanupInactiveUsers } = useCleanupInactiveUsers();
@@ -66,7 +85,7 @@ export function WorkspaceLayout({
       }
     }
   }, [workspace?._id, hasUserNameForWorkspace, userName, setUserName]);
-  
+
   // Update user presence when user session is established
   useEffect(() => {
     if (workspace?._id && userName && !shouldShowDialog) {
@@ -81,18 +100,23 @@ export function WorkspaceLayout({
           console.error("Failed to update user presence:", error);
         }
       };
-      
+
       updateUserPresenceStatus();
-      
+
       // Set up periodic presence updates every 30 seconds
       const presenceInterval = setInterval(updateUserPresenceStatus, 30000);
-      
+
       // Set up cleanup of inactive users every 2 minutes
-      const cleanupInterval = setInterval(() => {
-        cleanupInactiveUsers(workspace._id, 5 * 60 * 1000) // 5 minutes threshold
-          .catch(error => console.error("Failed to cleanup inactive users:", error));
-      }, 2 * 60 * 1000); // Every 2 minutes
-      
+      const cleanupInterval = setInterval(
+        () => {
+          cleanupInactiveUsers(workspace._id, 5 * 60 * 1000) // 5 minutes threshold
+            .catch((error) =>
+              console.error("Failed to cleanup inactive users:", error)
+            );
+        },
+        2 * 60 * 1000
+      ); // Every 2 minutes
+
       // Update presence to offline when user leaves
       const handleBeforeUnload = () => {
         updatePresence({
@@ -101,7 +125,7 @@ export function WorkspaceLayout({
           status: "offline",
         });
       };
-      
+
       // Handle visibility changes (tab switching, minimizing)
       const handleVisibilityChange = () => {
         if (document.hidden) {
@@ -120,16 +144,19 @@ export function WorkspaceLayout({
           });
         }
       };
-      
+
       window.addEventListener("beforeunload", handleBeforeUnload);
       document.addEventListener("visibilitychange", handleVisibilityChange);
-      
+
       // Cleanup
       return () => {
         clearInterval(presenceInterval);
         clearInterval(cleanupInterval);
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
         // Set user to offline when component unmounts
         updatePresence({
           userName,
@@ -147,7 +174,7 @@ export function WorkspaceLayout({
         // Store in sessionStorage immediately
         sessionStorage.setItem(`upfilo-user-name-${workspace._id}`, name);
         setShouldShowDialog(false);
-        
+
         // Update user presence to "online" when they join
         try {
           await updatePresence({
@@ -166,17 +193,17 @@ export function WorkspaceLayout({
   // Keyboard shortcut for search (Ctrl+K or Cmd+K)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      if ((event.ctrlKey || event.metaKey) && event.key === "k") {
         event.preventDefault();
         setIsSearchModalOpen(true);
       }
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsSearchModalOpen(false);
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   // Function to get channel name from ID
@@ -212,7 +239,7 @@ export function WorkspaceLayout({
   ) => {
     setSelectedChannel({ id: channelId, type: channelType });
     setActiveSection("channels");
-    
+
     // Update user presence with current channel
     if (workspace?._id && userName) {
       updatePresence({
@@ -220,7 +247,7 @@ export function WorkspaceLayout({
         workspaceId: workspace._id,
         status: "online",
         currentChannel: channelId as any, // Type assertion for now
-      }).catch(error => {
+      }).catch((error) => {
         console.error("Failed to update presence with channel:", error);
       });
     }
@@ -234,7 +261,12 @@ export function WorkspaceLayout({
         return (
           <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
             <div className="text-center space-y-6 max-w-md mx-auto p-8">
-              <div className={cn("w-20 h-20 rounded-full mx-auto flex items-center justify-center", getUserColor(userName || "U"))}>
+              <div
+                className={cn(
+                  "w-20 h-20 rounded-full mx-auto flex items-center justify-center",
+                  getUserColor(userName || "U")
+                )}
+              >
                 <span className="text-2xl font-bold text-white">
                   {getUserInitials(userName || "U")}
                 </span>
@@ -382,23 +414,26 @@ export function WorkspaceLayout({
           children || (
             <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
               <div className="text-center space-y-6 max-w-lg mx-auto p-8">
-              {userName && (
-                <div className="text-center">
-                  <div className={`w-20 h-20 rounded-full ${getUserColor(userName)} mx-auto flex items-center justify-center`}>
-                    <span className="text-3xl font-bold text-white">
-                      {getUserInitials(userName)}
-                    </span>
+                {userName && (
+                  <div className="text-center">
+                    <div
+                      className={`w-20 h-20 rounded-full ${getUserColor(userName)} mx-auto flex items-center justify-center`}
+                    >
+                      <span className="text-3xl font-bold text-white">
+                        {getUserInitials(userName)}
+                      </span>
+                    </div>
                   </div>
+                )}
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-bold text-neomorphic-text">
+                    Welcome to {workspace?.name || "UpFilo"}
+                  </h2>
+                  <p className="text-lg text-neomorphic-text-secondary">
+                    {userName ? `Hello ${userName}! Your` : "Your"}{" "}
+                    collaborative workspace is ready to go
+                  </p>
                 </div>
-              )}
-              <div className="space-y-3">
-                <h2 className="text-3xl font-bold text-neomorphic-text">
-                  Welcome to {workspace?.name || "UpFilo"}
-                </h2>
-                <p className="text-lg text-neomorphic-text-secondary">
-                  {userName ? `Hello ${userName}! Your` : "Your"} collaborative workspace is ready to go
-                </p>
-              </div>
                 <div className="grid gap-3">
                   <button
                     onClick={() => setActiveSection("channels")}
@@ -434,7 +469,7 @@ export function WorkspaceLayout({
   return (
     <div
       className={cn(
-        "flex h-screen bg-neomorphic-bg text-neomorphic-text",
+        "flex h-screen bg-neomorphic-bg text-neomorphic-text overflow-hidden",
         className
       )}
     >
@@ -444,21 +479,44 @@ export function WorkspaceLayout({
         onClose={() => setShouldShowDialog(false)}
         workspaceName={workspace?.name}
       />
+
+      {/* Mobile Backdrop */}
+      {isMobile && sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <ModernSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         activeSection={activeSection}
-        onSectionChange={setActiveSection}
-        onChannelSelect={handleChannelSelect}
+        onSectionChange={(section) => {
+          setActiveSection(section);
+          if (isMobile) setSidebarOpen(false);
+        }}
+        onChannelSelect={(channelId, channelType) => {
+          handleChannelSelect(channelId, channelType);
+          if (isMobile) setSidebarOpen(false);
+        }}
         workspaceId={workspace?._id!}
         selectedChannelId={selectedChannel?.id}
         onCollapseChange={setSidebarCollapsed}
-        className={cn(sidebarOpen ? "block" : "hidden")}
+        className={cn(
+          sidebarOpen
+            ? "translate-x-0"
+            : "-translate-x-full md:translate-x-0 md:hidden",
+          isMobile ? "fixed inset-y-0 left-0 z-30 w-72 shadow-2xl" : "block"
+        )}
       />
+
       <div
         className={cn(
-          "flex-1 flex flex-col h-screen transition-all duration-300",
-          sidebarOpen && !sidebarCollapsed ? "ml-72" : "ml-16"
+          "flex-1 flex flex-col h-screen transition-all duration-300 w-full",
+          !isMobile && sidebarOpen && !sidebarCollapsed ? "ml-72" : "",
+          !isMobile && sidebarOpen && sidebarCollapsed ? "ml-16" : "",
+          !isMobile && !sidebarOpen ? "ml-0" : ""
         )}
       >
         <WorkspaceHeader
@@ -471,7 +529,7 @@ export function WorkspaceLayout({
             setIsSearchModalOpen(true);
           }}
         />
-        <main className="flex-1 flex flex-col min-h-0">
+        <main className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
           {activeSection === "channels" && selectedChannel ? (
             <ModernChannelView
               key={selectedChannel.id}
@@ -488,8 +546,8 @@ export function WorkspaceLayout({
           ) : activeSection === "mediaGallery" ? (
             <ModernMediaGallery className="flex-1" />
           ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="text-center w-full max-w-md">
                 <h2 className="text-2xl font-semibold text-neomorphic-text">
                   Welcome to {workspace?.name || "your workspace"}
                 </h2>
@@ -497,6 +555,14 @@ export function WorkspaceLayout({
                   Select a channel to start chatting or explore the media
                   gallery.
                 </p>
+                {isMobile && (
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="mt-6 px-6 py-3 bg-electric-blue text-white rounded-xl shadow-lg shadow-electric-blue/30 font-medium active:scale-95 transition-transform"
+                  >
+                    Open Menu
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -512,10 +578,12 @@ export function WorkspaceLayout({
           // Find the channel to get its proper type
           let channelType: "group" | "user" = "group"; // Default
           let channelName = getChannelName(channelId);
-          
+
           if (channelsWithGroups) {
             for (const group of channelsWithGroups.groupedChannels) {
-              const channel = group.channels.find((ch: any) => ch._id === channelId);
+              const channel = group.channels.find(
+                (ch: any) => ch._id === channelId
+              );
               if (channel) {
                 channelType = channel.type === "user" ? "user" : "group";
                 channelName = channel.name;
@@ -523,7 +591,7 @@ export function WorkspaceLayout({
               }
             }
           }
-          
+
           // Navigate to the channel and message
           setSelectedChannel({
             id: channelId,
@@ -532,11 +600,16 @@ export function WorkspaceLayout({
           setActiveSection("channels");
           setIsSearchModalOpen(false);
           // TODO: Scroll to specific message
-          console.log("Navigate to message:", messageId, "in channel:", channelId);
+          console.log(
+            "Navigate to message:",
+            messageId,
+            "in channel:",
+            channelId
+          );
         }}
         onFileSelect={(fileUrl) => {
           // Open file in new tab
-          window.open(fileUrl, '_blank');
+          window.open(fileUrl, "_blank");
           setIsSearchModalOpen(false);
         }}
       />
