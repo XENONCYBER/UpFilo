@@ -8,7 +8,10 @@ type RequestType = {
     groupId: Id<"channelGroups">;
 };
 
-type ResponseType = void;
+type ResponseType = {
+    groupId: Id<"channelGroups">;
+    fileUrls: string[];
+} | undefined;
 
 type Options = {
     onSuccess?: (data: ResponseType) => void;
@@ -16,6 +19,30 @@ type Options = {
     onSettled?: () => void;
     throwError?: boolean;
 };
+
+// Helper function to delete files from Backblaze
+async function cleanupFiles(fileUrls: string[]) {
+    if (fileUrls.length === 0) return;
+    
+    try {
+        const response = await fetch('/api/deleteFiles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fileUrls }),
+        });
+        
+        if (!response.ok) {
+            console.error('Failed to cleanup files from storage');
+        } else {
+            const result = await response.json();
+            console.log(`Cleaned up ${result.deletedCount} files from storage`);
+        }
+    } catch (error) {
+        console.error('Error cleaning up files:', error);
+    }
+}
 
 export const useDeleteChannelGroup = () => {
     const [data, setData] = useState<ResponseType>(undefined); 
@@ -34,10 +61,17 @@ export const useDeleteChannelGroup = () => {
             setStatus("pending");
             setData(undefined);
             setError(null);
-            await mutation(values);
+            const response = await mutation(values);
+            setData(response);
             setStatus("success");
-            options?.onSuccess?.();
-            return;
+            
+            // Cleanup files from Backblaze storage (fire and forget)
+            if (response?.fileUrls && response.fileUrls.length > 0) {
+                cleanupFiles(response.fileUrls);
+            }
+            
+            options?.onSuccess?.(response);
+            return response;
         } catch (error){
             setStatus("error");
             setError(error as Error);

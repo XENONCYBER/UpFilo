@@ -148,7 +148,7 @@ export const update = mutation({
     }
 });
 
-// Remove a channel and all its related data (messages, etc.)
+// Remove a channel and all its related data (messages, files, etc.)
 export const remove = mutation({
     args: {
         id: v.id("channels"),
@@ -167,19 +167,32 @@ export const remove = mutation({
 
         console.log(`Deleting ${messages.length} messages from channel ${channel.name}`);
 
-        // Delete each message (this will remove all message data including richContent with file references)
+        // Collect all file URLs from messages for external cleanup
+        const fileUrls: string[] = [];
+        
+        // Delete each message and collect file URLs
         for (const message of messages) {
-            // Note: Files stored in external storage (like Backblaze) need separate cleanup
-            // The richContent.attachments contain URLs to files that should be cleaned up
-            // You may want to implement a separate cleanup job for orphaned files
+            // Extract file URLs from richContent attachments
+            if (message.richContent?.attachments && Array.isArray(message.richContent.attachments)) {
+                for (const attachment of message.richContent.attachments) {
+                    if (attachment.url) {
+                        fileUrls.push(attachment.url);
+                    }
+                }
+            }
             await ctx.db.delete(message._id);
         }
 
         // Delete the channel itself
         await ctx.db.delete(args.id);
         
-        console.log(`Channel ${channel.name} and all related data deleted successfully`);
-        return args.id;
+        console.log(`Channel ${channel.name} deleted. ${fileUrls.length} files need external cleanup.`);
+        
+        // Return both the channel ID and file URLs for external cleanup
+        return {
+            channelId: args.id,
+            fileUrls,
+        };
     }
 });
 

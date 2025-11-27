@@ -7,7 +7,10 @@ type RequestType = {
     id: Id<"channels">;
 };
 
-type ResponseType = Id<"channels"> | null;
+type ResponseType = {
+    channelId: Id<"channels">;
+    fileUrls: string[];
+} | null;
 
 type Options = {
     onSuccess?: (data: ResponseType) => void;
@@ -15,6 +18,30 @@ type Options = {
     onSettled?: () => void;
     throwError?: boolean;
 };
+
+// Helper function to delete files from Backblaze
+async function cleanupFiles(fileUrls: string[]) {
+    if (fileUrls.length === 0) return;
+    
+    try {
+        const response = await fetch('/api/deleteFiles', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fileUrls }),
+        });
+        
+        if (!response.ok) {
+            console.error('Failed to cleanup files from storage');
+        } else {
+            const result = await response.json();
+            console.log(`Cleaned up ${result.deletedCount} files from storage`);
+        }
+    } catch (error) {
+        console.error('Error cleaning up files:', error);
+    }
+}
 
 export const useDeleteChannel = () => {
     const [data, setData] = useState<ResponseType>(null);
@@ -36,6 +63,12 @@ export const useDeleteChannel = () => {
             const response = await mutation(values);
             setData(response);
             setStatus("success");
+            
+            // Cleanup files from Backblaze storage (fire and forget)
+            if (response?.fileUrls && response.fileUrls.length > 0) {
+                cleanupFiles(response.fileUrls);
+            }
+            
             options?.onSuccess?.(response);
             return response;
         } catch (error) {

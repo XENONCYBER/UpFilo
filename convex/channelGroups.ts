@@ -138,6 +138,9 @@ export const deleteChannelGroup = mutation({
 
         console.log(`Deleting group "${group.name}" with ${channels.length} channels`);
 
+        // Collect all file URLs from all messages for external cleanup
+        const fileUrls: string[] = [];
+
         // Delete all channels and their messages
         for (const channel of channels) {
             // Get all messages in this channel
@@ -148,10 +151,16 @@ export const deleteChannelGroup = mutation({
 
             console.log(`  - Deleting channel "${channel.name}" with ${messages.length} messages`);
 
-            // Delete all messages (including their richContent with file references)
+            // Delete all messages and collect file URLs
             for (const message of messages) {
-                // Note: Files stored in external storage (like Backblaze) need separate cleanup
-                // The richContent.attachments contain URLs to files that should be cleaned up
+                // Extract file URLs from richContent attachments
+                if (message.richContent?.attachments && Array.isArray(message.richContent.attachments)) {
+                    for (const attachment of message.richContent.attachments) {
+                        if (attachment.url) {
+                            fileUrls.push(attachment.url);
+                        }
+                    }
+                }
                 await ctx.db.delete(message._id);
             }
 
@@ -162,8 +171,13 @@ export const deleteChannelGroup = mutation({
         // Delete the group itself
         await ctx.db.delete(args.groupId);
         
-        console.log(`Group "${group.name}" and all related data deleted successfully`);
-        return args.groupId;
+        console.log(`Group "${group.name}" deleted. ${fileUrls.length} files need external cleanup.`);
+        
+        // Return both the group ID and file URLs for external cleanup
+        return {
+            groupId: args.groupId,
+            fileUrls,
+        };
     },
 });
 

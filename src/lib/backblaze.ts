@@ -112,6 +112,69 @@ export async function deleteFileFromB2(fileId: string, fileName: string): Promis
   }
 }
 
+// Delete file by filename only (finds file first, then deletes)
+export async function deleteFileByName(fileName: string): Promise<boolean> {
+  try {
+    await authorizeB2();
+    
+    // List files to find the one with matching name
+    const response = await b2.listFileNames({
+      bucketId: process.env.B2_BUCKET_ID!,
+      maxFileCount: 1,
+      startFileName: fileName,
+      delimiter: '',
+      prefix: fileName,
+    });
+    
+    const files = response.data.files;
+    if (files.length === 0) {
+      console.log(`File not found in B2: ${fileName}`);
+      return false;
+    }
+    
+    const file = files[0];
+    if (file.fileName === fileName) {
+      await b2.deleteFileVersion({
+        fileId: file.fileId,
+        fileName: file.fileName,
+      });
+      console.log(`Deleted file from B2: ${fileName}`);
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('B2 delete by name error:', error);
+    return false;
+  }
+}
+
+// Delete multiple files by their URLs (extracts filename from URL)
+export async function deleteFilesByUrls(urls: string[]): Promise<{ deleted: number; failed: number }> {
+  let deleted = 0;
+  let failed = 0;
+  
+  for (const url of urls) {
+    try {
+      // Extract filename from URL like /api/stream/filename
+      const fileName = decodeURIComponent(url.split('/api/stream/')[1] || '');
+      if (fileName) {
+        const success = await deleteFileByName(fileName);
+        if (success) {
+          deleted++;
+        } else {
+          failed++;
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to delete file from URL ${url}:`, error);
+      failed++;
+    }
+  }
+  
+  return { deleted, failed };
+}
+
 // List files in bucket (optional utility)
 export async function listFiles(maxFileCount = 100) {
   try {
