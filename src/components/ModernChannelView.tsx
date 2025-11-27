@@ -210,7 +210,7 @@ export function ModernChannelView({
     <ReplyProvider>
       <div className={`flex flex-col h-full ${className}`}>
         {/* Channel Header */}
-        <div className="bg-neomorphic-bg/80 backdrop-blur-md border-b border-neomorphic-border/50 px-6 py-4 relative z-20 shadow-sm">
+        <div className="card-glass px-4 py-3 border-b border-neomorphic-border/40 relative z-20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="neomorphic-raised p-2 rounded-xl text-electric-blue">
@@ -258,16 +258,14 @@ export function ModernChannelView({
           >
             <div className="space-y-2">
               {/* Channel Welcome Message */}
-              <div className="text-center py-12 border-b border-neomorphic-border/30 mb-6">
-                <div className="neomorphic-raised w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-neomorphic-surface to-neomorphic-bg shadow-neomorphic-raised">
-                  <div className="text-electric-blue transform scale-150">
+              <div className="text-center py-10 border-b border-neomorphic-border/30 mb-6">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-5 bg-gradient-to-br from-electric-blue/10 to-electric-purple/8">
+                  <div className="text-electric-blue transform scale-125">
                     {getChannelIcon()}
                   </div>
                 </div>
-                <h3 className="heading-lg mb-3 bg-clip-text text-transparent bg-gradient-to-r from-neomorphic-text to-neomorphic-text-secondary">
-                  Welcome to #{channelName}
-                </h3>
-                <p className="subtitle-lg max-w-lg mx-auto opacity-90">
+                <h3 className="heading-lg mb-2">Welcome to #{channelName}</h3>
+                <p className="subtitle-md max-w-lg mx-auto text-neomorphic-text-secondary">
                   This is the beginning of the{" "}
                   <span className="font-semibold text-electric-blue">
                     #{channelName}

@@ -178,7 +178,7 @@ export function ModernSidebar({
     <>
       <div
         className={cn(
-          "card-glass fixed left-0 top-0 z-30 h-screen border-r border-neomorphic-border/50 transition-all duration-300 overflow-hidden backdrop-blur-xl shadow-neomorphic",
+          "card-glass fixed left-0 top-0 z-30 h-screen border-r border-neomorphic-border/40 transition-all duration-300 overflow-hidden backdrop-blur-xl shadow-neomorphic",
           isCollapsed ? "w-16" : "w-72",
           className
         )}
@@ -187,20 +187,18 @@ export function ModernSidebar({
           {/* Header */}
           <div
             className={cn(
-              "flex items-center border-b border-neomorphic-border/50 bg-neomorphic-surface/30 flex-shrink-0",
-              isCollapsed ? "justify-center p-2" : "justify-between p-4"
+              "flex items-center border-b border-neomorphic-border/40 bg-neomorphic-surface/20 flex-shrink-0",
+              isCollapsed ? "justify-center p-2" : "justify-between p-3"
             )}
           >
             {!isCollapsed && (
-              <div className="flex items-center space-x-3">
-                <div className="neomorphic-raised w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-electric-blue to-electric-purple shadow-lg shadow-electric-blue/20">
-                  <Layers className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-electric-blue to-electric-purple flex items-center justify-center text-white font-semibold shadow-sm">
+                  <Layers className="w-5 h-5" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="heading-md text-lg leading-none bg-clip-text text-transparent bg-gradient-to-r from-neomorphic-text to-neomorphic-text-secondary">
-                    UpFilo
-                  </span>
-                  <span className="text-xs font-medium text-neomorphic-text-secondary tracking-wide">
+                  <span className="font-semibold text-sm">UpFilo</span>
+                  <span className="text-xs text-neomorphic-text-secondary">
                     Workspace
                   </span>
                 </div>

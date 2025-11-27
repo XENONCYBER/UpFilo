@@ -315,35 +315,66 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
             </div>
           )}
 
-        {/* Message Header */}
-        <div className="flex items-baseline space-x-2 mb-1.5">
-          <span className="font-bold text-neomorphic-text text-sm hover:underline cursor-pointer">
-            {message.userName}
-          </span>
-          <span className="text-xs text-neomorphic-text-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            {timestamp}
-          </span>
-          {message.isEdited && (
-            <span className="text-xs text-neomorphic-text-secondary italic opacity-70">
-              (edited)
+        {/* Bubble wrapper: gradient for own messages, surface for others */}
+        <div
+          className={cn(
+            "p-3 rounded-xl shadow-sm",
+            isMine
+              ? "bg-gradient-to-br from-electric-blue to-electric-purple text-white"
+              : "bg-neomorphic-surface/80 text-neomorphic-text"
+          )}
+        >
+          {/* Message Header */}
+          <div className="flex items-baseline space-x-2 mb-1.5">
+            <span
+              className={cn(
+                "font-bold text-sm hover:underline cursor-pointer",
+                isMine ? "text-white" : "text-neomorphic-text"
+              )}
+            >
+              {message.userName}
             </span>
+            <span
+              className={cn(
+                "text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+                isMine ? "text-white/80" : "text-neomorphic-text-secondary"
+              )}
+            >
+              {timestamp}
+            </span>
+            {message.isEdited && (
+              <span
+                className={cn(
+                  "text-xs italic opacity-70",
+                  isMine ? "text-white/80" : "text-neomorphic-text-secondary"
+                )}
+              >
+                {" "}
+                (edited)
+              </span>
+            )}
+          </div>
+
+          {/* Message Body */}
+          <div
+            className={cn(
+              "text-[15px] leading-relaxed tracking-wide",
+              isMine ? "text-white" : "text-neomorphic-text"
+            )}
+          >
+            {renderMessageContent()}
+            {renderRichContent()}
+          </div>
+
+          {/* Message Status */}
+          {isMine && (
+            <div className="flex items-center space-x-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-muted-foreground">
+                <Check className="h-3 w-3 inline text-green-300" />
+              </span>
+            </div>
           )}
         </div>
-
-        {/* Message Body */}
-        <div className="text-neomorphic-text text-[15px] leading-relaxed tracking-wide">
-          {renderMessageContent()}
-          {renderRichContent()}
-        </div>
-
-        {/* Message Status */}
-        {isMine && (
-          <div className="flex items-center space-x-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="text-xs text-muted-foreground">
-              <Check className="h-3 w-3 inline text-green-500" />
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
