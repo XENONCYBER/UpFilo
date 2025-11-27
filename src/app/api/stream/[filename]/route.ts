@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import B2 from 'backblaze-b2';
 
+// Helper function to extract original filename from timestamped filename
+// e.g., "1764138402956-kubernet.docx" -> "kubernet.docx"
+function getOriginalFilename(filename: string): string {
+  // Check if filename starts with a timestamp pattern (13+ digits followed by dash)
+  const timestampPattern = /^\d{13,}-(.+)$/;
+  const match = filename.match(timestampPattern);
+  if (match) {
+    return match[1]; // Return the part after the timestamp
+  }
+  return filename; // Return as-is if no timestamp prefix
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { filename: string } }
@@ -14,6 +26,9 @@ export async function GET(
         { status: 400 }
       );
     }
+
+    // Get the original filename for display/download
+    const displayFilename = getOriginalFilename(filename);
 
     // Create a fresh B2 instance for this request
     const b2 = new B2({
@@ -34,7 +49,7 @@ export async function GET(
 
       // Determine content type from file extension if not provided
       let contentType = 'application/octet-stream';
-      const ext = filename.toLowerCase().split('.').pop();
+      const ext = displayFilename.toLowerCase().split('.').pop();
       
       switch (ext) {
         case 'jpg':
@@ -72,14 +87,14 @@ export async function GET(
       headers.set('Content-Type', contentType);
       headers.set('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
       
-      // For images, videos, audio, and PDFs, allow inline viewing
+      // Use original filename (without timestamp) for Content-Disposition
       if (contentType.startsWith('image/') || 
           contentType.startsWith('video/') || 
           contentType.startsWith('audio/') ||
           contentType === 'application/pdf') {
-        headers.set('Content-Disposition', `inline; filename="${filename}"`);
+        headers.set('Content-Disposition', `inline; filename="${displayFilename}"`);
       } else {
-        headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+        headers.set('Content-Disposition', `attachment; filename="${displayFilename}"`);
       }
 
       return new NextResponse(downloadResponse.data, {

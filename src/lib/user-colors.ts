@@ -1,21 +1,21 @@
 // Color palette for user avatars and identification
 export const USER_COLORS = [
-  "bg-electric-blue",
-  "bg-electric-purple", 
-  "bg-soft-green",
-  "bg-warm-orange",
-  "bg-coral-red",
-  "bg-gradient-to-br from-blue-500 to-purple-600",
-  "bg-gradient-to-br from-green-500 to-blue-500",
-  "bg-gradient-to-br from-orange-500 to-red-500",
-  "bg-gradient-to-br from-purple-500 to-pink-500",
-  "bg-gradient-to-br from-teal-500 to-cyan-500",
-  "bg-gradient-to-br from-indigo-500 to-purple-500",
-  "bg-gradient-to-br from-yellow-500 to-orange-500",
-  "bg-gradient-to-br from-pink-500 to-rose-500",
-  "bg-gradient-to-br from-cyan-500 to-blue-500",
-  "bg-gradient-to-br from-emerald-500 to-teal-500",
-  "bg-gradient-to-br from-violet-500 to-purple-500",
+  "bg-blue-500",
+  "bg-purple-500", 
+  "bg-green-500",
+  "bg-orange-500",
+  "bg-red-500",
+  "bg-teal-500",
+  "bg-indigo-500",
+  "bg-yellow-500",
+  "bg-pink-500",
+  "bg-cyan-500",
+  "bg-emerald-500",
+  "bg-violet-500",
+  "bg-rose-500",
+  "bg-amber-500",
+  "bg-lime-500",
+  "bg-fuchsia-500",
 ];
 
 // Color variants for mentions and highlights
@@ -56,10 +56,13 @@ export const USER_COLOR_VARIANTS = {
  * @returns A CSS class string for the user's color
  */
 export const getUserColor = (userName: string): string => {
+  // Normalize username to lowercase for consistent colors
+  const normalizedName = userName.toLowerCase().trim();
+  
   // Create a simple hash from the username
   let hash = 0;
-  for (let i = 0; i < userName.length; i++) {
-    const char = userName.charCodeAt(i);
+  for (let i = 0; i < normalizedName.length; i++) {
+    const char = normalizedName.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32-bit integer
   }

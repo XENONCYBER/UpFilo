@@ -222,10 +222,10 @@ export function WorkspaceLayout({
   // Don't render if workspace is not loaded yet
   if (isWorkspaceLoading || !workspace) {
     return (
-      <div className="flex h-screen items-center justify-center bg-neomorphic-bg">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/30">
         <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-4 border-electric-blue/20 border-t-electric-blue rounded-full animate-spin mx-auto"></div>
-          <div className="text-neomorphic-text-secondary font-medium">
+          <div className="w-10 h-10 border-4 border-blue-200 dark:border-blue-900 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+          <div className="text-slate-500 dark:text-slate-400 font-medium">
             Loading workspace...
           </div>
         </div>
@@ -259,11 +259,11 @@ export function WorkspaceLayout({
         return <ModernMediaGallery className="flex-1" />;
       case "profile":
         return (
-          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
             <div className="text-center space-y-6 max-w-md mx-auto p-8">
               <div
                 className={cn(
-                  "w-20 h-20 rounded-full mx-auto flex items-center justify-center",
+                  "w-20 h-20 rounded-2xl mx-auto flex items-center justify-center shadow-lg",
                   getUserColor(userName || "U")
                 )}
               >
@@ -272,27 +272,27 @@ export function WorkspaceLayout({
                 </span>
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                <h2 className="text-2xl font-semibold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                   Profile Settings
                 </h2>
-                <p className="text-neomorphic-text-secondary">
+                <p className="text-slate-500 dark:text-slate-400">
                   Manage your profile and workspace preferences
                 </p>
               </div>
-              <div className="card-glass p-6 rounded-2xl space-y-4">
+              <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-6 rounded-2xl space-y-4 border border-slate-200/50 dark:border-slate-700/50 shadow-xl">
                 <div className="text-left space-y-2">
-                  <label className="text-sm font-medium text-neomorphic-text">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Display Name
                   </label>
-                  <div className="px-3 py-2 bg-neomorphic-surface/50 rounded-lg text-neomorphic-text">
+                  <div className="px-3 py-2 bg-slate-100/80 dark:bg-slate-700/50 rounded-lg text-slate-800 dark:text-slate-200">
                     {userName || "Guest User"}
                   </div>
                 </div>
                 <div className="text-left space-y-2">
-                  <label className="text-sm font-medium text-neomorphic-text">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Workspace
                   </label>
-                  <div className="px-3 py-2 bg-neomorphic-surface/50 rounded-lg text-neomorphic-text">
+                  <div className="px-3 py-2 bg-slate-100/80 dark:bg-slate-700/50 rounded-lg text-slate-800 dark:text-slate-200">
                     {workspace?.name || "Unknown Workspace"}
                   </div>
                 </div>
@@ -302,25 +302,25 @@ export function WorkspaceLayout({
         );
       case "notifications":
         return (
-          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
             <div className="text-center space-y-6 max-w-md mx-auto p-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-warm-orange to-coral-red mx-auto flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 mx-auto flex items-center justify-center shadow-lg shadow-orange-500/30">
                 <span className="text-2xl">🔔</span>
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                <h2 className="text-2xl font-semibold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                   Notifications
                 </h2>
-                <p className="text-neomorphic-text-secondary">
+                <p className="text-slate-500 dark:text-slate-400">
                   Stay updated with your workspace activity
                 </p>
               </div>
-              <div className="card-glass p-6 rounded-2xl">
+              <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl">
                 <div className="space-y-4">
-                  <div className="text-center text-neomorphic-text-secondary">
+                  <div className="text-center text-slate-500 dark:text-slate-400">
                     No new notifications
                   </div>
-                  <div className="text-sm text-neomorphic-text-secondary">
+                  <div className="text-sm text-slate-400 dark:text-slate-500">
                     You're all caught up! New notifications will appear here.
                   </div>
                 </div>
@@ -330,37 +330,41 @@ export function WorkspaceLayout({
         );
       case "settings":
         return (
-          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
             <div className="text-center space-y-6 max-w-lg mx-auto p-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-electric-purple to-electric-blue mx-auto flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <span className="text-2xl">⚙️</span>
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                <h2 className="text-2xl font-semibold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                   Workspace Settings
                 </h2>
-                <p className="text-neomorphic-text-secondary">
+                <p className="text-slate-500 dark:text-slate-400">
                   Configure your workspace preferences and features
                 </p>
               </div>
               <div className="grid gap-4">
-                <div className="card-glass p-4 rounded-xl text-left space-y-2">
-                  <h3 className="font-medium text-neomorphic-text">General</h3>
-                  <p className="text-sm text-neomorphic-text-secondary">
+                <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-4 rounded-xl text-left space-y-2 border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors shadow-lg">
+                  <h3 className="font-medium text-slate-800 dark:text-white">
+                    General
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Workspace name, description, and basic settings
                   </p>
                 </div>
-                <div className="card-glass p-4 rounded-xl text-left space-y-2">
-                  <h3 className="font-medium text-neomorphic-text">Members</h3>
-                  <p className="text-sm text-neomorphic-text-secondary">
+                <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-4 rounded-xl text-left space-y-2 border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors shadow-lg">
+                  <h3 className="font-medium text-slate-800 dark:text-white">
+                    Members
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Manage workspace members and permissions
                   </p>
                 </div>
-                <div className="card-glass p-4 rounded-xl text-left space-y-2">
-                  <h3 className="font-medium text-neomorphic-text">
+                <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-4 rounded-xl text-left space-y-2 border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors shadow-lg">
+                  <h3 className="font-medium text-slate-800 dark:text-white">
                     Integrations
                   </h3>
-                  <p className="text-sm text-neomorphic-text-secondary">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Connect external tools and services
                   </p>
                 </div>
@@ -376,32 +380,32 @@ export function WorkspaceLayout({
             channelType={selectedChannel.type === "user" ? "user" : "text"}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
             <div className="text-center space-y-6 max-w-md mx-auto p-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-soft-green to-electric-blue mx-auto flex items-center justify-center">
-                <span className="text-2xl"># </span>
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <span className="text-2xl text-white font-bold">#</span>
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-neomorphic-text">
+                <h2 className="text-2xl font-semibold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                   Select a Channel
                 </h2>
-                <p className="text-neomorphic-text-secondary">
+                <p className="text-slate-500 dark:text-slate-400">
                   Choose a channel from the sidebar to start chatting with your
                   team
                 </p>
               </div>
-              <div className="card-glass p-6 rounded-2xl">
-                <div className="space-y-3 text-sm text-neomorphic-text-secondary">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-electric-blue rounded-full"></span>
+              <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-6 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl">
+                <div className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                     Browse channels in the sidebar
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-soft-green rounded-full"></span>
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
                     Create new channels and groups
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-electric-purple rounded-full"></span>
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
                     Start conversations with team members
                   </div>
                 </div>
@@ -412,12 +416,12 @@ export function WorkspaceLayout({
       default:
         return (
           children || (
-            <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
               <div className="text-center space-y-6 max-w-lg mx-auto p-8">
                 {userName && (
                   <div className="text-center">
                     <div
-                      className={`w-20 h-20 rounded-full ${getUserColor(userName)} mx-auto flex items-center justify-center`}
+                      className={`w-20 h-20 rounded-2xl ${getUserColor(userName)} mx-auto flex items-center justify-center shadow-lg`}
                     >
                       <span className="text-3xl font-bold text-white">
                         {getUserInitials(userName)}
@@ -426,10 +430,10 @@ export function WorkspaceLayout({
                   </div>
                 )}
                 <div className="space-y-3">
-                  <h2 className="text-3xl font-bold text-neomorphic-text">
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                     Welcome to {workspace?.name || "UpFilo"}
                   </h2>
-                  <p className="text-lg text-neomorphic-text-secondary">
+                  <p className="text-lg text-slate-500 dark:text-slate-400">
                     {userName ? `Hello ${userName}! Your` : "Your"}{" "}
                     collaborative workspace is ready to go
                   </p>
@@ -437,24 +441,23 @@ export function WorkspaceLayout({
                 <div className="grid gap-3">
                   <button
                     onClick={() => setActiveSection("channels")}
-                    className="card-glass p-4 rounded-xl text-left space-y-2 hover:scale-105 transition-transform duration-200"
+                    className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-4 rounded-xl text-left space-y-2 border border-slate-200/50 dark:border-slate-700/50 hover:border-blue-300 dark:hover:border-blue-500/50 hover:shadow-lg transition-all duration-200"
                   >
-                    <h3 className="font-medium text-neomorphic-text flex items-center gap-2">
-                      <span className="text-electric-blue">#</span> Browse
-                      Channels
+                    <h3 className="font-medium text-slate-800 dark:text-white flex items-center gap-2">
+                      <span className="text-blue-500">#</span> Browse Channels
                     </h3>
-                    <p className="text-sm text-neomorphic-text-secondary">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       Join conversations and collaborate with your team
                     </p>
                   </button>
                   <button
                     onClick={() => setActiveSection("mediaGallery")}
-                    className="card-glass p-4 rounded-xl text-left space-y-2 hover:scale-105 transition-transform duration-200"
+                    className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-4 rounded-xl text-left space-y-2 border border-slate-200/50 dark:border-slate-700/50 hover:border-emerald-300 dark:hover:border-emerald-500/50 hover:shadow-lg transition-all duration-200"
                   >
-                    <h3 className="font-medium text-neomorphic-text flex items-center gap-2">
-                      <span className="text-soft-green">📁</span> Media Gallery
+                    <h3 className="font-medium text-slate-800 dark:text-white flex items-center gap-2">
+                      <span className="text-emerald-500">📁</span> Media Gallery
                     </h3>
-                    <p className="text-sm text-neomorphic-text-secondary">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                       Explore shared files, images, and documents
                     </p>
                   </button>
@@ -469,7 +472,7 @@ export function WorkspaceLayout({
   return (
     <div
       className={cn(
-        "flex flex-col h-screen bg-neomorphic-bg text-neomorphic-text overflow-hidden",
+        "flex flex-col h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 text-slate-800 dark:text-slate-200 overflow-hidden",
         className
       )}
     >

@@ -38,6 +38,7 @@ export async function uploadFileToB2(
   fileName: string;
   url: string;
   size: number;
+  originalName: string;
 }> {
   try {
     // Ensure we're authorized and have upload URL
@@ -47,7 +48,7 @@ export async function uploadFileToB2(
       throw new Error('Failed to get upload authorization');
     }
 
-    // Generate unique filename to avoid conflicts
+    // Generate unique filename to avoid conflicts in B2 storage
     const timestamp = Date.now();
     const uniqueFileName = `${timestamp}-${fileName}`;
 
@@ -59,6 +60,7 @@ export async function uploadFileToB2(
       data: file,
       info: {
         'Content-Type': contentType,
+        'X-Bz-Info-Original-Name': encodeURIComponent(fileName), // Store original name in metadata
       },
     });
 
@@ -67,9 +69,10 @@ export async function uploadFileToB2(
 
     return {
       fileId: response.data.fileId,
-      fileName: response.data.fileName,
+      fileName: response.data.fileName, // B2 storage name (with timestamp)
       url: downloadUrl,
       size: file.length,
+      originalName: fileName, // Original filename for display
     };
   } catch (error) {
     console.error('B2 upload error:', error);

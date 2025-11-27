@@ -36,7 +36,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       id: result.fileId,
-      name: result.fileName,
+      name: result.originalName || file.name, // Use original filename for display
+      storageName: result.fileName, // B2 storage name (for deletion)
       url: result.url,
       size: result.size,
       type: file.type,

@@ -1,1 +1,10 @@
-<svg id="logo-35" width="50" height="39" viewBox="0 0 50 39" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M16.4992 2H37.5808L22.0816 24.9729H1L16.4992 2Z" class="ccompli1" fill="#007AFF"></path> <path d="M17.4224 27.102L11.4192 36H33.5008L49 13.0271H32.7024L23.2064 27.102H17.4224Z" class="ccustom" fill="#312ECB"></path> </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#5865F2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00A8E8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M 30 35 Q 30 85 50 85 Q 70 85 70 35 L 60 35 Q 60 75 50 75 Q 40 75 40 35 Z" fill="url(#grad3)" />
+  <circle cx="75" cy="30" r="7" fill="url(#grad3)" />
+</svg>

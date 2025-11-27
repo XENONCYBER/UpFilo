@@ -198,13 +198,15 @@ export function ModernChannelView({
   if (!isValidChannelId) {
     return (
       <div className={`flex flex-col h-full ${className}`}>
-        <div className="flex-1 flex items-center justify-center bg-neomorphic-bg">
+        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
           <div className="text-center p-8 max-w-md">
-            <div className="neomorphic-raised w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-float">
-              <Hash className="h-10 w-10 text-electric-blue" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30">
+              <Hash className="h-10 w-10 text-white" />
             </div>
-            <h3 className="heading-xl mb-4">Select a Channel</h3>
-            <p className="subtitle-lg">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent mb-3">
+              Select a Channel
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400">
               Choose a channel from the sidebar to start chatting or create a
               new one to collaborate with your team.
             </p>
@@ -218,16 +220,16 @@ export function ModernChannelView({
     <ReplyProvider>
       <div className={`flex flex-col h-full ${className}`}>
         {/* Channel Header - Redesigned */}
-        <div className="h-14 flex-shrink-0 flex items-center justify-between px-6 border-b border-neomorphic-border/30 bg-neomorphic-surface/10 backdrop-blur-md z-20">
+        <div className="h-14 flex-shrink-0 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-slate-700/50 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl z-20">
           <div className="flex items-center gap-3">
-            <div className="text-electric-blue p-1.5 rounded-lg bg-electric-blue/10">
+            <div className="text-blue-600 dark:text-blue-400 p-1.5 rounded-lg bg-blue-500/10">
               {getChannelIcon()}
             </div>
             <div className="flex flex-col">
-              <h2 className="font-bold text-neomorphic-text text-base leading-tight">
+              <h2 className="font-bold text-slate-800 dark:text-white text-base leading-tight">
                 {channelType === "user" ? channelName : `#${channelName}`}
               </h2>
-              <span className="text-[10px] font-medium text-neomorphic-text-secondary uppercase tracking-wider">
+              <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 {channelType === "private"
                   ? "Private"
                   : channelType === "user"
@@ -243,7 +245,7 @@ export function ModernChannelView({
               variant="ghost"
               size="icon"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="h-8 w-8 rounded-lg text-neomorphic-text-secondary hover:text-electric-blue hover:bg-neomorphic-surface/50 transition-all"
+              className="h-8 w-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
               title="Search in channel"
             >
               <Search className="h-4 w-4" />
@@ -251,7 +253,7 @@ export function ModernChannelView({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-lg text-neomorphic-text-secondary hover:text-electric-blue hover:bg-neomorphic-surface/50 transition-all"
+              className="h-8 w-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
               title="Channel Details"
             >
               <MoreVertical className="h-4 w-4" />
@@ -275,18 +277,20 @@ export function ModernChannelView({
             ref={scrollAreaRef}
             className="h-full px-6 py-4 custom-scrollbar"
           >
-            <div className="space-y-2">
+            <div>
               {/* Channel Welcome Message */}
-              <div className="text-center py-10 border-b border-neomorphic-border/30 mb-6">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-electric-blue/10 to-electric-purple/8">
-                  <div className="text-electric-blue transform scale-125">
+              <div className="text-center py-10 border-b border-slate-200/50 dark:border-slate-700/30 mb-6">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20">
+                  <div className="text-blue-600 dark:text-blue-400 transform scale-125">
                     {getChannelIcon()}
                   </div>
                 </div>
-                <h3 className="heading-lg mb-2">Welcome to #{channelName}</h3>
-                <p className="subtitle-md max-w-lg mx-auto text-neomorphic-text-secondary">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+                  Welcome to #{channelName}
+                </h3>
+                <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
                   This is the beginning of the{" "}
-                  <span className="font-semibold text-electric-blue">
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">
                     #{channelName}
                   </span>{" "}
                   channel.
@@ -304,15 +308,15 @@ export function ModernChannelView({
                       key={i}
                       className="flex items-start gap-4 px-2 animate-pulse opacity-60"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-neomorphic-surface/50 shrink-0" />
+                      <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700 shrink-0" />
                       <div className="flex-1 space-y-2.5 py-1">
                         <div className="flex items-center gap-3">
-                          <div className="h-4 w-24 bg-neomorphic-surface/50 rounded-md" />
-                          <div className="h-3 w-12 bg-neomorphic-surface/30 rounded-md" />
+                          <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded-md" />
+                          <div className="h-3 w-12 bg-slate-100 dark:bg-slate-800 rounded-md" />
                         </div>
                         <div className="space-y-2">
-                          <div className="h-4 w-3/4 bg-neomorphic-surface/30 rounded-md" />
-                          <div className="h-4 w-1/2 bg-neomorphic-surface/30 rounded-md" />
+                          <div className="h-4 w-3/4 bg-slate-100 dark:bg-slate-800 rounded-md" />
+                          <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-md" />
                         </div>
                       </div>
                     </div>
@@ -320,13 +324,25 @@ export function ModernChannelView({
                 </div>
               ) : (
                 <>
-                  {transformedMessages.map((message) => (
-                    <MessageBubble
-                      key={message._id}
-                      message={message}
-                      currentUserId={userName || undefined}
-                    />
-                  ))}
+                  {transformedMessages.map((message, index) => {
+                    // Check if this message should be grouped with the previous one
+                    const prevMessage =
+                      index > 0 ? transformedMessages[index - 1] : null;
+                    const isGrouped = prevMessage
+                      ? prevMessage.userName === message.userName &&
+                        // Don't group if this message is a reply
+                        !(message as any).replyToId
+                      : false;
+
+                    return (
+                      <MessageBubble
+                        key={message._id}
+                        message={message}
+                        currentUserId={userName || undefined}
+                        isGrouped={isGrouped}
+                      />
+                    );
+                  })}
                   {/* Extra spacing before scroll target */}
                   <div className="h-4" />
                   {/* Invisible element to scroll to */}

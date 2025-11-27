@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { LogoIcon } from "@/components/logo";
 
 interface NameInputDialogProps {
   isOpen: boolean;
@@ -66,22 +67,10 @@ export function NameInputDialog({
         {/* Main content */}
         <div className="relative">
           <DialogHeader className="space-y-4 text-center">
-            {/* Neomorphic icon container */}
+            {/* Neomorphic icon container with Logo */}
             <div className="mx-auto w-20 h-20 bg-neomorphic-surface rounded-3xl shadow-neomorphic-inset flex items-center justify-center mb-6 relative">
-              <div className="w-12 h-12 bg-neomorphic-surface rounded-2xl shadow-neomorphic flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-neomorphic-text"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+              <div className="w-14 h-14 bg-neomorphic-surface rounded-2xl shadow-neomorphic flex items-center justify-center">
+                <LogoIcon size={36} />
               </div>
               {/* Small neomorphic accent */}
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-electric-blue rounded-full shadow-sm opacity-80" />

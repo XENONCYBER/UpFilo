@@ -142,19 +142,19 @@ export function ModernSidebar({
     <>
       <aside
         className={cn(
-          "w-60 h-full flex flex-col bg-neomorphic-surface/30 border-r border-neomorphic-border/40",
+          "w-60 h-full flex flex-col bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-slate-200/50 dark:border-slate-700/50",
           className
         )}
       >
         {/* Search */}
-        <div className="p-2.5 border-b border-neomorphic-border/30 bg-neomorphic-bg/50">
+        <div className="p-2.5 border-b border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neomorphic-text/50" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
             <Input
               placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-8 text-sm bg-neomorphic-bg/60 border-neomorphic-border/30 rounded-md focus:ring-1 focus:ring-electric-blue/30 placeholder:text-neomorphic-text-secondary/50"
+              className="pl-8 h-8 text-sm bg-slate-100/80 dark:bg-slate-800/80 border-slate-200/50 dark:border-slate-700/50 rounded-lg focus:ring-1 focus:ring-blue-500/30 placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -165,10 +165,10 @@ export function ModernSidebar({
           <button
             onClick={() => onSectionChange("mediaGallery")}
             className={cn(
-              "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors",
+              "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm transition-all",
               activeSection === "mediaGallery"
-                ? "bg-electric-blue/10 text-electric-blue font-medium"
-                : "text-neomorphic-text-secondary hover:bg-neomorphic-surface/40 hover:text-neomorphic-text"
+                ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200"
             )}
           >
             <Image className="h-4 w-4 flex-shrink-0" />
@@ -181,7 +181,7 @@ export function ModernSidebar({
               onClick={() => setChannelsExpanded(!channelsExpanded)}
               className="w-full flex items-center justify-between px-2.5 py-1 group"
             >
-              <span className="text-[10px] font-semibold text-neomorphic-text-secondary/50 uppercase tracking-wider">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                 Channels
               </span>
               <div className="flex items-center gap-0.5">
@@ -190,14 +190,14 @@ export function ModernSidebar({
                     e.stopPropagation();
                     setCreateGroupModalOpen(true);
                   }}
-                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary/50 hover:text-electric-blue transition-all"
+                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-blue-500 transition-all"
                   title="Add Channel"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
                 <ChevronDown
                   className={cn(
-                    "h-3 w-3 text-neomorphic-text-secondary/30 transition-transform",
+                    "h-3 w-3 text-slate-400 dark:text-slate-500 transition-transform",
                     !channelsExpanded && "-rotate-90"
                   )}
                 />
@@ -242,7 +242,7 @@ export function ModernSidebar({
               onClick={() => setDmsExpanded(!dmsExpanded)}
               className="w-full flex items-center justify-between px-2.5 py-1 group"
             >
-              <span className="text-[10px] font-semibold text-neomorphic-text-secondary/50 uppercase tracking-wider">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                 User Channels
               </span>
               <div className="flex items-center gap-0.5">
@@ -251,14 +251,14 @@ export function ModernSidebar({
                     e.stopPropagation();
                     setCreateUserModalOpen(true);
                   }}
-                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-neomorphic-surface/50 text-neomorphic-text-secondary/50 hover:text-electric-purple transition-all"
+                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-500 transition-all"
                   title="Add Direct Message"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
                 <ChevronDown
                   className={cn(
-                    "h-3 w-3 text-neomorphic-text-secondary/30 transition-transform",
+                    "h-3 w-3 text-slate-400 dark:text-slate-500 transition-transform",
                     !dmsExpanded && "-rotate-90"
                   )}
                 />
@@ -301,7 +301,7 @@ export function ModernSidebar({
           {!activeUsersLoading && activeUsers && activeUsers.length > 0 && (
             <div className="pt-4">
               <div className="px-2.5 py-1">
-                <span className="text-[10px] font-semibold text-neomorphic-text-secondary/50 uppercase tracking-wider">
+                <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Online — {activeUsers.length}
                 </span>
               </div>
@@ -313,7 +313,7 @@ export function ModernSidebar({
         </div>
 
         {/* User Section */}
-        <div className="p-2 border-t border-neomorphic-border/40 bg-neomorphic-bg/50">
+        <div className="p-2 border-t border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50">
           <WorkspaceUserSection
             userName={userName || "Guest"}
             isCollapsed={false}

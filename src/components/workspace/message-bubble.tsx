@@ -53,9 +53,14 @@ interface Message {
 interface MessageBubbleProps {
   message: Message;
   currentUserId?: string;
+  isGrouped?: boolean; // True if this is a continuation message from the same user
 }
 
-export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  currentUserId,
+  isGrouped = false,
+}: MessageBubbleProps) {
   const isMine = message.userId === currentUserId;
   const { renderTextWithMentions } = useMentionParser();
   const { setReplyingTo } = useReply();
@@ -257,17 +262,26 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
   };
 
   return (
-    <div className="group flex items-start space-x-3 py-1.5 px-4 hover:bg-neomorphic-surface/20 rounded-lg transition-colors message-bubble relative animate-in fade-in slide-in-from-bottom-1 duration-200">
-      {/* Avatar */}
-      <div className="flex-shrink-0 pt-0.5">
-        <div
-          className={cn(
-            "w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-xs",
-            getUserColor(message.userName)
-          )}
-        >
-          {getUserInitials(message.userName)}
-        </div>
+    <div
+      className={cn(
+        "group flex items-start px-4 hover:bg-neomorphic-surface/20 rounded-lg transition-colors message-bubble relative",
+        isGrouped
+          ? ""
+          : "pt-2 mt-1 animate-in fade-in slide-in-from-bottom-1 duration-200"
+      )}
+    >
+      {/* Avatar - Hidden for grouped messages, but space preserved */}
+      <div className="flex-shrink-0 w-8 mr-3">
+        {!isGrouped && (
+          <div
+            className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-xs",
+              getUserColor(message.userName)
+            )}
+          >
+            {getUserInitials(message.userName)}
+          </div>
+        )}
       </div>
 
       {/* Message Content */}
@@ -320,32 +334,33 @@ export function MessageBubble({ message, currentUserId }: MessageBubbleProps) {
         {/* Bubble wrapper: gradient for own messages, surface for others */}
         <div
           className={cn(
-            "py-1",
             isMine ? "text-neomorphic-text" : "text-neomorphic-text"
           )}
         >
-          {/* Message Header */}
-          <div className="flex items-baseline space-x-2 mb-0.5">
-            <span
-              className={cn(
-                "font-semibold text-sm hover:underline cursor-pointer",
-                isMine ? "text-electric-blue" : "text-neomorphic-text"
-              )}
-            >
-              {message.userName}
-            </span>
-            <span className="text-xs text-neomorphic-text-secondary/60">
-              {timestamp}
-            </span>
-            {message.isEdited && (
-              <span className="text-xs italic text-neomorphic-text-secondary/50">
-                (edited)
+          {/* Message Header - Hidden for grouped messages */}
+          {!isGrouped && (
+            <div className="flex items-baseline space-x-2 mb-0.5">
+              <span
+                className={cn(
+                  "font-semibold text-sm hover:underline cursor-pointer",
+                  isMine ? "text-electric-blue" : "text-neomorphic-text"
+                )}
+              >
+                {message.userName}
               </span>
-            )}
-          </div>
+              <span className="text-xs text-neomorphic-text-secondary/60">
+                {timestamp}
+              </span>
+              {message.isEdited && (
+                <span className="text-xs italic text-neomorphic-text-secondary/50">
+                  (edited)
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Message Body */}
-          <div className="text-sm leading-relaxed text-neomorphic-text">
+          <div className="text-sm leading-normal text-neomorphic-text">
             {renderMessageContent()}
             {renderRichContent()}
           </div>
