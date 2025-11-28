@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Search, X, MessageSquare, File, Users, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useSearchWorkspaceMessages,
@@ -136,16 +135,17 @@ export function SearchModal({
         {/* Header */}
         <div className="p-4 border-b border-neomorphic-border/50">
           <div className="flex items-center gap-3 bg-neomorphic-surface/50 rounded-xl px-3 py-2 border border-neomorphic-border/30 focus-within:border-electric-blue/50 focus-within:ring-2 focus-within:ring-electric-blue/10 transition-all duration-300">
-            <Search className="h-5 w-5 text-slate-500 dark:text-[#8d96a0] stroke-current" />
-            <Input
+            <Search className="h-5 w-5 text-slate-500 dark:text-[#8d96a0] stroke-current flex-shrink-0" />
+            <input
               placeholder="Search messages and files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 border-none bg-transparent text-neomorphic-text placeholder:text-neomorphic-text-secondary focus:ring-0 focus:border-none h-auto p-0 text-base"
+              autoFocus
+              className="flex-1 bg-transparent text-neomorphic-text placeholder:text-neomorphic-text-secondary focus:outline-none focus:ring-0 border-none h-auto p-0 text-base"
             />
             <button
               onClick={onClose}
-              className="p-1 hover:bg-neomorphic-surface rounded-lg transition-colors"
+              className="p-1 hover:bg-neomorphic-surface rounded-lg transition-colors flex-shrink-0"
             >
               <X className="h-5 w-5 text-neomorphic-text" />
             </button>

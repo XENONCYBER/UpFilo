@@ -963,73 +963,9 @@ body,
     color: hsl(var(--electric-blue));
   }
 
-  /* Quill Tooltip / Link Input Dialog Styling */
+  /* Quill Tooltip / Link Input Dialog Styling - Hidden since we use custom inline input */
   .ql-custom .ql-tooltip {
-    background: hsl(var(--neomorphic-surface)) !important;
-    border: 1px solid hsl(var(--neomorphic-border)) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
-    color: hsl(var(--neomorphic-text)) !important;
-    padding: 8px 12px !important;
-    z-index: 1000 !important;
-  }
-
-  .ql-custom .ql-tooltip::before {
-    color: hsl(var(--neomorphic-text)) !important;
-  }
-
-  .ql-custom .ql-tooltip input[type="text"] {
-    background: hsl(var(--neomorphic-bg)) !important;
-    border: 1px solid hsl(var(--neomorphic-border)) !important;
-    border-radius: 6px !important;
-    color: hsl(var(--neomorphic-text)) !important;
-    padding: 6px 10px !important;
-    font-size: 14px !important;
-    outline: none !important;
-    width: 200px !important;
-  }
-
-  .ql-custom .ql-tooltip input[type="text"]:focus {
-    border-color: hsl(var(--electric-blue)) !important;
-    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important;
-  }
-
-  .ql-custom .ql-tooltip input[type="text"]::placeholder {
-    color: hsl(var(--neomorphic-text-secondary)) !important;
-  }
-
-  .ql-custom .ql-tooltip a {
-    color: hsl(var(--electric-blue)) !important;
-    margin-left: 8px !important;
-  }
-
-  .ql-custom .ql-tooltip a:hover {
-    text-decoration: underline !important;
-  }
-
-  .ql-custom .ql-tooltip a.ql-action::after,
-  .ql-custom .ql-tooltip a.ql-remove::before {
-    color: hsl(var(--electric-blue)) !important;
-  }
-
-  .dark .ql-custom .ql-tooltip {
-    background: #161b22 !important;
-    border-color: #30363d !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
-  }
-
-  .dark .ql-custom .ql-tooltip input[type="text"] {
-    background: #0d1117 !important;
-    border-color: #30363d !important;
-    color: #e6edf3 !important;
-  }
-
-  .dark .ql-custom .ql-tooltip input[type="text"]::placeholder {
-    color: #8d96a0 !important;
-  }
-
-  .dark .ql-custom .ql-tooltip::before {
-    color: #e6edf3 !important;
+    display: none !important;
   }
 
   /* Dark mode specific enhancements for Quill */

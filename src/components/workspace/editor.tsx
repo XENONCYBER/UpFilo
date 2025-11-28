@@ -20,6 +20,7 @@ import {
   Archive,
   Code,
   Check,
+  Link,
 } from "lucide-react";
 import { MdSend } from "react-icons/md";
 import { Delta, Op } from "quill/core";
@@ -139,6 +140,13 @@ const Editor = ({
   const [text, setText] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkSelection, setLinkSelection] = useState<{
+    index: number;
+    length: number;
+  } | null>(null);
+  const linkInputRef = useRef<HTMLInputElement>(null);
 
   const workspaceId = useConvexWorkspaceId();
   const { data: allUsers = [] } = useGetAllWorkspaceUsers({
@@ -185,7 +193,7 @@ const Editor = ({
       modules: {
         toolbar: [
           ["bold", "italic", "underline", "strike"],
-          ["link", "code-block"],
+          ["code-block"],
           [{ list: "ordered" }, { list: "bullet" }],
         ],
         mention: {
@@ -285,6 +293,47 @@ const Editor = ({
     }
   };
 
+  const handleLinkClick = () => {
+    if (quillRef.current) {
+      const selection = quillRef.current.getSelection();
+      if (selection && selection.length > 0) {
+        setLinkSelection(selection);
+        setShowLinkInput(true);
+        setTimeout(() => linkInputRef.current?.focus(), 50);
+      } else {
+        // Alert user to select text first
+        alert("Please select some text first to add a link");
+      }
+    }
+  };
+
+  const handleLinkSubmit = () => {
+    if (quillRef.current && linkSelection && linkUrl.trim()) {
+      let url = linkUrl.trim();
+      // Add https:// if no protocol specified
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = "https://" + url;
+      }
+      quillRef.current.formatText(
+        linkSelection.index,
+        linkSelection.length,
+        "link",
+        url
+      );
+      setShowLinkInput(false);
+      setLinkUrl("");
+      setLinkSelection(null);
+      quillRef.current.focus();
+    }
+  };
+
+  const handleLinkCancel = () => {
+    setShowLinkInput(false);
+    setLinkUrl("");
+    setLinkSelection(null);
+    quillRef.current?.focus();
+  };
+
   const isEmpty =
     text.replace(/<(.|\n)*?>/g, "").trim().length === 0 && images.length === 0;
 
@@ -303,7 +352,7 @@ const Editor = ({
         }}
         className="hidden"
       />
-      <div className="flex flex-col border border-neomorphic-border/40 rounded-xl overflow-hidden focus-within:border-electric-blue/40 transition-all duration-200 bg-neomorphic-bg">
+      <div className="flex flex-col border border-neomorphic-border/40 rounded-xl focus-within:border-electric-blue/40 transition-all duration-200 bg-neomorphic-bg">
         <div ref={containerRef} className="h-full ql-custom min-h-[60px]" />
         {images.length > 0 && (
           <div className="p-2 bg-neomorphic-surface/30 border-t border-neomorphic-border/30">
@@ -408,7 +457,41 @@ const Editor = ({
             </div>
           </div>
         )}
-        <div className="flex px-2 py-2 z-[5] gap-x-1 items-center border-t border-neomorphic-border/30 bg-neomorphic-surface/20">
+        <div className="flex px-2 py-2 z-[5] gap-x-1 items-center border-t border-neomorphic-border/30 bg-neomorphic-surface/20 flex-wrap">
+          {/* Link Input - shows inline when adding link */}
+          {showLinkInput && (
+            <div className="flex items-center gap-1 bg-neomorphic-surface/80 rounded-lg px-2 py-1 border border-neomorphic-border/50 mr-2">
+              <Link className="size-3.5 text-electric-blue flex-shrink-0" />
+              <input
+                ref={linkInputRef}
+                type="text"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleLinkSubmit();
+                  } else if (e.key === "Escape") {
+                    handleLinkCancel();
+                  }
+                }}
+                placeholder="Enter URL..."
+                className="bg-transparent border-none outline-none text-sm text-neomorphic-text placeholder:text-neomorphic-text-secondary w-32 sm:w-48"
+              />
+              <button
+                onClick={handleLinkSubmit}
+                className="text-xs px-2 py-0.5 bg-electric-blue text-white rounded hover:bg-electric-blue/80 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={handleLinkCancel}
+                className="p-0.5 hover:bg-neomorphic-surface rounded transition-colors"
+              >
+                <XIcon className="size-3.5 text-neomorphic-text-secondary" />
+              </button>
+            </div>
+          )}
           <button
             disabled={disabled}
             onClick={toogleToolbar}
@@ -428,6 +511,19 @@ const Editor = ({
             title="Mention a user (@)"
           >
             <AtSignIcon className="size-4" />
+          </button>
+          <button
+            disabled={disabled || showLinkInput}
+            onClick={handleLinkClick}
+            className={cn(
+              "p-1.5 rounded-md transition-colors",
+              showLinkInput
+                ? "bg-electric-blue/20 text-electric-blue"
+                : "hover:bg-neomorphic-surface/60 hover:text-electric-blue text-neomorphic-text-secondary"
+            )}
+            title="Add link (select text first)"
+          >
+            <Link className="size-4" />
           </button>
           {variant === "create" && (
             <button
