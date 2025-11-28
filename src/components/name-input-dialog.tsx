@@ -103,7 +103,6 @@ export function NameInputDialog({
                   placeholder="Enter your display name..."
                   className="input-neomorphic h-14 text-base text-neomorphic-text placeholder:text-neomorphic-text-secondary/60 focus:shadow-neomorphic-inset focus:border focus:border-electric-blue/40 rounded-2xl border-0 bg-neomorphic-surface/50"
                   disabled={isLoading}
-                  autoFocus
                 />
                 {/* Neomorphic focus indicator */}
                 {name.trim() && (

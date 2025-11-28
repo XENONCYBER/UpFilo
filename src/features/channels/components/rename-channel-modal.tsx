@@ -114,7 +114,6 @@ export const RenameChannelModal = ({
               onChange={(e) => setName(e.target.value)}
               disabled={isPending}
               required
-              autoFocus
               minLength={1}
               placeholder="Enter channel name..."
               className="glass-input"

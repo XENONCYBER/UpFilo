@@ -142,7 +142,6 @@ export function SearchModal({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 border-none bg-transparent text-neomorphic-text placeholder:text-neomorphic-text-secondary focus:ring-0 focus:border-none h-auto p-0 text-base"
-              autoFocus
             />
             <button
               onClick={onClose}

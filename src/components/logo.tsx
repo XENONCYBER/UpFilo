@@ -29,22 +29,38 @@ export const LogoIcon = ({
         <linearGradient
           id="upfilo-gradient"
           x1="0%"
-          y1="100%"
+          y1="0%"
           x2="100%"
-          y2="0%"
+          y2="100%"
         >
-          <stop offset="0%" style={{ stopColor: "#5865F2", stopOpacity: 1 }} />
+          <stop offset="0%" style={{ stopColor: "#0969da", stopOpacity: 1 }} />
           <stop
             offset="100%"
-            style={{ stopColor: "#00A8E8", stopOpacity: 1 }}
+            style={{ stopColor: "#2da44e", stopOpacity: 1 }}
           />
         </linearGradient>
       </defs>
-      <path
-        d="M 30 35 Q 30 85 50 85 Q 70 85 70 35 L 60 35 Q 60 75 50 75 Q 40 75 40 35 Z"
-        fill="url(#upfilo-gradient)"
-      />
-      <circle cx="75" cy="30" r="7" fill="url(#upfilo-gradient)" />
+      <g fill="url(#upfilo-gradient)">
+        <rect
+          x="15"
+          y="15"
+          width="55"
+          height="55"
+          rx="18"
+          ry="18"
+          opacity="0.85"
+        />
+        <rect
+          x="35"
+          y="35"
+          width="55"
+          height="55"
+          rx="18"
+          ry="18"
+          opacity="0.85"
+        />
+        <circle cx="52.5" cy="52.5" r="14" />
+      </g>
     </svg>
   );
 };

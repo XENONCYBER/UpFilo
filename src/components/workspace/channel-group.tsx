@@ -132,14 +132,55 @@ export const ChannelGroup = ({
   // Helper: session key for this group
   const sessionKey = `userGroupPassword:${id}`;
 
+  // Check if device is mobile/touch
+  const isMobileDevice = () => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.innerWidth < 768 ||
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0
+    );
+  };
+
+  // Handler for mobile password entry using native prompt
+  const handleMobilePasswordEntry = async (channel: Channel) => {
+    const password = window.prompt(
+      "This channel group is protected. Please enter the password:"
+    );
+    if (password === null) return; // User cancelled
+
+    try {
+      const isPasswordCorrect = await verifyPassword(id, password);
+      if (isPasswordCorrect) {
+        sessionStorage.setItem(sessionKey, "verified");
+        onChannelSelect?.(channel);
+      } else {
+        alert("Incorrect password. Please try again.");
+      }
+    } catch (err: any) {
+      alert("An error occurred. Please try again.");
+    }
+  };
+
   // Handler for channel click
   const handleChannelClick = async (channel: Channel) => {
+    // Don't handle click if dialog is already open
+    if (showPasswordDialog) return;
+
     if (type === "user") {
       // Check if password already verified in this session
       if (sessionStorage.getItem(sessionKey) === "verified") {
         onChannelSelect?.(channel);
         return;
       }
+
+      // Use native prompt on mobile devices for better touch support
+      if (isMobileDevice()) {
+        handleMobilePasswordEntry(channel);
+        return;
+      }
+
+      // Use custom dialog on desktop
       setPendingChannel(channel);
       setShowPasswordDialog(true);
     } else {
@@ -275,7 +316,25 @@ export const ChannelGroup = ({
       />
 
       {/* Password Dialog for user-type groups */}
-      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+      <Dialog
+        open={showPasswordDialog}
+        onOpenChange={(open) => {
+          // On mobile, NEVER allow automatic closing - only explicit button clicks
+          const isMobile =
+            typeof window !== "undefined" && window.innerWidth < 768;
+          if (!open && isMobile) {
+            // Block all automatic closes on mobile
+            return;
+          }
+          if (!open) {
+            // Reset state when closing (desktop only gets here)
+            setPasswordInput("");
+            setPasswordError("");
+            setPendingChannel(null);
+          }
+          setShowPasswordDialog(open);
+        }}
+      >
         <DialogContent
           onClose={() => {
             setShowPasswordDialog(false);
@@ -297,7 +356,6 @@ export const ChannelGroup = ({
               placeholder="Password"
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
-              autoFocus
               className="mt-4"
             />
             {passwordError && (

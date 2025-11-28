@@ -12,6 +12,8 @@ import {
   Search,
   User,
   MoreVertical,
+  MessageSquare,
+  X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ChannelSearch } from "./ChannelSearch";
@@ -22,6 +24,7 @@ import { useUserSession } from "./user-session-provider";
 import { Id } from "../../convex/_generated/dataModel";
 import { UploadedFile } from "@/lib/upload";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface Message {
   _id: Id<"messages">;
@@ -49,11 +52,48 @@ export function ChannelView({
 }: ChannelViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileChatExpanded, setIsMobileChatExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatInputContainerRef = useRef<HTMLDivElement>(null);
   const [currentChannelId, setCurrentChannelId] = useState<string>("");
   const [previousMessageCount, setPreviousMessageCount] = useState(0);
   const { userName } = useUserSession();
+
+  // Check for mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Handle click outside to collapse mobile chat
+  useEffect(() => {
+    if (!isMobile || !isMobileChatExpanded) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        chatInputContainerRef.current &&
+        !chatInputContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileChatExpanded(false);
+      }
+    };
+
+    // Add slight delay to prevent immediate close on button click
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMobile, isMobileChatExpanded]);
 
   // Validate channelId before making the query
   const isValidChannelId = channelId && channelId.trim() !== "";
@@ -199,8 +239,13 @@ export function ChannelView({
         className={`flex flex-col h-full ${className}`}
         style={{ maxHeight: "100%" }}
       >
-        {/* Channel Header - Fixed height */}
-        <header className="h-14 min-h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-[#30363d] bg-white/70 dark:bg-[#0d1117]/95 backdrop-blur-xl z-20">
+        {/* Channel Header - Fixed height, fixed on mobile */}
+        <header
+          className={cn(
+            "h-14 min-h-[56px] flex-shrink-0 flex items-center justify-between px-6 border-b border-slate-200/50 dark:border-[#30363d] bg-white/70 dark:bg-[#0d1117]/95 backdrop-blur-xl z-20",
+            isMobile && "sticky top-0"
+          )}
+        >
           <div className="flex items-center gap-3">
             <div className="text-blue-600 dark:text-[#58a6ff] p-1.5 rounded-lg bg-blue-500/10 dark:bg-[#58a6ff]/10">
               {getChannelIcon()}
@@ -332,12 +377,63 @@ export function ChannelView({
         </main>
 
         {/* Message Input - Fixed at bottom, never overlaps */}
-        <footer className="flex-shrink-0 border-t border-slate-200/50 dark:border-[#30363d] bg-white/70 dark:bg-[#0d1117]/95 px-4 py-2">
-          <ChatInput
-            placeholder={`Message ${channelName.length > 15 ? channelName.substring(0, 15) + "..." : "#" + channelName}`}
-            onSendMessage={handleSendMessage}
-            disabled={isSending}
-          />
+        {/* Mobile: Show button to expand, Desktop: Always show full input */}
+        <footer className="flex-shrink-0 border-t border-slate-200/50 dark:border-[#30363d] bg-white/70 dark:bg-[#0d1117]/95">
+          {/* Mobile collapsed state - just a button */}
+          {isMobile && !isMobileChatExpanded && (
+            <div className="px-4 py-3">
+              <button
+                onClick={() => setIsMobileChatExpanded(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-100 dark:bg-[#21262d] hover:bg-slate-200 dark:hover:bg-[#30363d] rounded-xl text-slate-500 dark:text-[#8d96a0] transition-colors"
+              >
+                <MessageSquare className="h-5 w-5" />
+                <span className="text-sm font-medium">
+                  Tap to type a message...
+                </span>
+              </button>
+            </div>
+          )}
+
+          {/* Mobile expanded state - full chat input with close button */}
+          {isMobile && isMobileChatExpanded && (
+            <div
+              ref={chatInputContainerRef}
+              className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-[#0d1117] border-t border-slate-200/50 dark:border-[#30363d] shadow-2xl"
+            >
+              <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200/50 dark:border-[#30363d]">
+                <span className="text-sm font-medium text-slate-600 dark:text-[#8d96a0]">
+                  Message #{channelName}
+                </span>
+                <button
+                  onClick={() => setIsMobileChatExpanded(false)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#21262d] text-slate-500 dark:text-[#8d96a0]"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="px-4 py-2 max-h-[50vh] overflow-y-auto">
+                <ChatInput
+                  placeholder={`Message ${channelName.length > 15 ? channelName.substring(0, 15) + "..." : "#" + channelName}`}
+                  onSendMessage={(content, richContent, replyData) => {
+                    handleSendMessage(content, richContent, replyData);
+                    setIsMobileChatExpanded(false);
+                  }}
+                  disabled={isSending}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Desktop: Always show full input */}
+          {!isMobile && (
+            <div className="px-4 py-2">
+              <ChatInput
+                placeholder={`Message ${channelName.length > 15 ? channelName.substring(0, 15) + "..." : "#" + channelName}`}
+                onSendMessage={handleSendMessage}
+                disabled={isSending}
+              />
+            </div>
+          )}
         </footer>
       </div>
     </ReplyProvider>

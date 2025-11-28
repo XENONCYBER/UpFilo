@@ -78,14 +78,19 @@ export const CreateChannelGroupModal = ({
   };
 
   const Icon = type === "group" ? Layers : Users;
-  const iconColor = type === "group" ? "from-electric-blue to-electric-purple" : "from-electric-purple to-coral-red";
+  const iconColor =
+    type === "group"
+      ? "from-electric-blue to-electric-purple"
+      : "from-electric-purple to-coral-red";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="card-glass border-neomorphic-border/50 backdrop-blur-xl shadow-2xl max-w-md">
         <DialogHeader className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className={`neomorphic-raised w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${iconColor} shadow-lg`}>
+            <div
+              className={`neomorphic-raised w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${iconColor} shadow-lg`}
+            >
               <Icon className="w-6 h-6 text-white drop-shadow-sm" />
             </div>
             <div className="flex-1">
@@ -93,7 +98,9 @@ export const CreateChannelGroupModal = ({
                 Create {type === "group" ? "Group" : "User"} Folder
               </DialogTitle>
               <DialogDescription className="text-neomorphic-text-secondary text-sm mt-1">
-                Organize your {type === "group" ? "group channels" : "user channels"} into folders
+                Organize your{" "}
+                {type === "group" ? "group channels" : "user channels"} into
+                folders
               </DialogDescription>
             </div>
           </div>
@@ -101,7 +108,10 @@ export const CreateChannelGroupModal = ({
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           <div className="space-y-3">
-            <Label htmlFor="name" className="text-sm font-semibold text-neomorphic-text">
+            <Label
+              htmlFor="name"
+              className="text-sm font-semibold text-neomorphic-text"
+            >
               Folder Name
             </Label>
             <Input
@@ -110,7 +120,6 @@ export const CreateChannelGroupModal = ({
               onChange={(e) => setName(e.target.value)}
               disabled={isPending}
               required
-              autoFocus
               minLength={1}
               maxLength={50}
               placeholder={`Enter ${type === "group" ? "group" : "user"} folder name...`}
@@ -120,7 +129,10 @@ export const CreateChannelGroupModal = ({
 
           {type === "user" && (
             <div className="space-y-3">
-              <Label htmlFor="user-folder-password" className="text-sm font-semibold text-neomorphic-text">
+              <Label
+                htmlFor="user-folder-password"
+                className="text-sm font-semibold text-neomorphic-text"
+              >
                 Folder Password
               </Label>
               <Input

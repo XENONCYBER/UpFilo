@@ -488,7 +488,7 @@ export function WorkspaceLayout({
         workspaceName={workspace?.name}
       />
 
-      {/* Top Header - Full Width */}
+      {/* Top Header - Full Width, Fixed on mobile */}
       <WorkspaceHeader
         workspaceName={workspace?.name}
         onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -498,16 +498,39 @@ export function WorkspaceLayout({
         }}
         onSidebarCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         isSidebarCollapsed={sidebarCollapsed}
-        className="w-full z-40"
+        className="w-full z-50"
       />
 
-      {/* Main Layout Area */}
-      <div className="flex flex-1 overflow-hidden relative w-full">
+      {/* Main Layout Area - Add top padding on mobile for fixed header */}
+      <div className="flex flex-1 overflow-hidden relative w-full md:pt-0 pt-14">
         {/* Mobile Backdrop */}
         {isMobile && sidebarOpen && (
           <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 transition-opacity duration-300"
-            onClick={() => setSidebarOpen(false)}
+            onClick={(e) => {
+              // Only close if clicking directly on the backdrop, not on dialogs above it
+              // Also check if a dialog is open (z-index 9999) by checking for dialog elements
+              const dialogElement = document.querySelector(
+                '[class*="z-[9999]"], [class*="z-\\[9999\\]"]'
+              );
+              if (dialogElement) return; // Don't close sidebar if a dialog is open
+
+              if (e.target === e.currentTarget) {
+                setSidebarOpen(false);
+              }
+            }}
+            onTouchEnd={(e) => {
+              // Same for touch events on mobile
+              // Check if a dialog is open
+              const dialogElement = document.querySelector(
+                '[class*="z-[9999]"], [class*="z-\\[9999\\]"]'
+              );
+              if (dialogElement) return; // Don't close sidebar if a dialog is open
+
+              if (e.target === e.currentTarget) {
+                setSidebarOpen(false);
+              }
+            }}
           />
         )}
 
@@ -517,7 +540,7 @@ export function WorkspaceLayout({
           activeSection={activeSection}
           onSectionChange={(section) => {
             setActiveSection(section);
-            if (isMobile) setSidebarOpen(false);
+            // Don't close sidebar on section change - only on channel select
           }}
           onChannelSelect={(channelId, channelType) => {
             handleChannelSelect(channelId, channelType);

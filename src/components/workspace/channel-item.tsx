@@ -103,9 +103,20 @@ export function ChannelItem({
     e.stopPropagation();
   };
 
+  const handleChannelClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick?.(channel);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    // Prevent the touch event from triggering additional click events
+    e.stopPropagation();
+  };
+
   const channelButton = (
     <button
-      onClick={() => onClick?.(channel)}
+      onClick={handleChannelClick}
+      onTouchEnd={handleTouchEnd}
       className={cn(
         "w-full text-left px-2.5 py-1.5 transition-colors group relative rounded-md flex items-center gap-2.5 min-h-[32px] focus:outline-none",
         channel.isActive
