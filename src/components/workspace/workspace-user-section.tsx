@@ -58,7 +58,7 @@ export function WorkspaceUserSection({
           <div className="flex items-center space-x-1 flex-shrink-0">
             <button
               onClick={onLogout}
-              className="flex items-center justify-center h-9 w-9 p-0 rounded-xl bg-neomorphic-surface/50 hover:bg-red-50 dark:hover:bg-red-950/30 border border-transparent hover:border-red-200 dark:hover:border-red-900 text-neomorphic-text-secondary hover:text-coral-red transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
+              className="flex items-center justify-center h-9 w-9 p-0 rounded-xl bg-neomorphic-surface/50 hover:bg-red-50 dark:hover:bg-red-950/30 border border-transparent hover:border-red-200 dark:hover:border-red-900 text-neomorphic-text-secondary hover:text-coral-red transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 mr-2"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />

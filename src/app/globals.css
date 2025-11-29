@@ -334,14 +334,12 @@ body,
   }
 
   .btn-neomorphic:hover {
-    transform: translateY(-2px);
     box-shadow:
       8px 8px 16px hsl(var(--neomorphic-shadow-dark)),
       -8px -8px 16px hsl(var(--neomorphic-shadow-light));
   }
 
   .btn-neomorphic:active {
-    transform: translateY(0);
     box-shadow:
       inset 4px 4px 8px hsl(var(--neomorphic-shadow-dark)),
       inset -4px -4px 8px hsl(var(--neomorphic-shadow-light));
@@ -364,7 +362,6 @@ body,
   .btn-glass:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   }
 
@@ -397,7 +394,6 @@ body,
   }
 
   .btn-primary:hover {
-    transform: translateY(-2px);
     box-shadow:
       0 12px 28px rgba(59, 130, 246, 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -420,7 +416,6 @@ body,
   }
 
   .card-neomorphic:hover {
-    transform: translateY(-4px);
     box-shadow:
       16px 16px 32px hsl(var(--neomorphic-shadow-dark)),
       -16px -16px 32px hsl(var(--neomorphic-shadow-light));
@@ -440,7 +435,6 @@ body,
   .card-glass:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
   }
 

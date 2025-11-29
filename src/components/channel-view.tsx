@@ -42,6 +42,8 @@ interface ChannelViewProps {
   channelName: string;
   channelType?: "text" | "voice" | "announcement" | "private" | "user";
   className?: string;
+  highlightedMessageId?: string | null;
+  onHighlightClear?: () => void;
 }
 
 export function ChannelView({
@@ -49,11 +51,16 @@ export function ChannelView({
   channelName,
   channelType = "text",
   className,
+  highlightedMessageId,
+  onHighlightClear,
 }: ChannelViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileChatExpanded, setIsMobileChatExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [localHighlightedId, setLocalHighlightedId] = useState<string | null>(
+    null
+  );
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatInputContainerRef = useRef<HTMLDivElement>(null);
@@ -196,6 +203,39 @@ export function ChannelView({
     setPreviousMessageCount(transformedMessages.length);
   }, [transformedMessages.length, previousMessageCount]);
 
+  // Handle highlighted message from search
+  useEffect(() => {
+    if (highlightedMessageId && !isLoading && transformedMessages.length > 0) {
+      setLocalHighlightedId(highlightedMessageId);
+
+      // Wait for messages to render, then scroll to the highlighted message
+      setTimeout(() => {
+        const messageElement = document.getElementById(
+          `message-${highlightedMessageId}`
+        );
+        if (messageElement) {
+          messageElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }, 100);
+
+      // Clear highlight after 3 seconds
+      const timeout = setTimeout(() => {
+        setLocalHighlightedId(null);
+        onHighlightClear?.();
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [
+    highlightedMessageId,
+    isLoading,
+    transformedMessages.length,
+    onHighlightClear,
+  ]);
+
   const getChannelIcon = () => {
     switch (channelType) {
       case "voice":
@@ -291,7 +331,27 @@ export function ChannelView({
             isOpen={isSearchOpen}
             onClose={() => setIsSearchOpen(false)}
             onMessageSelect={(messageId) => {
-              console.log("Selected message:", messageId);
+              // Set the local highlighted ID for channel search
+              setLocalHighlightedId(messageId);
+              setIsSearchOpen(false);
+
+              // Scroll to the message
+              setTimeout(() => {
+                const messageElement = document.getElementById(
+                  `message-${messageId}`
+                );
+                if (messageElement) {
+                  messageElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                }
+              }, 100);
+
+              // Clear highlight after 3 seconds
+              setTimeout(() => {
+                setLocalHighlightedId(null);
+              }, 3000);
             }}
           />
         </header>
@@ -357,14 +417,24 @@ export function ChannelView({
                       // Don't group if this message is a reply
                       !(message as any).replyToId
                     : false;
+                  const isHighlighted = localHighlightedId === message._id;
 
                   return (
-                    <MessageBubble
+                    <div
                       key={message._id}
-                      message={message}
-                      currentUserId={userName || undefined}
-                      isGrouped={isGrouped}
-                    />
+                      id={`message-${message._id}`}
+                      className={cn(
+                        "transition-all duration-500 rounded-lg",
+                        isHighlighted &&
+                          "bg-electric-blue/20 ring-2 ring-electric-blue/50 animate-pulse"
+                      )}
+                    >
+                      <MessageBubble
+                        message={message}
+                        currentUserId={userName || undefined}
+                        isGrouped={isGrouped}
+                      />
+                    </div>
                   );
                 })}
                 {/* Extra spacing before scroll target */}

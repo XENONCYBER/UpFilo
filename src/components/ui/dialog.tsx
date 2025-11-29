@@ -192,6 +192,8 @@ export function DialogContent({
       style={{ zIndex: 9999 }}
       onTouchStart={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
     >
       {/* Backdrop */}
       <div

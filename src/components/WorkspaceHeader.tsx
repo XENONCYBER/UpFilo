@@ -69,7 +69,10 @@ export function WorkspaceHeader({
       {/* Center Section: Global Search - Desktop */}
       <div className="flex-1 max-w-xl mx-4 hidden md:block">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-[#8d96a0] stroke-current" />
+          <Search
+            aria-hidden="true"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-[#8d96a0] stroke-current z-10 pointer-events-none"
+          />
           <Input
             placeholder="Search... ⌘K"
             className="pl-9 h-9 text-sm bg-slate-100/80 dark:bg-[#21262d] border-slate-200/50 dark:border-[#30363d] rounded-xl focus:bg-white dark:focus:bg-[#161b22] focus:border-blue-300 dark:focus:border-[#58a6ff]/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-[#58a6ff]/20 transition-all w-full placeholder:text-slate-400 dark:placeholder:text-[#8d96a0] text-slate-800 dark:text-[#e6edf3]"
@@ -90,7 +93,9 @@ export function WorkspaceHeader({
           <Search className="h-5 w-5" />
         </button>
         {/* Theme Toggle */}
-        <ThemeToggle />
+        <div className="p-0.5 rounded-lg bg-white dark:bg-[#161b22] border border-slate-200 dark:border-[#30363d] shadow-[3px_3px_8px_rgba(0,0,0,0.08),-3px_-3px_8px_rgba(255,255,255,0.9)] dark:shadow-[3px_3px_8px_rgba(0,0,0,0.3),-3px_-3px_8px_rgba(255,255,255,0.05)]">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

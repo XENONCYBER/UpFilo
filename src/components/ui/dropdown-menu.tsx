@@ -232,6 +232,7 @@ export function DropdownMenuContent({
   const dropdownContent = (
     <div
       ref={contentRef}
+      role="menu"
       className={cn(
         "fixed min-w-[160px] overflow-hidden rounded-lg p-1",
         "bg-neomorphic-bg",
@@ -246,6 +247,8 @@ export function DropdownMenuContent({
       }}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
       {...props}
     >
       {children}

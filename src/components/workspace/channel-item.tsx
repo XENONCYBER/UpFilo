@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
   Edit,
   Trash,
+  ArrowRight,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -32,6 +33,8 @@ import {
 import { useDeleteChannel } from "@/features/channels/api/use-delete-channel";
 import { useUpdateChannel } from "@/features/channels/api/use-update-channel";
 import { NameInputDialog } from "@/components/name-input-dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Id } from "../../../convex/_generated/dataModel";
 
 interface Channel {
@@ -73,7 +76,9 @@ export function ChannelItem({
 }: ChannelItemProps) {
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const { mutate: deleteChannel } = useDeleteChannel();
+  const [isFinalConfirmOpen, setIsFinalConfirmOpen] = useState(false);
+  const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
+  const { mutate: deleteChannel, isPending: isDeleting } = useDeleteChannel();
   const { mutate: updateChannel } = useUpdateChannel();
 
   const Icon = channel.type === "user" ? User : channelIcons[channel.type];
@@ -89,13 +94,29 @@ export function ChannelItem({
   };
 
   const handleDelete = () => {
-    deleteChannel({
-      id: channel.id as Id<"channels">,
-    });
-    setIsDeleteConfirmOpen(false);
+    deleteChannel(
+      { id: channel.id as Id<"channels"> },
+      {
+        onSuccess: () => {
+          setIsFinalConfirmOpen(false);
+          setIsDeleteConfirmOpen(false);
+          setDeleteConfirmationName("");
+        },
+      }
+    );
   };
 
   const confirmDelete = () => {
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleProceedToFinalConfirm = () => {
+    setIsDeleteConfirmOpen(false);
+    setIsFinalConfirmOpen(true);
+  };
+
+  const handleCancelFinalConfirm = () => {
+    setIsFinalConfirmOpen(false);
     setIsDeleteConfirmOpen(true);
   };
 
@@ -202,29 +223,144 @@ export function ChannelItem({
         description="Enter a new name for this channel"
       />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation Dialog - Step 1: Type Name */}
       <AlertDialog
         open={isDeleteConfirmOpen}
-        onOpenChange={setIsDeleteConfirmOpen}
+        onOpenChange={(open) => {
+          setIsDeleteConfirmOpen(open);
+          if (!open) {
+            setDeleteConfirmationName("");
+          }
+        }}
       >
-        <AlertDialogContent className="card-glass border-neomorphic-border/50 backdrop-blur-xl">
+        <AlertDialogContent className="bg-white dark:bg-[#161b22] border-slate-200 dark:border-[#30363d]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-bold text-neomorphic-text">
+            <AlertDialogTitle className="text-slate-900 dark:text-[#e6edf3] flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 dark:bg-[#f85149]/10 flex items-center justify-center">
+                <Trash className="w-5 h-5 text-red-500 dark:text-[#f85149]" />
+              </div>
               Delete Channel
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-neomorphic-text-secondary">
-              Are you sure you want to delete the channel "{channel.name}"? This
-              action cannot be undone and all messages in this channel will be
-              permanently lost.
+            <AlertDialogDescription asChild>
+              <div className="text-slate-600 dark:text-[#8d96a0]">
+                <p>
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold text-slate-800 dark:text-[#e6edf3]">
+                    "{channel.name}"
+                  </span>
+                  ? This action cannot be undone.
+                </p>
+                <br />
+                <span className="text-red-500 dark:text-[#f85149] font-medium">
+                  This will permanently delete:
+                </span>
+                <ul className="mt-2 ml-4 list-disc text-sm space-y-1">
+                  <li>All messages in this channel</li>
+                  <li>All uploaded files and media</li>
+                </ul>
+
+                {/* Confirmation Input */}
+                <div className="mt-6 space-y-2">
+                  <label className="text-sm font-medium text-slate-700 dark:text-[#c9d1d9]">
+                    Type{" "}
+                    <span className="font-bold text-red-500 dark:text-[#f85149]">
+                      "{channel.name}"
+                    </span>{" "}
+                    to confirm:
+                  </label>
+                  <Input
+                    value={deleteConfirmationName}
+                    onChange={(e) => setDeleteConfirmationName(e.target.value)}
+                    placeholder="Enter channel name..."
+                    className="h-10 bg-slate-100/80 dark:bg-[#21262d] border-slate-200 dark:border-[#30363d] focus:border-red-400 dark:focus:border-[#f85149] focus:ring-red-500/20 dark:focus:ring-[#f85149]/20 text-slate-800 dark:text-[#e6edf3] placeholder:text-slate-400 dark:placeholder:text-[#8d96a0]"
+                  />
+                </div>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="btn-glass">Cancel</AlertDialogCancel>
+            <AlertDialogCancel
+              className="bg-slate-100 dark:bg-[#21262d] hover:bg-slate-200 dark:hover:bg-[#30363d] text-slate-700 dark:text-[#c9d1d9] border-slate-200 dark:border-[#30363d]"
+              onClick={() => {
+                setDeleteConfirmationName("");
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              onClick={handleProceedToFinalConfirm}
+              disabled={deleteConfirmationName !== channel.name}
+              className="bg-red-500 dark:bg-[#f85149] hover:bg-red-600 dark:hover:bg-[#da3633] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex items-center gap-2">
+                <ArrowRight className="w-4 h-4" />
+                Continue
+              </div>
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Channel Final Confirmation Dialog - Step 2 */}
+      <AlertDialog
+        open={isFinalConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setIsFinalConfirmOpen(false);
+          }
+        }}
+      >
+        <AlertDialogContent className="bg-white dark:bg-[#161b22] border-slate-200 dark:border-[#30363d]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-slate-900 dark:text-[#e6edf3] flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 dark:bg-[#f85149]/10 flex items-center justify-center">
+                <Trash className="w-5 h-5 text-red-500 dark:text-[#f85149]" />
+              </div>
+              Final Confirmation
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600 dark:text-[#8d96a0]">
+              <p className="text-base">
+                You are about to{" "}
+                <span className="font-bold text-red-500 dark:text-[#f85149]">
+                  permanently delete
+                </span>{" "}
+                the channel{" "}
+                <span className="font-semibold text-slate-800 dark:text-[#e6edf3]">
+                  "{channel.name}"
+                </span>
+                .
+              </p>
+              <br />
+              <p className="text-sm bg-red-50 dark:bg-[#f85149]/10 border border-red-200 dark:border-[#f85149]/30 rounded-lg p-3 text-red-600 dark:text-[#f85149]">
+                ⚠️ This action is <strong>irreversible</strong>. All messages
+                and files will be permanently lost.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={isDeleting}
+              onClick={handleCancelFinalConfirm}
+              className="bg-slate-100 dark:bg-[#21262d] hover:bg-slate-200 dark:hover:bg-[#30363d] text-slate-700 dark:text-[#c9d1d9] border-slate-200 dark:border-[#30363d]"
+            >
+              Go Back
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl transition-all"
+              disabled={isDeleting}
+              className="bg-red-500 dark:bg-[#f85149] hover:bg-red-600 dark:hover:bg-[#da3633] text-white disabled:opacity-50"
             >
-              Delete Channel
+              {isDeleting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Deleting...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Trash className="w-4 h-4" />
+                  Yes, Delete Channel
+                </div>
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

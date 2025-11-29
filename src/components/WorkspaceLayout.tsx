@@ -31,6 +31,9 @@ export function WorkspaceLayout({
   const [activeSection, setActiveSection] = useState("channels");
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<
+    string | null
+  >(null);
   const [selectedChannel, setSelectedChannel] = useState<{
     id: string;
     type: "group" | "user";
@@ -41,10 +44,16 @@ export function WorkspaceLayout({
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (mobile) {
+
+      // Don't auto-close sidebar on resize if a dialog or menu is open (keyboard opening on mobile triggers resize)
+      const hasOpenDialog = document.querySelector(
+        '[role="dialog"], [role="alertdialog"], [role="menu"], [data-state="open"]'
+      );
+
+      if (mobile && !hasOpenDialog) {
         setSidebarOpen(false);
         setSidebarCollapsed(false);
-      } else {
+      } else if (!mobile) {
         setSidebarOpen(true);
       }
     };
@@ -376,6 +385,8 @@ export function WorkspaceLayout({
             channelId={selectedChannel.id}
             channelName={getChannelName(selectedChannel.id)}
             channelType={selectedChannel.type === "user" ? "user" : "text"}
+            highlightedMessageId={highlightedMessageId}
+            onHighlightClear={() => setHighlightedMessageId(null)}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-[#0d1117] dark:via-[#0d1117] dark:to-[#161b22]">
@@ -509,11 +520,11 @@ export function WorkspaceLayout({
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 transition-opacity duration-300"
             onClick={(e) => {
               // Only close if clicking directly on the backdrop, not on dialogs above it
-              // Also check if a dialog is open (z-index 9999) by checking for dialog elements
-              const dialogElement = document.querySelector(
-                '[class*="z-[9999]"], [class*="z-\\[9999\\]"]'
+              // Check if any dialog/modal/menu is open by looking for common dialog elements
+              const hasOpenDialog = document.querySelector(
+                '[role="dialog"], [role="alertdialog"], [role="menu"], [data-state="open"], .fixed.inset-0.z-\\[9999\\], .fixed.inset-0.z-50'
               );
-              if (dialogElement) return; // Don't close sidebar if a dialog is open
+              if (hasOpenDialog) return; // Don't close sidebar if a dialog/menu is open
 
               if (e.target === e.currentTarget) {
                 setSidebarOpen(false);
@@ -521,11 +532,11 @@ export function WorkspaceLayout({
             }}
             onTouchEnd={(e) => {
               // Same for touch events on mobile
-              // Check if a dialog is open
-              const dialogElement = document.querySelector(
-                '[class*="z-[9999]"], [class*="z-\\[9999\\]"]'
+              // Check if any dialog/modal/menu is open
+              const hasOpenDialog = document.querySelector(
+                '[role="dialog"], [role="alertdialog"], [role="menu"], [data-state="open"], .fixed.inset-0.z-\\[9999\\], .fixed.inset-0.z-50'
               );
-              if (dialogElement) return; // Don't close sidebar if a dialog is open
+              if (hasOpenDialog) return; // Don't close sidebar if a dialog/menu is open
 
               if (e.target === e.currentTarget) {
                 setSidebarOpen(false);
@@ -593,13 +604,8 @@ export function WorkspaceLayout({
           });
           setActiveSection("channels");
           setIsSearchModalOpen(false);
-          // TODO: Scroll to specific message
-          console.log(
-            "Navigate to message:",
-            messageId,
-            "in channel:",
-            channelId
-          );
+          // Scroll to and highlight the specific message
+          setHighlightedMessageId(messageId);
         }}
         onFileSelect={(fileUrl) => {
           // Open file in new tab

@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Plus, MoreHorizontal, Trash, Edit } from "lucide-react";
+import {
+  ChevronDown,
+  Plus,
+  MoreHorizontal,
+  Trash,
+  Edit,
+  ArrowRight,
+} from "lucide-react";
 import { ChannelItem } from "./channel-item";
 import {
   Dialog,
@@ -68,13 +75,16 @@ export const ChannelGroup = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isFinalConfirmOpen, setIsFinalConfirmOpen] = useState(false);
+  const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [pendingChannel, setPendingChannel] = useState<Channel | null>(null);
   const verifyPassword = useVerifyUserGroupPassword();
   const workspaceId = useConvexWorkspaceId();
-  const { mutate: deleteGroup } = useDeleteChannelGroup();
+  const { mutate: deleteGroup, isPending: isDeleting } =
+    useDeleteChannelGroup();
   const { mutate: createChannel } = useCreateChannel();
   const { mutate: updateGroup } = useUpdateChannelGroup();
 
@@ -121,11 +131,29 @@ export const ChannelGroup = ({
   };
 
   const onDelete = () => {
-    deleteGroup({ groupId: id });
-    setIsDeleteConfirmOpen(false);
+    deleteGroup(
+      { groupId: id },
+      {
+        onSuccess: () => {
+          setIsFinalConfirmOpen(false);
+          setIsDeleteConfirmOpen(false);
+          setDeleteConfirmationName("");
+        },
+      }
+    );
   };
 
   const confirmDelete = () => {
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleProceedToFinalConfirm = () => {
+    setIsDeleteConfirmOpen(false);
+    setIsFinalConfirmOpen(true);
+  };
+
+  const handleCancelFinalConfirm = () => {
+    setIsFinalConfirmOpen(false);
     setIsDeleteConfirmOpen(true);
   };
 
@@ -382,33 +410,155 @@ export const ChannelGroup = ({
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation Dialog - Step 1: Type Name */}
       <AlertDialog
         open={isDeleteConfirmOpen}
-        onOpenChange={setIsDeleteConfirmOpen}
+        onOpenChange={(open) => {
+          setIsDeleteConfirmOpen(open);
+          if (!open) {
+            setDeleteConfirmationName("");
+          }
+        }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white dark:bg-[#161b22] border-slate-200 dark:border-[#30363d]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Channel Group</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete the group "{name}"?
-              {channels && channels.length > 0 && (
-                <>
-                  <br />
-                  <br />
-                  This will delete the group but keep all {channels.length}{" "}
-                  channel(s) as ungrouped channels.
-                </>
-              )}
+            <AlertDialogTitle className="text-slate-900 dark:text-[#e6edf3] flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 dark:bg-[#f85149]/10 flex items-center justify-center">
+                <Trash className="w-5 h-5 text-red-500 dark:text-[#f85149]" />
+              </div>
+              Delete Channel Group
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="text-slate-600 dark:text-[#8d96a0]">
+                <p>
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold text-slate-800 dark:text-[#e6edf3]">
+                    "{name}"
+                  </span>
+                  ? This action cannot be undone.
+                </p>
+                {channels && channels.length > 0 && (
+                  <>
+                    <br />
+                    <span className="text-amber-600 dark:text-amber-400 font-medium">
+                      Note:
+                    </span>{" "}
+                    This will delete the group but keep all {channels.length}{" "}
+                    channel(s) as ungrouped channels.
+                  </>
+                )}
+                <br />
+                <br />
+                <span className="text-red-500 dark:text-[#f85149] font-medium">
+                  This will permanently delete:
+                </span>
+                <ul className="mt-2 ml-4 list-disc text-sm space-y-1">
+                  <li>The channel group organization</li>
+                  <li>Group settings and configuration</li>
+                </ul>
+
+                {/* Confirmation Input */}
+                <div className="mt-6 space-y-2">
+                  <label className="text-sm font-medium text-slate-700 dark:text-[#c9d1d9]">
+                    Type{" "}
+                    <span className="font-bold text-red-500 dark:text-[#f85149]">
+                      "{name}"
+                    </span>{" "}
+                    to confirm:
+                  </label>
+                  <Input
+                    value={deleteConfirmationName}
+                    onChange={(e) => setDeleteConfirmationName(e.target.value)}
+                    placeholder="Enter group name..."
+                    className="h-10 bg-slate-100/80 dark:bg-[#21262d] border-slate-200 dark:border-[#30363d] focus:border-red-400 dark:focus:border-[#f85149] focus:ring-red-500/20 dark:focus:ring-[#f85149]/20 text-slate-800 dark:text-[#e6edf3] placeholder:text-slate-400 dark:placeholder:text-[#8d96a0]"
+                  />
+                </div>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel
+              className="bg-slate-100 dark:bg-[#21262d] hover:bg-slate-200 dark:hover:bg-[#30363d] text-slate-700 dark:text-[#c9d1d9] border-slate-200 dark:border-[#30363d]"
+              onClick={() => {
+                setDeleteConfirmationName("");
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              onClick={handleProceedToFinalConfirm}
+              disabled={deleteConfirmationName !== name}
+              className="bg-red-500 dark:bg-[#f85149] hover:bg-red-600 dark:hover:bg-[#da3633] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex items-center gap-2">
+                <ArrowRight className="w-4 h-4" />
+                Continue
+              </div>
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Group Final Confirmation Dialog - Step 2 */}
+      <AlertDialog
+        open={isFinalConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setIsFinalConfirmOpen(false);
+          }
+        }}
+      >
+        <AlertDialogContent className="bg-white dark:bg-[#161b22] border-slate-200 dark:border-[#30363d]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-slate-900 dark:text-[#e6edf3] flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 dark:bg-[#f85149]/10 flex items-center justify-center">
+                <Trash className="w-5 h-5 text-red-500 dark:text-[#f85149]" />
+              </div>
+              Final Confirmation
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600 dark:text-[#8d96a0]">
+              <p className="text-base">
+                You are about to{" "}
+                <span className="font-bold text-red-500 dark:text-[#f85149]">
+                  permanently delete
+                </span>{" "}
+                the channel group{" "}
+                <span className="font-semibold text-slate-800 dark:text-[#e6edf3]">
+                  "{name}"
+                </span>
+                .
+              </p>
+              <br />
+              <p className="text-sm bg-red-50 dark:bg-[#f85149]/10 border border-red-200 dark:border-[#f85149]/30 rounded-lg p-3 text-red-600 dark:text-[#f85149]">
+                ⚠️ This action is <strong>irreversible</strong>. The group
+                organization will be permanently deleted.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={isDeleting}
+              onClick={handleCancelFinalConfirm}
+              className="bg-slate-100 dark:bg-[#21262d] hover:bg-slate-200 dark:hover:bg-[#30363d] text-slate-700 dark:text-[#c9d1d9] border-slate-200 dark:border-[#30363d]"
+            >
+              Go Back
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={onDelete}
-              className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+              disabled={isDeleting}
+              className="bg-red-500 dark:bg-[#f85149] hover:bg-red-600 dark:hover:bg-[#da3633] text-white disabled:opacity-50"
             >
-              Delete Group
+              {isDeleting ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Deleting...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Trash className="w-4 h-4" />
+                  Yes, Delete Group
+                </div>
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
