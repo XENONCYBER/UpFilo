@@ -180,6 +180,23 @@ export const isAudioFile = (type: string): boolean => {
   return type.startsWith('audio/');
 };
 
+export const isPDFFile = (type: string, name?: string): boolean => {
+  return type === 'application/pdf' || name?.toLowerCase().endsWith('.pdf') || false;
+};
+
+export const isTextFile = (type: string, name?: string): boolean => {
+  if (type.startsWith('text/')) return true;
+  if (type === 'application/json' || type === 'application/xml') return true;
+  
+  const textExtensions = ['.txt', '.md', '.json', '.xml', '.csv'];
+  if (name) {
+    const lowerName = name.toLowerCase();
+    return textExtensions.some(ext => lowerName.endsWith(ext));
+  }
+  
+  return false;
+};
+
 export const validateFileSize = (file: File, maxSizeMB = 100): boolean => {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   return file.size <= maxSizeBytes;
@@ -202,6 +219,10 @@ export const validateFileType = (file: File, allowedTypes?: string[]): boolean =
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'text/plain',
     'text/csv',
+    'text/markdown',
+    'application/json',
+    'application/xml',
+    'text/xml',
   ];
 
   const typesToCheck = allowedTypes || defaultAllowedTypes;
