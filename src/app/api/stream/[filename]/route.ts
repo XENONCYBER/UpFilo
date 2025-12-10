@@ -82,6 +82,21 @@ export async function GET(
         case 'pdf':
           contentType = 'application/pdf';
           break;
+        case 'txt':
+          contentType = 'text/plain';
+          break;
+        case 'md':
+          contentType = 'text/markdown';
+          break;
+        case 'json':
+          contentType = 'application/json';
+          break;
+        case 'xml':
+          contentType = 'application/xml';
+          break;
+        case 'csv':
+          contentType = 'text/csv';
+          break;
       }
       
       // Set appropriate headers
@@ -93,7 +108,8 @@ export async function GET(
       if (contentType.startsWith('image/') || 
           contentType.startsWith('video/') || 
           contentType.startsWith('audio/') ||
-          contentType === 'application/pdf') {
+          contentType === 'application/pdf' ||
+          contentType.startsWith('text/')) {
         headers.set('Content-Disposition', `inline; filename="${displayFilename}"`);
       } else {
         headers.set('Content-Disposition', `attachment; filename="${displayFilename}"`);

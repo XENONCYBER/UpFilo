@@ -19,7 +19,6 @@ import {
 import { cn } from "@/lib/utils";
 import { getUserColor, getUserInitials } from "@/lib/user-colors";
 import { Id } from "../../../convex/_generated/dataModel";
-import { PDFViewer } from "@/components/PDFViewer";
 import { Mention, useMentionParser } from "./mentions";
 import { useReply } from "../ReplyProvider";
 import { useState, useRef, useEffect } from "react";
@@ -453,6 +452,29 @@ export function MessageBubble({
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-red-500/10 to-orange-500/10">
                         <FileText className="h-8 w-8 text-red-500 opacity-80" />
                       </div>
+                    ) : attachment.type === "text/plain" ||
+                      attachment.name.toLowerCase().endsWith(".txt") ||
+                      attachment.name.toLowerCase().endsWith(".md") ||
+                      attachment.name.toLowerCase().endsWith(".json") ||
+                      attachment.name.toLowerCase().endsWith(".xml") ||
+                      attachment.name.toLowerCase().endsWith(".csv") ? (
+                      <div
+                        className="h-full w-full cursor-pointer transition-transform duration-300 group-hover/attachment:scale-105 bg-white dark:bg-[#0d1117] p-2 overflow-hidden"
+                        onClick={() => window.open(attachment.url, "_blank")}
+                      >
+                        <div className="h-full w-full text-[6px] leading-tight text-slate-600 dark:text-slate-400 font-mono opacity-60">
+                          {/* Text file preview placeholder */}
+                          <div className="space-y-0.5">
+                            <div className="h-1 bg-slate-300 dark:bg-slate-600 w-full rounded"></div>
+                            <div className="h-1 bg-slate-300 dark:bg-slate-600 w-4/5 rounded"></div>
+                            <div className="h-1 bg-slate-300 dark:bg-slate-600 w-full rounded"></div>
+                            <div className="h-1 bg-slate-300 dark:bg-slate-600 w-3/4 rounded"></div>
+                            <div className="h-1 bg-slate-300 dark:bg-slate-600 w-full rounded"></div>
+                            <div className="h-1 bg-slate-300 dark:bg-slate-600 w-2/3 rounded"></div>
+                            <div className="h-1 bg-slate-300 dark:bg-slate-600 w-full rounded"></div>
+                          </div>
+                        </div>
+                      </div>
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
                         <File className="h-8 w-8 text-blue-500 opacity-80" />
@@ -485,7 +507,15 @@ export function MessageBubble({
                           <line x1="12" x2="12" y1="15" y2="3" />
                         </svg>
                       </a>
-                      {attachment.type.startsWith("image/") && (
+                      {(attachment.type.startsWith("image/") ||
+                        attachment.type === "application/pdf" ||
+                        attachment.name.toLowerCase().endsWith(".pdf") ||
+                        attachment.type === "text/plain" ||
+                        attachment.name.toLowerCase().endsWith(".txt") ||
+                        attachment.name.toLowerCase().endsWith(".md") ||
+                        attachment.name.toLowerCase().endsWith(".json") ||
+                        attachment.name.toLowerCase().endsWith(".xml") ||
+                        attachment.name.toLowerCase().endsWith(".csv")) && (
                         <button
                           onClick={() => window.open(attachment.url, "_blank")}
                           className="rounded-full bg-white/10 p-1.5 text-white backdrop-blur-md transition-colors hover:bg-white/20"
@@ -523,6 +553,13 @@ export function MessageBubble({
                       ) : attachment.type === "application/pdf" ||
                         attachment.name.toLowerCase().endsWith(".pdf") ? (
                         <FileText className="h-3.5 w-3.5 text-red-500" />
+                      ) : attachment.type === "text/plain" ||
+                        attachment.name.toLowerCase().endsWith(".txt") ||
+                        attachment.name.toLowerCase().endsWith(".md") ||
+                        attachment.name.toLowerCase().endsWith(".json") ||
+                        attachment.name.toLowerCase().endsWith(".xml") ||
+                        attachment.name.toLowerCase().endsWith(".csv") ? (
+                        <FileText className="h-3.5 w-3.5 text-blue-500" />
                       ) : (
                         <File className="h-3.5 w-3.5 text-slate-500 dark:text-[#8d96a0]" />
                       )}

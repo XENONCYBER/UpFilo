@@ -135,32 +135,36 @@ export function ChannelItem({
   };
 
   const channelButton = (
-    <button
-      onClick={handleChannelClick}
-      onTouchEnd={handleTouchEnd}
+    <div
       className={cn(
-        "w-full text-left px-2.5 py-1.5 transition-colors group relative rounded-md flex items-center gap-2.5 min-h-[32px] focus:outline-none",
+        "w-full text-left px-2.5 py-1.5 transition-colors group relative rounded-md flex items-center gap-2.5 min-h-[32px]",
         channel.isActive
           ? "bg-electric-blue/10 text-electric-blue font-medium border-l-2 border-electric-blue"
           : "text-neomorphic-text-secondary hover:text-neomorphic-text hover:bg-neomorphic-surface/50",
         className
       )}
     >
-      <Icon
-        className={cn(
-          "h-3.5 w-3.5 flex-shrink-0 transition-colors",
-          channel.isActive ? "text-electric-blue" : iconStyle
-        )}
-      />
-
-      <span
-        className={cn(
-          "text-sm transition-colors flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap",
-          channel.isActive && "font-medium"
-        )}
+      <button
+        onClick={handleChannelClick}
+        onTouchEnd={handleTouchEnd}
+        className="flex items-center gap-2.5 flex-1 min-w-0 focus:outline-none"
       >
-        {channel.name}
-      </span>
+        <Icon
+          className={cn(
+            "h-3.5 w-3.5 flex-shrink-0 transition-colors",
+            channel.isActive ? "text-electric-blue" : iconStyle
+          )}
+        />
+
+        <span
+          className={cn(
+            "text-sm transition-colors flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap",
+            channel.isActive && "font-medium"
+          )}
+        >
+          {channel.name}
+        </span>
+      </button>
 
       {/* 3-dot menu */}
       {showMenu && (
@@ -204,7 +208,7 @@ export function ChannelItem({
           </DropdownMenu>
         </div>
       )}
-    </button>
+    </div>
   );
 
   return (

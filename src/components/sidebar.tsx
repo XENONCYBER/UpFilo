@@ -203,32 +203,32 @@ export function Sidebar({
 
             {/* Channels Section */}
             <div className="pt-4">
-              <button
-                onClick={() => setChannelsExpanded(!channelsExpanded)}
-                className="w-full flex items-center justify-between px-2.5 py-1 group"
-              >
-                <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8d96a0] uppercase tracking-wider">
-                  Channels
-                </span>
-                <div className="flex items-center gap-0.5">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCreateGroupModalOpen(true);
-                    }}
-                    className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-[#21262d] text-slate-400 dark:text-[#8d96a0] hover:text-blue-500 dark:hover:text-[#58a6ff] transition-all"
-                    title="Add Channel"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
+              <div className="w-full flex items-center justify-between px-2.5 py-1 group">
+                <button
+                  onClick={() => setChannelsExpanded(!channelsExpanded)}
+                  className="flex items-center gap-1"
+                >
+                  <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8d96a0] uppercase tracking-wider">
+                    Channels
+                  </span>
                   <ChevronDown
                     className={cn(
                       "h-3 w-3 text-slate-400 dark:text-[#8d96a0] transition-transform",
                       !channelsExpanded && "-rotate-90"
                     )}
                   />
-                </div>
-              </button>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCreateGroupModalOpen(true);
+                  }}
+                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-[#21262d] text-slate-400 dark:text-[#8d96a0] hover:text-blue-500 dark:hover:text-[#58a6ff] transition-all"
+                  title="Add Channel"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
 
               {channelsExpanded && (
                 <div className="mt-0.5 space-y-px">
@@ -264,32 +264,32 @@ export function Sidebar({
 
             {/* Direct Messages Section */}
             <div className="pt-4">
-              <button
-                onClick={() => setDmsExpanded(!dmsExpanded)}
-                className="w-full flex items-center justify-between px-2.5 py-1 group"
-              >
-                <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8d96a0] uppercase tracking-wider">
-                  User Channels
-                </span>
-                <div className="flex items-center gap-0.5">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCreateUserModalOpen(true);
-                    }}
-                    className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-[#21262d] text-slate-400 dark:text-[#8d96a0] hover:text-indigo-500 dark:hover:text-[#a371f7] transition-all"
-                    title="Add Direct Message"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
+              <div className="w-full flex items-center justify-between px-2.5 py-1 group">
+                <button
+                  onClick={() => setDmsExpanded(!dmsExpanded)}
+                  className="flex items-center gap-1"
+                >
+                  <span className="text-[10px] font-semibold text-slate-400 dark:text-[#8d96a0] uppercase tracking-wider">
+                    User Channels
+                  </span>
                   <ChevronDown
                     className={cn(
                       "h-3 w-3 text-slate-400 dark:text-[#8d96a0] transition-transform",
                       !dmsExpanded && "-rotate-90"
                     )}
                   />
-                </div>
-              </button>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCreateUserModalOpen(true);
+                  }}
+                  className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-[#21262d] text-slate-400 dark:text-[#8d96a0] hover:text-indigo-500 dark:hover:text-[#a371f7] transition-all"
+                  title="Add Direct Message"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
 
               {dmsExpanded && (
                 <div className="mt-0.5 space-y-px">
