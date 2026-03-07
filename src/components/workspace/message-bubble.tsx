@@ -15,6 +15,7 @@ import {
   Pencil,
   Trash2,
   X,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getUserColor, getUserInitials } from "@/lib/user-colors";
@@ -25,6 +26,9 @@ import { useState, useRef, useEffect } from "react";
 import { useEditMessage } from "@/features/messages/api/use-edit-message";
 import { useDeleteMessage } from "@/features/messages/api/use-delete-message";
 import { toast } from "sonner";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "next-themes";
 
 interface RichContent {
   type?: "rich";
@@ -60,6 +64,58 @@ interface MessageBubbleProps {
   currentUserId?: string;
   isGrouped?: boolean; // True if this is a continuation message from the same user
 }
+
+const CodeBlock = ({ content }: { content: string }) => {
+  const [copied, setCopied] = useState(false);
+  const { theme } = useTheme();
+
+  const onCopy = () => {
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="flex flex-col my-2 rounded-lg border border-neomorphic-border/40 overflow-hidden bg-neomorphic-surface/60 dark:bg-[#161b22]">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-neomorphic-bg/50 border-b border-neomorphic-border/40 relative z-10">
+        <span className="text-[10px] text-neomorphic-text-secondary uppercase tracking-wider font-semibold">Code</span>
+        <button
+          onClick={onCopy}
+          className="flex items-center gap-1.5 text-xs text-neomorphic-text-secondary hover:text-electric-blue transition-colors px-2 py-1 rounded-md hover:bg-neomorphic-surface focus:outline-none z-10"
+          title="Copy code"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3.5 w-3.5 text-soft-green" />
+              <span className="text-soft-green font-medium">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="h-3.5 w-3.5" />
+              <span className="font-medium">Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <div className={cn("overflow-x-auto text-[13px]", theme === "dark" || theme === "system" ? "bg-[#1e1e1e]" : "bg-white")}>
+        <SyntaxHighlighter
+          language="typescript" // Defaulting to typescript, but ideally autodetected
+          style={theme === "dark" || theme === "system" ? vscDarkPlus : vs}
+          customStyle={{
+            margin: 0,
+            padding: "1rem",
+            background: "transparent",
+            fontSize: "13px",
+            lineHeight: "1.5",
+          }}
+          wrapLines={true}
+        >
+          {content}
+        </SyntaxHighlighter>
+      </div>
+    </div>
+  );
+};
 
 export function MessageBubble({
   message,
@@ -167,95 +223,89 @@ export function MessageBubble({
 
   // Process delta ops into structured blocks (code blocks, lists, paragraphs)
   const processDeltaOps = (ops: any[]) => {
+    const lines: { ops: any[]; attributes: any }[] = [];
+    let currentLineOps: any[] = [];
+
+    // First pass: break ops into lines
+    ops.forEach((op) => {
+      if (typeof op.insert !== "string") {
+        currentLineOps.push(op);
+        return;
+      }
+
+      const text = op.insert;
+      let start = 0;
+      let newlineIndex = text.indexOf("\n");
+
+      while (newlineIndex !== -1) {
+        const lineText = text.substring(start, newlineIndex);
+        if (lineText.length > 0) {
+          currentLineOps.push({ ...op, insert: lineText });
+        }
+
+        lines.push({
+          ops: currentLineOps,
+          attributes: op.attributes || {},
+        });
+
+        currentLineOps = [];
+        start = newlineIndex + 1;
+        newlineIndex = text.indexOf("\n", start);
+      }
+
+      const remainingText = text.substring(start);
+      if (remainingText.length > 0) {
+        currentLineOps.push({ ...op, insert: remainingText });
+      }
+    });
+
+    if (currentLineOps.length > 0) {
+      lines.push({ ops: currentLineOps, attributes: {} });
+    }
+
+    // Second pass: group lines into blocks
     const result: any[] = [];
     let i = 0;
 
-    while (i < ops.length) {
-      const op = ops[i];
-      const nextOp = ops[i + 1];
+    while (i < lines.length) {
+      const line = lines[i];
 
-      // Check if this text is followed by a special newline (code-block or list)
-      if (
-        typeof op.insert === "string" &&
-        nextOp &&
-        typeof nextOp.insert === "string" &&
-        nextOp.insert === "\n" &&
-        nextOp.attributes
-      ) {
-        const nextAttrs = nextOp.attributes;
-
-        // Handle code blocks
-        if (nextAttrs["code-block"]) {
-          const codeLines: string[] = [op.insert];
-          i += 2;
-
-          // Collect consecutive code block lines
-          while (i < ops.length) {
-            const currentOp = ops[i];
-            const followingOp = ops[i + 1];
-
-            if (
-              typeof currentOp.insert === "string" &&
-              followingOp &&
-              typeof followingOp.insert === "string" &&
-              followingOp.insert === "\n" &&
-              followingOp.attributes?.["code-block"]
-            ) {
-              codeLines.push(currentOp.insert);
-              i += 2;
-            } else {
-              break;
-            }
-          }
-
-          result.push({
-            type: "code-block",
-            content: codeLines.join("\n"),
-          });
-          continue;
+      if (line.attributes["code-block"]) {
+        const codeLines: string[] = [];
+        while (i < lines.length && lines[i].attributes["code-block"]) {
+          const lineText = lines[i].ops.map((o) => o.insert).join("");
+          codeLines.push(lineText);
+          i++;
         }
-
-        // Handle lists (ordered or unordered)
-        if (nextAttrs.list) {
-          const listType = nextAttrs.list; // "ordered" or "bullet"
-          const listItems: { content: string; attrs: any }[] = [
-            { content: op.insert, attrs: op.attributes || {} },
-          ];
-          i += 2;
-
-          // Collect consecutive list items of the same type
-          while (i < ops.length) {
-            const currentOp = ops[i];
-            const followingOp = ops[i + 1];
-
-            if (
-              typeof currentOp.insert === "string" &&
-              followingOp &&
-              typeof followingOp.insert === "string" &&
-              followingOp.insert === "\n" &&
-              followingOp.attributes?.list === listType
-            ) {
-              listItems.push({
-                content: currentOp.insert,
-                attrs: currentOp.attributes || {},
-              });
-              i += 2;
-            } else {
-              break;
-            }
-          }
-
-          result.push({
-            type: "list",
-            listType: listType,
-            items: listItems,
-          });
-          continue;
-        }
+        result.push({
+          type: "code-block",
+          content: codeLines.join("\n"),
+        });
+        continue;
       }
 
-      // Regular op - pass through with formatting info
-      result.push({ type: "regular", op });
+      if (line.attributes.list) {
+        const listType = line.attributes.list;
+        const listItems: { content: any[]; attrs: any }[] = [];
+        while (i < lines.length && lines[i].attributes.list === listType) {
+          listItems.push({
+            content: lines[i].ops,
+            attrs: lines[i].attributes,
+          });
+          i++;
+        }
+        result.push({
+          type: "list",
+          listType,
+          items: listItems,
+        });
+        continue;
+      }
+
+      result.push({
+        type: "paragraph",
+        ops: line.ops,
+      });
       i++;
     }
 
@@ -318,17 +368,21 @@ export function MessageBubble({
   // Render a processed block
   const renderBlock = (block: any, index: number): React.ReactNode => {
     if (block.type === "code-block") {
-      return (
-        <pre
-          key={`codeblock-${index}`}
-          className="bg-neomorphic-surface/60 dark:bg-[#161b22] border border-neomorphic-border/40 rounded-lg p-2.5 my-1 overflow-x-auto font-mono text-sm"
-        >
-          <code className="text-neomorphic-text whitespace-pre">
-            {block.content}
-          </code>
-        </pre>
-      );
+      return <CodeBlock key={`codeblock-${index}`} content={block.content} />;
     }
+
+    const renderOps = (ops: any[], parentKey: string) => {
+      return ops.map((op, i) => {
+        if (typeof op.insert === "string") {
+          return applyInlineFormatting(
+            op.insert,
+            op.attributes || {},
+            `${parentKey}-${i}`
+          );
+        }
+        return null;
+      });
+    };
 
     if (block.type === "list") {
       const ListTag = block.listType === "ordered" ? "ol" : "ul";
@@ -341,30 +395,22 @@ export function MessageBubble({
         <ListTag key={`list-${index}`} className={listClass}>
           {block.items.map((item: any, itemIndex: number) => (
             <li key={`li-${index}-${itemIndex}`} className="pl-1">
-              {applyInlineFormatting(
-                item.content,
-                item.attrs,
-                `li-content-${index}-${itemIndex}`
-              )}
+              {renderOps(item.content, `li-content-${index}-${itemIndex}`)}
             </li>
           ))}
         </ListTag>
       );
     }
 
-    if (block.type === "regular") {
-      const op = block.op;
-      if (typeof op.insert !== "string") return null;
-
-      const text = op.insert;
-      const attrs = op.attributes || {};
-
-      // Skip standalone list/code-block newlines
-      if (text === "\n" && (attrs["code-block"] || attrs.list)) {
-        return null;
+    if (block.type === "paragraph") {
+      if (block.ops.length === 0) {
+        return <div key={`p-${index}`} className="h-4" />;
       }
-
-      return applyInlineFormatting(text, attrs, `regular-${index}`);
+      return (
+        <div key={`p-${index}`} className="min-h-[20px]">
+          {renderOps(block.ops, `p-${index}`)}
+        </div>
+      );
     }
 
     return null;

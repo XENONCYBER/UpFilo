@@ -138,6 +138,8 @@ const Editor = ({
   uploadProgress = [],
 }: editorProps) => {
   const [text, setText] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
   const [images, setImages] = useState<File[]>([]);
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -207,6 +209,14 @@ const Editor = ({
             enter: {
               key: "Enter",
               handler: () => {
+                const selection = quill.getSelection();
+                if (selection) {
+                  const format = quill.getFormat(selection);
+                  if (format["code-block"]) {
+                    return true; // Let Quill handle newlines in code blocks natively
+                  }
+                }
+
                 const text = quill.getText();
                 const currentImages = imagesRef.current;
 
@@ -334,6 +344,45 @@ const Editor = ({
     quillRef.current?.focus();
   };
 
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current++;
+    if (disabled) return;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      if (Array.from(e.dataTransfer.items).some((item) => item.kind === "file")) {
+        setIsDragging(true);
+      }
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current--;
+    if (dragCounter.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragging(false);
+    if (disabled) return;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      setImages((prev) => [...prev, ...newFiles]);
+    }
+  };
+
   const isEmpty =
     text.replace(/<(.|\n)*?>/g, "").trim().length === 0 && images.length === 0;
 
@@ -352,7 +401,30 @@ const Editor = ({
         }}
         className="hidden"
       />
-      <div className="flex flex-col border border-neomorphic-border/40 rounded-xl focus-within:border-electric-blue/40 transition-all duration-200 bg-neomorphic-bg">
+      <div
+        className={cn(
+          "flex flex-col border border-neomorphic-border/40 rounded-xl transition-all duration-200 bg-neomorphic-bg relative",
+          isDragging
+            ? "border-electric-blue ring-2 ring-electric-blue/20"
+            : "focus-within:border-electric-blue/40"
+        )}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-neomorphic-bg/80 backdrop-blur-sm pointer-events-none rounded-xl">
+            <div className="flex flex-col items-center gap-3 text-electric-blue p-6 rounded-xl border-2 border-dashed border-electric-blue/50 bg-electric-blue/5">
+              <div className="p-3 bg-electric-blue/10 rounded-full animate-bounce">
+                <ImageIcon className="size-8" />
+              </div>
+              <p className="font-semibold text-sm">
+                Drop files to attach to message
+              </p>
+            </div>
+          </div>
+        )}
         <div ref={containerRef} className="h-full ql-custom min-h-[60px]" />
         {images.length > 0 && (
           <div className="p-2 bg-neomorphic-surface/30 border-t border-neomorphic-border/30">
