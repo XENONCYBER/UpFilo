@@ -231,7 +231,6 @@ The main web application relies on environment variables for Convex and Backblaz
 
 ## Contributing
 
-There is no `CONTRIBUTING.md` in this repository. A practical workflow is:
 
 1. Create a branch for your change.
 2. Install dependencies with `npm install`.
@@ -241,14 +240,5 @@ There is no `CONTRIBUTING.md` in this repository. A practical workflow is:
 
 When changing Convex data models or server functions, review `convex/schema.ts` and the related functions in `convex/` together.
 
-## License
 
-No license file is present in this repository.
 
-## Support
-
-Use the GitHub repository to report bugs, request features, or discuss changes:
-
-```text
-https://github.com/XENONCYBER/UpFilo
-```
